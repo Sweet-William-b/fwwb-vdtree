@@ -32,8 +32,9 @@ state-of-the-art performance in training-free settings while drastically reducin
 the number of sampled video segments. 
 
 # Progress
+- Future Plan: Clearer code structure and comments.
 - [x] `2025-11-30` Experimental results released. 
-- [x] `2025-11-27` All code released. 
+- [x] `2025-11-27` Code released. 
 - [x] `2025-09-19` Paper accepted at NeurIPS 2025. 
 
 # Datasets preparation

@@ -13,17 +13,13 @@ numpy>=1.19
 matplotlib
 types-regex
 cartopy
-
 pre-commit
 scikit-learn
 faiss-cpu
 opencv-python
-
 fairscale
 fire
 sentencepiece
-
 transformers==4.31.0
 accelerate
-
 mayavi
