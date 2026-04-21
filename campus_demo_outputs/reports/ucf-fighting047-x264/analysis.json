@@ -1,0 +1,69 @@
+{
+  "summary": {
+    "dataset_name": "ucf",
+    "dataset_display_name": "UCF-Crime",
+    "video_name": "Fighting047_x264.mp4",
+    "video_stem": "Fighting047_x264",
+    "video_path": "/home/zh-star/rspace/VADTree/UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4",
+    "source_class": "Fighting",
+    "campus_label": "打架斗殴",
+    "headline": "多人发生明显肢体冲突，属于校园高风险异常行为。",
+    "event_count": 1,
+    "peak_score": 0.4049,
+    "mean_score": 0.2385,
+    "threshold": 0.3445,
+    "high_threshold": 0.4049,
+    "roc_auc": 0.9704,
+    "pr_auc": 0.9384,
+    "pos_mean": 0.3374,
+    "neg_mean": 0.1814,
+    "fps": 30.0,
+    "clip_mode": "fragment_only"
+  },
+  "events": [
+    {
+      "event_id": "evt_0001",
+      "start_frame": 903,
+      "end_frame": 1576,
+      "start_sec": 30.1,
+      "end_sec": 52.53,
+      "duration_sec": 22.47,
+      "peak_frame": 1144,
+      "peak_score": 0.4049,
+      "mean_score": 0.3906,
+      "risk_level": "high",
+      "source_class": "Fighting",
+      "campus_label": "打架斗殴",
+      "mapping_summary": "多人发生明显肢体冲突，属于校园高风险异常行为。",
+      "caption_interval": "798, 4458",
+      "caption_summary": "The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads '2016/05/23 08:30:00'.",
+      "reason_interval": "798, 4458",
+      "reasoning_score": 0.3,
+      "reason_excerpt": "Okay, so I need to figure out how to rate the described scene on a scale from 0 to 1.",
+      "reason_text": "打架斗殴：The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads '2016/05/23 08:30:00'.",
+      "html_reason_text": "打架斗殴：The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads &#x27;2016/05/23 08:30:00&#x27;."
+    }
+  ],
+  "clip_manifest": [
+    {
+      "event_id": "evt_0001",
+      "start_sec": 30.1,
+      "end_sec": 52.53,
+      "status": "fragment_only",
+      "clip_path": null,
+      "source_video": "/home/zh-star/rspace/VADTree/UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4",
+      "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4#t=30.1,52.53"
+    }
+  ],
+  "metrics": {
+    "roc_auc": 0.9704,
+    "pr_auc": 0.9384,
+    "1_mean": 0.3374,
+    "0_mean": 0.1814
+  },
+  "thresholds": {
+    "threshold": 0.3445,
+    "high_threshold": 0.4049,
+    "smoothed_peak": 0.4049
+  }
+}

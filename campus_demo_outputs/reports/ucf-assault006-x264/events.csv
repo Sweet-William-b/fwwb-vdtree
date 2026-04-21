@@ -1,0 +1,3 @@
+event_id,campus_label,risk_level,start_sec,end_sec,peak_score,mean_score,reason_text,caption_interval,reason_interval
+evt_0001,单向攻击/疑似霸凌,high,46.03,84.07,0.5867,0.5673,"单向攻击/疑似霸凌：The video depicts a series of events inside a small, cluttered room that appears to be a shop or office. The room contains various items such as a television on a wooden table, shelves with electronic devices, and other miscellaneous objects.","1203, 2833","1203, 2833"
+evt_0002,单向攻击/疑似霸凌,high,130.77,133.73,0.5467,0.5436,"单向攻击/疑似霸凌：The video depicts a series of events inside a small, cluttered room that appears to be a shop or a workshop. The room is filled with various items, including tools and electronic devices on the counters.","2833, 4601","2833, 4601"

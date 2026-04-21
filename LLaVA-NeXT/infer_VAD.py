@@ -211,9 +211,11 @@ if __name__ == "__main__":
     device = "cuda"
     device_map = "auto"
     # device_map = "balanced_low_0"
-    tokenizer, model, image_processor, max_length = load_pretrained_model(args.pretrained, None, model_name,
+    tokenizer, model, image_processor, max_length = load_pretrained_model(args.pretrained, None, model_name,      
+        load_4bit=True, 
         torch_dtype="float16",
-        device_map=device_map)  # Add any other thing you want to pass in llava_model_args
+        device_map=device_map,
+        attn_implementation=None,)  # Add any other thing you want to pass in llava_model_args
     model.eval()
 
     json_path = args.json_path
@@ -241,10 +243,10 @@ if __name__ == "__main__":
 
 
 
-    maxf = 64 # default max_num_frames=64   双卡
-    max_new_tokens = 512 # default max_new_tokens = 4096
+    maxf = 2 # default max_num_frames=64   双卡
+    max_new_tokens = 8 # default max_new_tokens = 4096
     batch_size = 1
-    num_workers = 1  # 根据 CPU 核心数调整
+    num_workers = 0  # 根据 CPU 核心数调整
     force_sample = False
 
     # with open('/root/autodl-tmp/data/UCF_Crime_test/EGEBD_basic_r50_out_th0.5/LLaVA-Video-7B-Qwen2/maxf64_out_Please describe in one sentence what happened in the video..json', 'r', encoding='utf-8') as file:
@@ -318,6 +320,7 @@ if __name__ == "__main__":
                     do_sample=False,
                     temperature=0,
                     max_new_tokens=max_new_tokens,
+                    use_cache=False,
                 )
                 text_outputs = tokenizer.batch_decode(cont, skip_special_tokens=True)[0].strip()
                 # print(text_outputs)

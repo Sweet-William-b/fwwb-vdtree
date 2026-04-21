@@ -1,0 +1,46 @@
+[
+  {
+    "event_id": "evt_0001",
+    "behavior_type": "异常行为",
+    "campus_label": "异常行为",
+    "risk_level": "medium",
+    "track_ids": [
+      "evt_0001"
+    ],
+    "start_sec": 0.5,
+    "end_sec": 1.5,
+    "confidence": 0.6346,
+    "review_status": "pending",
+    "note": "",
+    "clip_href": null,
+    "reason_text": "10帧窗口运动强度 0.021，活跃像素占比 0.032，亮度波动 0.049，综合置信度 0.635。",
+    "source_class": "异常行为",
+    "peak_score": 0.6346,
+    "mean_score": 0.6346,
+    "duration_sec": 1.0,
+    "start_frame": 5,
+    "end_frame": 14
+  },
+  {
+    "event_id": "evt_0002",
+    "behavior_type": "异常行为",
+    "campus_label": "异常行为",
+    "risk_level": "medium",
+    "track_ids": [
+      "evt_0002"
+    ],
+    "start_sec": 2.5,
+    "end_sec": 3.5,
+    "confidence": 0.7458,
+    "review_status": "pending",
+    "note": "",
+    "clip_href": null,
+    "reason_text": "10帧窗口运动强度 0.025，活跃像素占比 0.039，亮度波动 0.048，综合置信度 0.746。",
+    "source_class": "异常行为",
+    "peak_score": 0.7458,
+    "mean_score": 0.7458,
+    "duration_sec": 1.0,
+    "start_frame": 25,
+    "end_frame": 34
+  }
+]

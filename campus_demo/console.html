@@ -1,0 +1,1472 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>A28 校园安防控制台</title>
+  <style>
+    :root {
+      --bg: #efe7d6;
+      --panel: rgba(255, 251, 243, 0.92);
+      --panel-strong: #fffef9;
+      --line: rgba(58, 48, 38, 0.14);
+      --ink: #1f2933;
+      --muted: #667085;
+      --accent: #0f5c4b;
+      --accent-2: #d69c2f;
+      --danger: #a6382b;
+      --warn: #a46b14;
+      --low: #1f7a52;
+      --shadow: 0 18px 45px rgba(66, 43, 16, 0.08);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Source Han Serif SC", "Noto Serif SC", "Microsoft YaHei UI", serif;
+      background:
+        radial-gradient(circle at top left, rgba(15, 92, 75, 0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(214, 156, 47, 0.14), transparent 24%),
+        linear-gradient(180deg, #f6f0e3 0%, #eadfca 100%);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .page {
+      max-width: 1460px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 18px;
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.12;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .health {
+      min-width: 220px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid var(--line);
+    }
+
+    .health strong {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .health .value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .flow-chip {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--line);
+      min-height: 88px;
+    }
+
+    .flow-chip .step {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+      background: rgba(15, 92, 75, 0.1);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .flow-chip strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+
+    .flow-chip span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 420px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .field input[type="text"],
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid rgba(43, 38, 31, 0.14);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--ink);
+    }
+
+    .field textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+
+    .mode-switch {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .mode-switch button {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.68);
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .mode-switch button.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .ghost-btn,
+    .danger-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-weight: 700;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--accent) 0%, #1a7f68 100%);
+      color: #fff;
+    }
+
+    .secondary-btn {
+      background: linear-gradient(135deg, #d7a33e 0%, #c47d1f 100%);
+      color: #fff;
+    }
+
+    .ghost-btn {
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .danger-btn {
+      background: linear-gradient(135deg, #b34732 0%, #8d2c2c 100%);
+      color: #fff;
+    }
+
+    .status-bar {
+      padding: 12px 14px;
+      border-radius: 16px;
+      margin-top: 16px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      line-height: 1.7;
+      min-height: 52px;
+    }
+
+    .upload-box {
+      padding: 16px;
+      border: 1px dashed rgba(15, 92, 75, 0.35);
+      border-radius: 18px;
+      background: rgba(248, 252, 250, 0.88);
+    }
+
+    .preview-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) 320px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .preview-card {
+      padding: 18px;
+      border-radius: 20px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      min-height: 340px;
+    }
+
+    .preview-card video {
+      width: 100%;
+      border-radius: 16px;
+      background: #111;
+      max-height: 420px;
+    }
+
+    .placeholder {
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-radius: 18px;
+      padding: 20px;
+      color: var(--muted);
+      line-height: 1.8;
+      background:
+        linear-gradient(145deg, rgba(15, 92, 75, 0.06), rgba(214, 156, 47, 0.08)),
+        #fffefb;
+      border: 1px dashed rgba(15, 92, 75, 0.18);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--line);
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .metric .value {
+      margin-top: 10px;
+      font-size: 25px;
+      font-weight: 700;
+    }
+
+    .progress-shell {
+      margin: 16px 0;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      height: 13px;
+      border-radius: 999px;
+      background: rgba(15, 92, 75, 0.09);
+      overflow: hidden;
+    }
+
+    .progress-bar span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 0.25s ease;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .status-queued { background: rgba(62, 99, 166, 0.1); color: #27579c; }
+    .status-running { background: rgba(15, 92, 75, 0.12); color: var(--accent); }
+    .status-reviewable { background: rgba(214, 156, 47, 0.18); color: #945d12; }
+    .status-completed { background: rgba(31, 122, 82, 0.14); color: var(--low); }
+    .status-failed,
+    .status-cancelled { background: rgba(166, 56, 43, 0.14); color: var(--danger); }
+
+    .risk-low { color: var(--low); font-weight: 700; }
+    .risk-review { color: #27579c; font-weight: 700; }
+    .risk-medium { color: var(--warn); font-weight: 700; }
+    .risk-high { color: var(--danger); font-weight: 700; }
+
+    .review-pending { color: #27579c; font-weight: 700; }
+    .review-confirmed { color: var(--low); font-weight: 700; }
+    .review-false_positive { color: var(--danger); font-weight: 700; }
+
+    .chip-list {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .event-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .event-card {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .event-card strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .split-panels {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr);
+      gap: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .toggle {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .toggle button {
+      border: none;
+      background: transparent;
+      padding: 8px 14px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .toggle button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-top: 1px solid rgba(58, 48, 38, 0.1);
+      padding: 12px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .table-shell {
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.75);
+    }
+
+    .time-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(15, 92, 75, 0.12);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .artifact-list,
+    .quick-links {
+      display: grid;
+      gap: 10px;
+    }
+
+    .artifact-item,
+    .history-row {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.76);
+    }
+
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .mini {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1220px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-shell,
+      .split-panels {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .flow {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page {
+        padding-inline: 14px;
+      }
+
+      .panel,
+      .hero {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <h1>A28 校园安防视频行为预警控制台</h1>
+          <p>这个控制台面向比赛演示，直接串联“输入源接入、分析任务、实时预警、在线复核、导出产物、历史回看”六个环节。默认优先复用仓库中已有缓存结果，保证能跑出真实闭环；本地上传也会真实落盘，并在可匹配缓存样例时参与完整演示链路。</p>
+        </div>
+        <div class="health">
+          <strong>服务健康</strong>
+          <div id="health-value" class="value">检查中...</div>
+          <div id="health-meta" class="mini">等待后端返回状态</div>
+        </div>
+      </div>
+
+      <div class="flow">
+        <div class="flow-chip">
+          <div class="step">1</div>
+          <strong>输入</strong>
+          <span>选择样例视频、上传本地视频，或预留 RTSP 地址。</span>
+        </div>
+        <div class="flow-chip">
+          <div class="step">2</div>
+          <strong>分析</strong>
+          <span>创建任务，跟踪排队、运行和实时进度。</span>
+        </div>
+        <div class="flow-chip">
+          <div class="step">3</div>
+          <strong>预警</strong>
+          <span>查看风险等级、事件时间段、最近告警列表。</span>
+        </div>
+        <div class="flow-chip">
+          <div class="step">4</div>
+          <strong>复核</strong>
+          <span>在线修改行为标签、风险等级、备注和误报状态。</span>
+        </div>
+        <div class="flow-chip">
+          <div class="step">5</div>
+          <strong>导出</strong>
+          <span>导出 JSON、CSV、切片清单和整包 ZIP。</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <div>
+        <section class="panel">
+          <div class="panel-title">
+            <div>
+              <h2>输入源与任务创建</h2>
+              <div class="subtle">正式控制台仅保留本地上传与 RTSP 两种输入，二者都会走同一套报告、导出与历史闭环。</div>
+            </div>
+          </div>
+
+          <div class="mode-switch">
+            <button data-mode="upload" class="active">本地上传</button>
+            <button data-mode="rtsp">RTSP 在线流</button>
+          </div>
+
+          <div class="field">
+            <label for="dataset-select">数据集</label>
+            <select id="dataset-select"></select>
+          </div>
+
+          <div id="sample-fields" class="hidden">
+            <div class="field">
+              <label for="video-select">样例视频</label>
+              <select id="video-select"></select>
+            </div>
+            <div class="subtle" id="sample-hint">样例列表加载中...</div>
+          </div>
+
+          <div id="upload-fields">
+            <div class="upload-box">
+              <div class="field" style="margin-bottom: 10px;">
+                <label for="upload-input">上传本地视频</label>
+                <input id="upload-input" type="file" accept="video/*" />
+              </div>
+              <div id="upload-status" class="subtle">尚未上传文件。上传任务会调用真实 VADTree 适配链路；若模型依赖未配置，任务会明确失败并返回原因。</div>
+            </div>
+          </div>
+
+          <div id="rtsp-fields" class="hidden">
+            <div class="field">
+              <label for="rtsp-input">RTSP 地址</label>
+              <input id="rtsp-input" type="text" placeholder="rtsp://demo-camera/live" />
+            </div>
+            <div class="subtle">RTSP 任务会在后端持续录制并分块分析；点击“停止采集”后，会对完整录制再次做最终一致化分析，再写入报告、导出物和历史。</div>
+          </div>
+
+          <div class="actions">
+            <button id="create-job-btn" class="primary-btn">开始分析</button>
+            <button id="cancel-job-btn" class="danger-btn">停止采集</button>
+            <a id="report-link" class="ghost-btn hidden" href="#" target="_blank">打开报告页</a>
+            <a class="ghost-btn" href="/campus_demo_outputs/index.html" target="_blank">静态历史页</a>
+          </div>
+
+          <div id="source-status" class="status-bar">等待创建任务。</div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            <div>
+              <h2>导出中心</h2>
+              <div class="subtle">分析完成后，可导出当前复核版本的日志、切片清单和报告包。</div>
+            </div>
+          </div>
+
+          <div class="actions" style="margin-top: 0;">
+            <button class="secondary-btn export-btn" data-kind="json">导出 JSON</button>
+            <button class="secondary-btn export-btn" data-kind="csv">导出 CSV</button>
+            <button class="secondary-btn export-btn" data-kind="clips">导出异常切片</button>
+            <button class="primary-btn export-btn" data-kind="zip">导出 ZIP</button>
+          </div>
+
+          <div id="export-status" class="status-bar">暂无导出记录。</div>
+          <div id="artifact-list" class="artifact-list" style="margin-top: 14px;"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            <div>
+              <h2>快速链接</h2>
+              <div class="subtle">分析完成后，可在这里直接跳回报告页或报告目录。</div>
+            </div>
+          </div>
+          <div class="quick-links">
+            <div class="artifact-item">
+              <strong>当前报告页</strong>
+              <div id="quick-report" class="mini">尚未生成报告。</div>
+            </div>
+            <div class="artifact-item">
+              <strong>当前输出目录</strong>
+              <div id="quick-output" class="mini">尚未生成输出目录。</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div>
+        <section class="panel">
+          <div class="panel-title">
+            <div>
+              <h2>运行态与预警概览</h2>
+              <div class="subtle">任务运行期间会持续更新状态、进度、性能指标和最近预警。</div>
+            </div>
+            <div id="job-badge" class="badge status-queued">未启动</div>
+          </div>
+
+          <div class="preview-shell">
+            <div class="preview-card">
+              <div id="preview-wrap" class="placeholder">
+                选择样例或上传视频后开始分析。<br />
+                若当前环境没有样例原视频，系统仍会基于缓存结果完成分析和日志闭环。
+              </div>
+            </div>
+
+            <div>
+              <div class="metric-grid">
+                <div class="metric">
+                  <div class="label">任务状态</div>
+                  <div id="metric-status" class="value">待机</div>
+                </div>
+                <div class="metric">
+                  <div class="label">事件数量</div>
+                  <div id="metric-events" class="value">0</div>
+                </div>
+                <div class="metric">
+                  <div class="label">当前 FPS</div>
+                  <div id="metric-fps" class="value">0.00</div>
+                </div>
+                <div class="metric">
+                  <div class="label">当前延迟</div>
+                  <div id="metric-latency" class="value">0 ms</div>
+                </div>
+              </div>
+
+              <div class="progress-shell">
+                <div class="progress-meta">
+                  <span>分析进度</span>
+                  <span id="progress-value">0%</span>
+                </div>
+                <div class="progress-bar"><span id="progress-bar"></span></div>
+              </div>
+
+              <div class="chip-list">
+                <div class="chip" id="summary-source">输入源：未选择</div>
+                <div class="chip" id="summary-video">视频：未选择</div>
+                <div class="chip" id="summary-time">时间点：0.00s</div>
+                <div class="chip" id="summary-runtime">窗口：5 帧段 / 10 帧窗</div>
+                <div class="chip" id="summary-stream">运行态：待机</div>
+              </div>
+
+              <div id="latest-alerts" class="event-list">
+                <div class="artifact-item">
+                  <strong>最近预警</strong>
+                  <div class="mini">当前没有可显示的实时预警。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="split-panels">
+          <section class="panel">
+            <div class="panel-title">
+              <div>
+                <h2>预警日志与人工复核</h2>
+                <div class="subtle">点击时间可跳转到对应视频时间点；支持查看原始日志和当前编辑版。</div>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div class="toggle">
+                <button id="version-current" class="active">当前版</button>
+                <button id="version-original">原始版</button>
+              </div>
+              <button id="reload-events-btn" class="ghost-btn">刷新日志</button>
+              <button id="save-events-btn" class="primary-btn">保存当前修改</button>
+            </div>
+
+            <div id="events-status" class="status-bar" style="margin-top: 0;">等待任务生成日志。</div>
+
+            <div class="table-shell" style="margin-top: 14px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>时间</th>
+                    <th>行为标签</th>
+                    <th>风险</th>
+                    <th>复核状态</th>
+                    <th>置信度</th>
+                    <th>备注</th>
+                    <th>原因说明</th>
+                    <th>切片</th>
+                  </tr>
+                </thead>
+                <tbody id="events-body">
+                  <tr><td colspan="8">当前没有日志记录。</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title">
+              <div>
+                <h2>历史任务</h2>
+                <div class="subtle">支持重新打开历史任务，查看日志、导出物和报告页。</div>
+              </div>
+            </div>
+
+            <div id="history-list" class="artifact-list">
+              <div class="artifact-item">历史记录加载中...</div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      mode: "upload",
+      datasets: [],
+      videos: [],
+      currentJobId: null,
+      currentVersion: "current",
+      uploadedSource: null,
+      eventSource: null,
+    };
+
+    const datasetSelect = document.getElementById("dataset-select");
+    const videoSelect = document.getElementById("video-select");
+    const sampleHint = document.getElementById("sample-hint");
+    const uploadInput = document.getElementById("upload-input");
+    const uploadStatus = document.getElementById("upload-status");
+    const sourceStatus = document.getElementById("source-status");
+    const exportStatus = document.getElementById("export-status");
+    const eventsStatus = document.getElementById("events-status");
+    const artifactList = document.getElementById("artifact-list");
+    const historyList = document.getElementById("history-list");
+    const reportLink = document.getElementById("report-link");
+    const quickReport = document.getElementById("quick-report");
+    const quickOutput = document.getElementById("quick-output");
+    const previewWrap = document.getElementById("preview-wrap");
+    const latestAlerts = document.getElementById("latest-alerts");
+    const eventsBody = document.getElementById("events-body");
+    const cancelJobBtn = document.getElementById("cancel-job-btn");
+
+    function formatSeconds(value) {
+      return `${Number(value || 0).toFixed(2)}s`;
+    }
+
+    function setStatus(target, text) {
+      target.textContent = text;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    async function fetchJson(url) {
+      const response = await fetch(url);
+      const data = await response.json();
+      if (!response.ok || data.ok === false) {
+        throw new Error(data.error || "请求失败");
+      }
+      return data;
+    }
+
+    async function postJson(url, payload) {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload || {}),
+      });
+      const data = await response.json();
+      if (!response.ok || data.ok === false) {
+        throw new Error(data.error || "请求失败");
+      }
+      return data;
+    }
+
+    async function patchJson(url, payload) {
+      const response = await fetch(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload || {}),
+      });
+      const data = await response.json();
+      if (!response.ok || data.ok === false) {
+        throw new Error(data.error || "请求失败");
+      }
+      return data;
+    }
+
+    function statusText(status) {
+      const map = {
+        queued: "排队中",
+        running: "分析中",
+        reviewable: "待复核",
+        completed: "已完成",
+        failed: "失败",
+        cancelled: "已取消",
+      };
+      return map[status] || status || "未启动";
+    }
+
+    function streamStateText(stateValue) {
+      const map = {
+        connecting: "连接中",
+        buffering: "缓冲中",
+        running: "流处理中",
+        reconnecting: "重连中",
+        stopped: "已停止",
+        failed: "流失败",
+      };
+      return map[stateValue] || (stateValue || "无");
+    }
+
+    function riskClass(level) {
+      return `risk-${level || "review"}`;
+    }
+
+    function reviewClass(level) {
+      return `review-${level || "pending"}`;
+    }
+
+    function renderBadge(status) {
+      const badge = document.getElementById("job-badge");
+      badge.className = `badge status-${status || "queued"}`;
+      badge.textContent = statusText(status);
+    }
+
+    function renderPreview(job) {
+      const previewHref = job.preview_href;
+      if (previewHref) {
+        previewWrap.innerHTML = `
+          <video id="job-video" controls preload="metadata" src="${escapeHtml(previewHref)}"></video>
+          <div class="subtle" style="margin-top: 10px;">点击日志中的时间按钮可跳转到对应片段。当前任务：${escapeHtml(job.video_name || job.source_label || "未命名输入")}</div>
+        `;
+        return;
+      }
+      previewWrap.innerHTML = `
+        <div class="placeholder">
+          当前输入源没有可直接回放的本地视频。<br />
+          这不会影响分析、日志编辑、导出和历史回看演示。
+        </div>
+      `;
+    }
+
+    function renderArtifacts(artifacts) {
+      if (!artifacts || !artifacts.length) {
+        artifactList.innerHTML = '<div class="artifact-item">暂无导出产物。</div>';
+        return;
+      }
+      artifactList.innerHTML = artifacts.map((item) => `
+        <div class="artifact-item">
+          <strong>${escapeHtml(item.label || item.kind)}</strong>
+          <div class="mini">${escapeHtml(item.path || "")}</div>
+          ${item.href ? `<div style="margin-top:8px;"><a href="${escapeHtml(item.href)}" target="_blank">打开 / 下载</a></div>` : ""}
+        </div>
+      `).join("");
+    }
+
+    function renderLatestAlerts(events) {
+      if (!events || !events.length) {
+        latestAlerts.innerHTML = `
+          <div class="artifact-item">
+            <strong>最近预警</strong>
+            <div class="mini">当前没有可显示的实时预警。</div>
+          </div>
+        `;
+        return;
+      }
+      latestAlerts.innerHTML = events.slice(-5).reverse().map((event) => `
+        <div class="event-card">
+          <strong>${escapeHtml(event.behavior_type)}</strong>
+          <div class="mini">
+            <span class="${riskClass(event.risk_level)}">${escapeHtml(event.risk_level)}</span>
+            · ${formatSeconds(event.start_sec)} - ${formatSeconds(event.end_sec)}
+            · 置信度 ${Number(event.confidence || 0).toFixed(3)}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderJob(job) {
+      if (!job) {
+        renderBadge("queued");
+        document.getElementById("metric-status").textContent = "待机";
+        document.getElementById("metric-events").textContent = "0";
+        document.getElementById("metric-fps").textContent = "0.00";
+        document.getElementById("metric-latency").textContent = "0 ms";
+        document.getElementById("progress-value").textContent = "0%";
+        document.getElementById("progress-bar").style.width = "0%";
+        document.getElementById("summary-source").textContent = "输入源：未选择";
+        document.getElementById("summary-video").textContent = "视频：未选择";
+        document.getElementById("summary-time").textContent = "时间点：0.00s";
+        document.getElementById("summary-runtime").textContent = "窗口：5 帧段 / 10 帧窗";
+        document.getElementById("summary-stream").textContent = "运行态：待机";
+        quickReport.textContent = "尚未生成报告。";
+        quickOutput.textContent = "尚未生成输出目录。";
+        reportLink.classList.add("hidden");
+        renderPreview({ preview_href: null });
+        renderLatestAlerts([]);
+        renderArtifacts([]);
+        return;
+      }
+
+      renderBadge(job.status);
+      const isStreaming = job.progress_mode === "indeterminate" && ["queued", "running"].includes(job.status);
+      const processingFps = Number(job.processing_fps ?? job.current_fps ?? 0);
+      const progressPercent = `${Math.round((Number(job.progress || 0)) * 100)}%`;
+      document.getElementById("metric-status").textContent = isStreaming
+        ? `${statusText(job.status)} / ${streamStateText(job.stream_state)}`
+        : statusText(job.status);
+      document.getElementById("metric-events").textContent = String(job.event_count || 0);
+      document.getElementById("metric-fps").textContent = processingFps.toFixed(2);
+      document.getElementById("metric-latency").textContent = `${Number(job.latency_ms || 0).toFixed(0)} ms`;
+      document.getElementById("progress-value").textContent = isStreaming ? "流式任务" : progressPercent;
+      document.getElementById("progress-bar").style.width = isStreaming
+        ? "35%"
+        : `${Math.max(0, Math.min(100, Number(job.progress || 0) * 100))}%`;
+      document.getElementById("summary-source").textContent = `输入源：${job.source_label || "未命名输入"}`;
+      document.getElementById("summary-video").textContent = `视频：${job.video_name || "-"}`;
+      document.getElementById("summary-time").textContent = `时间点：${formatSeconds(job.current_sec || 0)}`;
+      document.getElementById("summary-runtime").textContent =
+        `窗口：${job.segment_frames || 5} 帧段 / ${job.window_frames || 10} 帧窗 · 分段 ${job.processed_segments || 0} · 窗口 ${job.analyzed_windows || 0} · 缓冲 ${job.buffered_segments || 0}`;
+      document.getElementById("summary-stream").textContent =
+        `运行态：${streamStateText(job.stream_state)} · 模式 ${job.progress_mode === "indeterminate" ? "流式" : "确定进度"} · 源 FPS ${Number(job.source_fps || 0).toFixed(2)}`;
+      quickReport.innerHTML = job.report_href
+        ? `<a href="/campus_demo_outputs/${escapeHtml(job.report_href)}" target="_blank">${escapeHtml(job.report_href)}</a>`
+        : "尚未生成报告。";
+      quickOutput.textContent = job.output_dir || "尚未生成输出目录。";
+
+      if (job.report_href) {
+        reportLink.href = `/campus_demo_outputs/${job.report_href}`;
+        reportLink.classList.remove("hidden");
+      } else {
+        reportLink.classList.add("hidden");
+      }
+
+      renderPreview(job);
+      renderLatestAlerts(job.latest_alerts || []);
+      renderArtifacts(job.exports || []);
+
+      setStatus(sourceStatus, job.error ? `任务异常：${job.error}` : `当前任务：${statusText(job.status)}，创建于 ${job.created_at}`);
+    }
+
+    async function loadHealth() {
+      try {
+        const data = await fetchJson("/campus_demo/api/health");
+        document.getElementById("health-value").textContent = data.status === "healthy" ? "服务正常" : data.status;
+        document.getElementById("health-meta").textContent = `数据集 ${data.dataset_count} 个 · 历史任务 ${data.job_count} 条 · ${data.server_time}`;
+      } catch (error) {
+        document.getElementById("health-value").textContent = "健康检查失败";
+        document.getElementById("health-meta").textContent = error.message;
+      }
+    }
+
+    async function loadDatasets() {
+      const datasets = await fetchJson("/campus_demo/api/datasets");
+      state.datasets = datasets;
+      datasetSelect.innerHTML = datasets.map((item) => `
+        <option value="${escapeHtml(item.name)}">${escapeHtml(item.display_name)} (${escapeHtml(item.name.toUpperCase())})</option>
+      `).join("");
+      setMode(state.mode);
+    }
+
+    async function loadVideos() {
+      const dataset = datasetSelect.value || "ucf";
+      sampleHint.textContent = "加载样例中...";
+      const data = await fetchJson(`/campus_demo/api/videos?dataset=${encodeURIComponent(dataset)}`);
+      state.videos = data.videos || [];
+      videoSelect.innerHTML = state.videos.map((item) => `
+        <option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}${item.is_default_sample ? " · 默认样例" : ""}${item.has_local_video ? "" : " · 无本地视频"}</option>
+      `).join("");
+      sampleHint.textContent = `当前数据集 ${data.dataset_display_name} 共 ${state.videos.length} 条可用缓存视频，默认样例 ${data.default_samples.length} 条。`;
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      document.querySelectorAll(".mode-switch button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.mode === mode);
+      });
+      document.getElementById("sample-fields").classList.add("hidden");
+      document.getElementById("upload-fields").classList.toggle("hidden", mode !== "upload");
+      document.getElementById("rtsp-fields").classList.toggle("hidden", mode !== "rtsp");
+      cancelJobBtn.textContent = mode === "rtsp" ? "停止采集" : "取消任务";
+    }
+
+    async function uploadSource(file) {
+      if (!file) {
+        return;
+      }
+      uploadStatus.textContent = "上传中...";
+      const encodedFilename = encodeURIComponent(file.name);
+      const response = await fetch("/campus_demo/api/sources/upload", {
+        method: "POST",
+        headers: {
+          "X-Filename-Encoded": encodedFilename,
+          "Content-Type": file.type || "application/octet-stream",
+          "X-Source-Dataset": datasetSelect.value || "ucf",
+        },
+        body: file,
+      });
+      const data = await response.json();
+      if (!response.ok || data.ok === false) {
+        throw new Error(data.error || "上传失败");
+      }
+      state.uploadedSource = data;
+      uploadStatus.innerHTML = `上传完成：<strong>${escapeHtml(data.filename)}</strong><br />源 ID：${escapeHtml(data.source_id)}${data.media_href ? ` · <a href="${escapeHtml(data.media_href)}" target="_blank">打开源视频</a>` : ""}`;
+    }
+
+    function closeStream() {
+      if (state.eventSource) {
+        state.eventSource.close();
+        state.eventSource = null;
+      }
+    }
+
+    function openStream(jobId) {
+      closeStream();
+      state.eventSource = new EventSource(`/campus_demo/api/jobs/${encodeURIComponent(jobId)}/stream`);
+      state.eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        renderJob(data.job);
+        if (state.currentVersion === "current") {
+          renderEvents(data.events || [], true);
+        }
+        if (["reviewable", "completed", "failed", "cancelled"].includes(data.job.status)) {
+          closeStream();
+          loadEvents();
+          loadHistory();
+        }
+      };
+      state.eventSource.onerror = () => {
+        closeStream();
+      };
+    }
+
+    async function loadJob(jobId, startStreaming = true) {
+      const data = await fetchJson(`/campus_demo/api/jobs/${encodeURIComponent(jobId)}`);
+      state.currentJobId = jobId;
+      renderJob(data.job);
+      await loadEvents();
+      if (startStreaming && ["queued", "running"].includes(data.job.status)) {
+        openStream(jobId);
+      }
+    }
+
+    function renderEvents(events, fromStream = false) {
+      if (!events.length) {
+        eventsBody.innerHTML = '<tr><td colspan="8">当前没有日志记录。</td></tr>';
+        if (!fromStream) {
+          eventsStatus.textContent = "当前没有可展示的事件日志。";
+        }
+        return;
+      }
+
+      const editable = state.currentVersion === "current";
+      eventsBody.innerHTML = events.map((event) => `
+        <tr data-event-id="${escapeHtml(event.event_id)}">
+          <td>
+            <button class="time-btn" data-start="${Number(event.start_sec || 0)}">
+              ${formatSeconds(event.start_sec)}<br />${formatSeconds(event.end_sec)}
+            </button>
+          </td>
+          <td>
+            <input type="text" name="behavior_type" value="${escapeHtml(event.behavior_type)}" ${editable ? "" : "disabled"} />
+            <div class="mini" style="margin-top:6px;">track: ${escapeHtml((event.track_ids || []).join(", "))}</div>
+          </td>
+          <td>
+            <select name="risk_level" ${editable ? "" : "disabled"}>
+              <option value="low" ${event.risk_level === "low" ? "selected" : ""}>low</option>
+              <option value="review" ${event.risk_level === "review" ? "selected" : ""}>review</option>
+              <option value="medium" ${event.risk_level === "medium" ? "selected" : ""}>medium</option>
+              <option value="high" ${event.risk_level === "high" ? "selected" : ""}>high</option>
+            </select>
+            <div class="${riskClass(event.risk_level)} mini" style="margin-top:6px;">${escapeHtml(event.risk_level)}</div>
+          </td>
+          <td>
+            <select name="review_status" ${editable ? "" : "disabled"}>
+              <option value="pending" ${event.review_status === "pending" ? "selected" : ""}>pending</option>
+              <option value="confirmed" ${event.review_status === "confirmed" ? "selected" : ""}>confirmed</option>
+              <option value="false_positive" ${event.review_status === "false_positive" ? "selected" : ""}>false_positive</option>
+            </select>
+            <div class="${reviewClass(event.review_status)} mini" style="margin-top:6px;">${escapeHtml(event.review_status)}</div>
+          </td>
+          <td>${Number(event.confidence || 0).toFixed(3)}</td>
+          <td><textarea name="note" ${editable ? "" : "disabled"}>${escapeHtml(event.note || "")}</textarea></td>
+          <td>
+            <div>${escapeHtml(event.reason_text || "-")}</div>
+            ${event.last_edited_at ? `<div class="mini" style="margin-top:8px;">最后修改：${escapeHtml(event.last_edited_at)}</div>` : ""}
+          </td>
+          <td>${event.clip_href ? `<a href="${escapeHtml(event.clip_href)}" target="_blank">打开片段</a>` : '<span class="mini">暂无</span>'}</td>
+        </tr>
+      `).join("");
+
+      document.querySelectorAll(".time-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          const video = document.getElementById("job-video");
+          if (!video) {
+            eventsStatus.textContent = "当前任务没有可回放视频，但日志和导出仍可正常演示。";
+            return;
+          }
+          video.currentTime = Number(button.dataset.start || 0);
+          video.play();
+        });
+      });
+
+      if (!fromStream) {
+        eventsStatus.textContent = editable ? "当前展示的是可编辑的最新日志版本。" : "当前展示的是只读的原始日志版本。";
+      }
+    }
+
+    async function loadEvents() {
+      if (!state.currentJobId) {
+        renderEvents([]);
+        return;
+      }
+      const events = await fetchJson(`/campus_demo/api/jobs/${encodeURIComponent(state.currentJobId)}/events?version=${state.currentVersion}`);
+      renderEvents(events);
+    }
+
+    async function saveEvents() {
+      if (!state.currentJobId) {
+        setStatus(eventsStatus, "请先选择一个任务。");
+        return;
+      }
+      if (state.currentVersion !== "current") {
+        setStatus(eventsStatus, "原始版日志不可编辑，请切回“当前版”。");
+        return;
+      }
+      const rows = Array.from(document.querySelectorAll("#events-body tr[data-event-id]"));
+      if (!rows.length) {
+        setStatus(eventsStatus, "没有可保存的日志内容。");
+        return;
+      }
+      setStatus(eventsStatus, "正在保存修改...");
+      for (const row of rows) {
+        const eventId = row.dataset.eventId;
+        await patchJson(`/campus_demo/api/events/${encodeURIComponent(eventId)}`, {
+          job_id: state.currentJobId,
+          behavior_type: row.querySelector('[name="behavior_type"]').value.trim(),
+          risk_level: row.querySelector('[name="risk_level"]').value,
+          review_status: row.querySelector('[name="review_status"]').value,
+          note: row.querySelector('[name="note"]').value.trim(),
+        });
+      }
+      setStatus(eventsStatus, "日志修改已保存，当前版本文件和 ZIP 包已同步更新。");
+      await loadJob(state.currentJobId, false);
+      await loadEvents();
+      await loadHistory();
+    }
+
+    async function exportJob(kind) {
+      if (!state.currentJobId) {
+        setStatus(exportStatus, "请先创建或打开一个任务。");
+        return;
+      }
+      setStatus(exportStatus, `正在执行 ${kind} 导出...`);
+      const data = await postJson(`/campus_demo/api/jobs/${encodeURIComponent(state.currentJobId)}/export`, { kind });
+      renderArtifacts(data.artifacts || []);
+      setStatus(exportStatus, `导出完成：${kind}。已刷新导出产物列表。`);
+      if (data.job) {
+        renderJob(data.job);
+      }
+      await loadHistory();
+    }
+
+    async function createJob() {
+      closeStream();
+      let payload = { source_type: state.mode, dataset: datasetSelect.value || "ucf" };
+      if (state.mode === "upload") {
+        if (!state.uploadedSource) {
+          setStatus(sourceStatus, "请先上传一个本地视频。");
+          return;
+        }
+        payload.source_id = state.uploadedSource.source_id;
+        payload.video = state.uploadedSource.filename;
+      } else if (state.mode === "rtsp") {
+        payload.rtsp_url = document.getElementById("rtsp-input").value.trim();
+      }
+
+      setStatus(sourceStatus, "任务创建中...");
+      const data = await postJson("/campus_demo/api/jobs", payload);
+      state.currentJobId = data.job.job_id;
+      renderJob(data.job);
+      setStatus(sourceStatus, `任务已创建：${data.job.job_id}`);
+      await loadHistory();
+      if (["queued", "running"].includes(data.job.status)) {
+        openStream(data.job.job_id);
+      }
+    }
+
+    async function cancelJob() {
+      if (!state.currentJobId) {
+        setStatus(sourceStatus, "当前没有正在查看的任务。");
+        return;
+      }
+      await postJson(`/campus_demo/api/jobs/${encodeURIComponent(state.currentJobId)}/cancel`, {});
+      setStatus(sourceStatus, "已发送停止请求，正在等待后端完成收尾与最终报告。");
+      await loadJob(state.currentJobId, true);
+      await loadHistory();
+    }
+
+    async function loadHistory() {
+      const items = await fetchJson("/campus_demo/api/history");
+      if (!items.length) {
+        historyList.innerHTML = '<div class="artifact-item">暂无历史任务。</div>';
+        return;
+      }
+      historyList.innerHTML = items.slice(0, 12).map((item) => `
+        <div class="history-row">
+          <div class="history-head">
+            <div>
+              <strong>${escapeHtml(item.video_name || item.source_label || item.job_id)}</strong>
+              <div class="mini">${escapeHtml(item.dataset_display_name || item.dataset_name || "未知数据集")} · ${escapeHtml(item.created_at || "")}</div>
+            </div>
+            <div class="badge status-${escapeHtml(item.status || "queued")}">${escapeHtml(statusText(item.status))}</div>
+          </div>
+          <div class="mini">
+            事件 ${item.event_count || 0} 条 · 分段 ${item.processed_segments || 0} · 窗口 ${item.analyzed_windows || 0}
+            · ${item.progress_mode === "indeterminate" && ["queued", "running"].includes(item.status) ? "流式任务" : `进度 ${Math.round(Number(item.progress || 0) * 100)}%`}
+            ${item.report_href ? ` · <a href="/campus_demo_outputs/${escapeHtml(item.report_href)}" target="_blank">报告页</a>` : ""}
+          </div>
+          <div class="actions" style="margin-top: 10px;">
+            <button class="ghost-btn open-history-btn" data-job-id="${escapeHtml(item.job_id)}">重新打开</button>
+          </div>
+        </div>
+      `).join("");
+
+      document.querySelectorAll(".open-history-btn").forEach((button) => {
+        button.addEventListener("click", async () => {
+          await loadJob(button.dataset.jobId, false);
+          const jobData = await fetchJson(`/campus_demo/api/jobs/${encodeURIComponent(button.dataset.jobId)}`);
+          if (["queued", "running"].includes(jobData.job.status)) {
+            openStream(button.dataset.jobId);
+          }
+        });
+      });
+    }
+
+    document.querySelectorAll(".mode-switch button").forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.mode));
+    });
+
+    datasetSelect.addEventListener("change", () => {
+      state.uploadedSource = null;
+      uploadInput.value = "";
+      uploadStatus.textContent = "尚未上传文件。上传任务会调用真实 VADTree 适配链路；若模型依赖未配置，任务会明确失败并返回原因。";
+    });
+    uploadInput.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        await uploadSource(file);
+      } catch (error) {
+        uploadStatus.textContent = `上传失败：${error.message}`;
+      }
+    });
+
+    document.getElementById("create-job-btn").addEventListener("click", async () => {
+      try {
+        await createJob();
+      } catch (error) {
+        setStatus(sourceStatus, `创建任务失败：${error.message}`);
+      }
+    });
+
+    document.getElementById("cancel-job-btn").addEventListener("click", async () => {
+      try {
+        await cancelJob();
+      } catch (error) {
+        setStatus(sourceStatus, `停止失败：${error.message}`);
+      }
+    });
+
+    document.getElementById("reload-events-btn").addEventListener("click", async () => {
+      try {
+        await loadEvents();
+      } catch (error) {
+        setStatus(eventsStatus, `刷新日志失败：${error.message}`);
+      }
+    });
+
+    document.getElementById("save-events-btn").addEventListener("click", async () => {
+      try {
+        await saveEvents();
+      } catch (error) {
+        setStatus(eventsStatus, `保存失败：${error.message}`);
+      }
+    });
+
+    document.getElementById("version-current").addEventListener("click", async () => {
+      state.currentVersion = "current";
+      document.getElementById("version-current").classList.add("active");
+      document.getElementById("version-original").classList.remove("active");
+      await loadEvents();
+    });
+
+    document.getElementById("version-original").addEventListener("click", async () => {
+      state.currentVersion = "original";
+      document.getElementById("version-original").classList.add("active");
+      document.getElementById("version-current").classList.remove("active");
+      await loadEvents();
+    });
+
+    document.querySelectorAll(".export-btn").forEach((button) => {
+      button.addEventListener("click", async () => {
+        try {
+          await exportJob(button.dataset.kind);
+        } catch (error) {
+          setStatus(exportStatus, `导出失败：${error.message}`);
+        }
+      });
+    });
+
+    async function init() {
+      renderJob(null);
+      await loadHealth();
+      await loadDatasets();
+      await loadHistory();
+
+      const params = new URLSearchParams(window.location.search);
+      const jobId = params.get("job_id");
+      if (jobId) {
+        try {
+          await loadJob(jobId);
+        } catch (error) {
+          setStatus(sourceStatus, `打开指定任务失败：${error.message}`);
+        }
+      }
+    }
+
+    init().catch((error) => {
+      setStatus(sourceStatus, `初始化失败：${error.message}`);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+[
+  {
+    "event_id": "evt_0001",
+    "start_frame": 406,
+    "end_frame": 905,
+    "start_sec": 13.53,
+    "end_sec": 30.17,
+    "duration_sec": 16.67,
+    "peak_frame": 557,
+    "peak_score": 0.2996,
+    "mean_score": 0.2868,
+    "risk_level": "high",
+    "source_class": "Robbery",
+    "campus_label": "可疑闯入/财物风险",
+    "mapping_summary": "存在抢夺或威胁性财物风险行为。",
+    "caption_interval": "673, 1140",
+    "caption_summary": "The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object.",
+    "reason_interval": "673, 1140",
+    "reasoning_score": 0.4,
+    "reason_excerpt": "Alright, so I need to figure out how to rate this scene on a scale from 0 to 1, where 0 is standard and 1 is suspicious or potentially criminal.",
+    "reason_text": "可疑闯入/财物风险：The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object.",
+    "html_reason_text": "可疑闯入/财物风险：The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object."
+  }
+]

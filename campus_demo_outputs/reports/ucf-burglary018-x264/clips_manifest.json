@@ -1,0 +1,11 @@
+[
+  {
+    "event_id": "evt_0001",
+    "start_sec": 6.93,
+    "end_sec": 37.47,
+    "status": "fragment_only",
+    "clip_path": null,
+    "source_video": "/home/zh-star/rspace/VADTree/UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4",
+    "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4#t=6.93,37.47"
+  }
+]

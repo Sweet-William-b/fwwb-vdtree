@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Burglary018_x264.mp4 - Campus Demo</title>
+  <style>
+    :root {
+      --bg: #f3efe6;
+      --panel: #fffdf8;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d6d3d1;
+      --accent: #14532d;
+      --warn: #92400e;
+      --danger: #991b1b;
+    }
+    body {
+      margin: 0;
+      font-family: "Georgia", "Noto Serif SC", serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(20,83,45,0.10), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(153,27,27,0.08), transparent 25%),
+        var(--bg);
+    }
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    }
+    .hero {
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .stat {
+      padding: 14px;
+      border-radius: 14px;
+      background: #faf7ef;
+      border: 1px solid var(--line);
+    }
+    .stat .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .stat .value {
+      font-size: 24px;
+      margin-top: 8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 18px;
+    }
+    .panel {
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .panel h2 {
+      margin-top: 0;
+      font-size: 22px;
+    }
+    .downloads a {
+      display: inline-block;
+      margin-right: 10px;
+      margin-bottom: 8px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border-top: 1px solid var(--line);
+      padding: 10px 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .jump {
+      border: none;
+      background: #ecfccb;
+      color: #365314;
+      border-radius: 999px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .note {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .risk-high { color: var(--danger); font-weight: 700; }
+    .risk-medium { color: var(--warn); font-weight: 700; }
+    .risk-review { color: #1d4ed8; font-weight: 700; }
+    .risk-low { color: var(--accent); font-weight: 700; }
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <h1>Burglary018_x264.mp4</h1>
+      <p>存在非常规闯入或异常靠近敏感区域行为。</p>
+      <div class="stats">
+        <div class="stat"><div class="label">Dataset</div><div class="value">UCF-Crime</div></div>
+        <div class="stat"><div class="label">Source Class</div><div class="value">Burglary</div></div>
+        <div class="stat"><div class="label">Campus Label</div><div class="value">可疑闯入/财物风险</div></div>
+        <div class="stat"><div class="label">Events</div><div class="value">1</div></div>
+        <div class="stat"><div class="label">Peak Score</div><div class="value">0.349</div></div>
+        <div class="stat"><div class="label">Generated</div><div class="value" style="font-size:18px">2026-04-21 14:39:23</div></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <div>
+        <section class="panel">
+          <h2>Video Playback</h2>
+          <video id="main-video" controls preload="metadata" src="../../../UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4" width="100%"></video><p class="note">Click any event row to jump to its start time.</p>
+        </section>
+        <section class="panel">
+          <h2>Timeline</h2>
+          <img src="score.svg" alt="score timeline" style="width:100%;height:auto" />
+          <p class="note">
+            Clip export mode: <strong>fragment_only</strong>. If direct mp4 slices are unavailable,
+            use the jump links to open the source video at the alert segment.
+          </p>
+        </section>
+      </div>
+      <div>
+        <section class="panel">
+          <h2>Downloads</h2>
+          <div class="downloads">
+            <a href="analysis.json">analysis.json</a>
+            <a href="events.json">events.json</a>
+            <a href="events.csv">events.csv</a>
+            <a href="clips_manifest.json">clips_manifest.json</a>
+            <a href="../../index.html">history index</a>
+          </div>
+          <p class="note">
+            Threshold 0.321, high-risk threshold 0.349,
+            score mean 0.328.
+          </p>
+        </section>
+        <section class="panel">
+          <h2>Metrics Snapshot</h2>
+          <p class="note">
+            ROC AUC: 0.9889 | PR AUC: 0.9811<br/>
+            Positive mean: 0.3478 | Negative mean: 0.3194
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <section class="panel">
+      <h2>Alert Events</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Campus Label</th>
+            <th>Risk</th>
+            <th>Range</th>
+            <th>Peak</th>
+            <th>Mean</th>
+            <th>Reason</th>
+            <th>Clip</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><button class="jump" data-start="6.93">evt_0001</button></td><td>可疑闯入/财物风险</td><td>high</td><td>6.93s - 37.47s</td><td>0.349</td><td>0.340</td><td>可疑闯入/财物风险：The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background.</td><td><a href="../../../UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4#t=6.93,37.47">jump</a></td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+  <script>
+    document.querySelectorAll('.jump').forEach((button) => {
+      button.addEventListener('click', () => {
+        const video = document.getElementById('main-video');
+        if (!video) return;
+        video.currentTime = Number(button.dataset.start || 0);
+        video.play();
+      });
+    });
+  </script>
+</body>
+</html>

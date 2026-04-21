@@ -242,7 +242,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
 
-    if args.annotationfile_path is not None: # 自动设置annotationfile_path
+    if args.annotationfile_path is None: # 自动设置annotationfile_path
         vadtree_path = os.path.dirname(os.path.dirname(__file__))
         if 'XD' in args.video_dir:
             args.annotationfile_path=f'{vadtree_path}/dataset_info/xd_violence/annotations/anomaly_test.txt'

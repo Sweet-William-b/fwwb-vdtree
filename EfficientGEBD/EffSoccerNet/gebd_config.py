@@ -36,7 +36,7 @@ _C.DATASETS.TEST = ('GEBD_minval',)
 # Input
 # ---------------------------------------------------------------------------- #
 _C.INPUT = CN()
-_C.INPUT.RESOLUTION = 224
+_C.INPUT.RESOLUTION = 160
 _C.INPUT.ARGUMENT = True
 _C.INPUT.ANNOTATORS = 2
 

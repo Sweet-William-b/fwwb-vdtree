@@ -407,8 +407,8 @@ if __name__ == "__main__":
         assert 'fps' in all_video_scenes_dict[k].keys()
         fps, frames = all_video_scenes_dict[k]['fps'], all_video_scenes_dict[k]['frames']
 
-        idx_split_100 = np.linspace(0, frames-1, int((frames/fps)*min(10, fps)), dtype=int).tolist()  #还原GEBD时采样索引
-        print(idx, k, fps, frames)
+        idx_split_100 = np.linspace(0, frames - 1, len(all_video_scenes_dict[k]['pred']), dtype=int).tolist()
+        print(idx, k, fps, frames, len(all_video_scenes_dict[k]['pred']))
         if threshold in ['kmeans', 'kmedoids']:
             if peak == '_peak':
                 out_idx, out_idx_score = get_peak_idx_from_score_by_threshold(threshold=gamma,

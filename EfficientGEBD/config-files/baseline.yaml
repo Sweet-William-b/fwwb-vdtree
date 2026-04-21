@@ -9,7 +9,7 @@ MODEL:
   LOSS_WEIGHT: [1]  # [1,1,1,1]
   NUM_BLOCKS: 1
   RESNET_TYPE: 1
-  FPN_START_IDX: 1  # x2
+  FPN_START_IDX: 0  # x2
   CAT_PREV: False
   IS_BASIC: False
 DATASETS:

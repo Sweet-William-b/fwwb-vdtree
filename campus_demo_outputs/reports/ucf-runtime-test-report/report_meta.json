@@ -1,0 +1,9 @@
+{
+  "report_id": "ucf-runtime-test-report",
+  "dataset_name": "ucf",
+  "video_name": "fight_demo.mp4",
+  "generated_at": "2026-04-21T20:32:05",
+  "job_id": "job_test_runtime",
+  "source_type": "upload",
+  "source_label": "fight_demo.mp4"
+}

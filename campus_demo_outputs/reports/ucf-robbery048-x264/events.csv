@@ -1,0 +1,2 @@
+event_id,campus_label,risk_level,start_sec,end_sec,peak_score,mean_score,reason_text,caption_interval,reason_interval
+evt_0001,可疑闯入/财物风险,high,13.53,30.17,0.2996,0.2868,"可疑闯入/财物风险：The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object.","673, 1140","673, 1140"

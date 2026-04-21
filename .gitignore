@@ -14,6 +14,8 @@ weights/
 *.h5
 *.npz
 *.npy
+__pycache__/
+*.pyc
 
 #
 paper_result/

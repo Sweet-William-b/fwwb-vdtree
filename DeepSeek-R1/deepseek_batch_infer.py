@@ -4,7 +4,7 @@ import sys, os, io, re
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import json, argparse
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"  # 在torch之前
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # 在torch之前
 # os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"  # 在torch之前
 # os.environ["CUDA_VISIBLE_DEVICES"] = "4,5"  # 在torch之前
 # os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"  # 在torch之前
@@ -59,7 +59,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--video_root", type=str, default="/root/autodl-fs/lwl/data/UCF_Crime_test/test_videos",
                         help="root path of the video dataset, but in this script, it is not used really")
-    parser.add_argument("--ckpt_dir", type=str, default="/root/autodl-tmp/model_hub/DeepSeek-R1-Distill-Qwen-14B",
+    parser.add_argument("--ckpt_dir", type=str, default="/root/autodl-tmp/model_hub/DeepSeek-R1-Distill-Qwen-7B",
                         help="checkpoint directory of the LLM model")
     parser.add_argument("--video_clip_summary_json", type=str, 
                         default='../result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/maxf64_ucf_prior_q_Here is a .json',
@@ -75,7 +75,7 @@ def parse_args():
         help="additional prompt to be added to prompt_flag's prompt"
         )
     parser.add_argument("--think", type=bool, default=True)
-    parser.add_argument("--batch_size", type=int, default=20)
+    parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--frame_interval", type=int, default=1)
     parser.add_argument("--summary_prompt", type=str, default=summary_prompt)
     parser.add_argument("--context_prompt", type=str, default=context_prompt)
@@ -92,8 +92,8 @@ def parse_args():
     parser.add_argument("--tokenizer_path", type=str, default=None)
     parser.add_argument("--temperature", type=float, default=0.6)
     parser.add_argument("--top_p", type=float, default=0.9)
-    parser.add_argument("--max_seq_len", type=int, default=1024)
-    parser.add_argument("--max_gen_len", type=int, default=1024)
+    parser.add_argument("--max_seq_len", type=int, default=128)
+    parser.add_argument("--max_gen_len", type=int, default=128)
     parser.add_argument("--resume",type=bool,
         # default=True,
         default=False,

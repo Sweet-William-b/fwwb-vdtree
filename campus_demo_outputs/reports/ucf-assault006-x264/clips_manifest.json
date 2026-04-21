@@ -1,0 +1,20 @@
+[
+  {
+    "event_id": "evt_0001",
+    "start_sec": 46.03,
+    "end_sec": 84.07,
+    "status": "fragment_only",
+    "clip_path": null,
+    "source_video": "/home/zh-star/rspace/VADTree/UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4",
+    "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4#t=46.03,84.07"
+  },
+  {
+    "event_id": "evt_0002",
+    "start_sec": 130.77,
+    "end_sec": 133.73,
+    "status": "fragment_only",
+    "clip_path": null,
+    "source_video": "/home/zh-star/rspace/VADTree/UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4",
+    "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4#t=130.77,133.73"
+  }
+]

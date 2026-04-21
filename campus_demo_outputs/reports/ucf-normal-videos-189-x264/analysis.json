@@ -1,0 +1,36 @@
+{
+  "summary": {
+    "dataset_name": "ucf",
+    "dataset_display_name": "UCF-Crime",
+    "video_name": "Normal_Videos_189_x264.mp4",
+    "video_stem": "Normal_Videos_189_x264",
+    "video_path": "/home/zh-star/rspace/VADTree/UCF_CRIME_TEST_VIDEO_DIR/Normal_Videos_189_x264.mp4",
+    "source_class": "Normal",
+    "campus_label": "正常行为",
+    "headline": "当前片段未发现需要预警的异常行为。",
+    "event_count": 0,
+    "peak_score": 0.0,
+    "mean_score": 0.0,
+    "threshold": 1.0,
+    "high_threshold": 1.0,
+    "roc_auc": null,
+    "pr_auc": 0.5,
+    "pos_mean": null,
+    "neg_mean": 0.0,
+    "fps": 30.0,
+    "clip_mode": "fragment_only"
+  },
+  "events": [],
+  "clip_manifest": [],
+  "metrics": {
+    "roc_auc": null,
+    "pr_auc": 0.5,
+    "1_mean": null,
+    "0_mean": 0.0
+  },
+  "thresholds": {
+    "threshold": 1.0,
+    "high_threshold": 1.0,
+    "smoothed_peak": 0.0
+  }
+}

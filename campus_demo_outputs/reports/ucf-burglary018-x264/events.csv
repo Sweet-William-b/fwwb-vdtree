@@ -1,0 +1,2 @@
+event_id,campus_label,risk_level,start_sec,end_sec,peak_score,mean_score,reason_text,caption_interval,reason_interval
+evt_0001,可疑闯入/财物风险,high,6.93,37.47,0.3488,0.3396,"可疑闯入/财物风险：The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background.","177, 715","177, 715"

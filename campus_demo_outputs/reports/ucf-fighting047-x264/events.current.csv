@@ -1,0 +1,2 @@
+event_id,campus_label,risk_level,start_sec,end_sec,peak_score,mean_score,reason_text,caption_interval,reason_interval
+evt_0001,二次确认标签,medium,30.1,52.53,0.4049,0.3906,二次确认说明,"798, 4458","798, 4458"

@@ -30,8 +30,12 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
     if load_8bit:
         kwargs["load_in_8bit"] = True
     elif load_4bit:
-        kwargs["load_in_4bit"] = True
-        kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16, bnb_4bit_use_double_quant=True, bnb_4bit_quant_type="nf4")
+        kwargs["quantization_config"] = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        )
     elif torch_dtype == "float16":
         kwargs["torch_dtype"] = torch.float16
     elif torch_dtype == "bfloat16":
@@ -282,11 +286,13 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
     if "llava" in model_name.lower() or is_multimodal:
         mm_use_im_start_end = getattr(model.config, "mm_use_im_start_end", False)
         mm_use_im_patch_token = getattr(model.config, "mm_use_im_patch_token", True)
+        num_new_tokens = 0
         if mm_use_im_patch_token:
-            tokenizer.add_tokens([DEFAULT_IMAGE_PATCH_TOKEN], special_tokens=True)
+            num_new_tokens += tokenizer.add_tokens([DEFAULT_IMAGE_PATCH_TOKEN], special_tokens=True)
         if mm_use_im_start_end:
-            tokenizer.add_tokens([DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN], special_tokens=True)
-        model.resize_token_embeddings(len(tokenizer))
+            num_new_tokens += tokenizer.add_tokens([DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN], special_tokens=True)
+        if num_new_tokens > 0:
+            model.resize_token_embeddings(len(tokenizer))
 
         vision_tower = model.get_vision_tower()
         if not vision_tower.is_loaded:

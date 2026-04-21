@@ -22,4 +22,3 @@ fire
 sentencepiece
 transformers==4.31.0
 accelerate
-mayavi

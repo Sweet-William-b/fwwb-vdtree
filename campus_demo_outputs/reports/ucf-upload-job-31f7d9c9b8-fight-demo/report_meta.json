@@ -1,0 +1,9 @@
+{
+  "report_id": "ucf-upload-job-31f7d9c9b8-fight-demo",
+  "dataset_name": "ucf",
+  "video_name": "fight_demo.mp4",
+  "generated_at": "2026-04-21T20:32:19",
+  "job_id": "job_31f7d9c9b8",
+  "source_type": "upload",
+  "source_label": "fight_demo.mp4"
+}

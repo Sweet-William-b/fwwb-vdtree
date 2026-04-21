@@ -1,0 +1,9 @@
+{
+  "report_id": "ucf-rtsp-job-0ff3736030-rtsp-job-0ff3736030",
+  "dataset_name": "ucf",
+  "video_name": "rtsp-job_0ff3736030.mp4",
+  "generated_at": "2026-04-21T20:32:30",
+  "job_id": "job_0ff3736030",
+  "source_type": "rtsp",
+  "source_label": "D:\\VADTree (2)\\VADTree\\campus_demo_outputs\\test_runtime_input.mp4"
+}

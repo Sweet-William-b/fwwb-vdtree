@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>fight_demo.mp4 - Campus Demo</title>
+  <style>
+    :root {
+      --bg: #f3efe6;
+      --panel: #fffdf8;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d6d3d1;
+      --accent: #14532d;
+      --warn: #92400e;
+      --danger: #991b1b;
+    }
+    body {
+      margin: 0;
+      font-family: "Georgia", "Noto Serif SC", serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(20,83,45,0.10), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(153,27,27,0.08), transparent 25%),
+        var(--bg);
+    }
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    }
+    .hero {
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .stat {
+      padding: 14px;
+      border-radius: 14px;
+      background: #faf7ef;
+      border: 1px solid var(--line);
+    }
+    .stat .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .stat .value {
+      font-size: 24px;
+      margin-top: 8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 18px;
+    }
+    .panel {
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .panel h2 {
+      margin-top: 0;
+      font-size: 22px;
+    }
+    .downloads a {
+      display: inline-block;
+      margin-right: 10px;
+      margin-bottom: 8px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border-top: 1px solid var(--line);
+      padding: 10px 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .jump {
+      border: none;
+      background: #ecfccb;
+      color: #365314;
+      border-radius: 999px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .note {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .toolbar button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: #14532d;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .toolbar button.secondary {
+      background: #d97706;
+    }
+    .toolbar .status {
+      align-self: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    input[type="text"], textarea, select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 8px 10px;
+    }
+    textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+    .risk-high { color: var(--danger); font-weight: 700; }
+    .risk-medium { color: var(--warn); font-weight: 700; }
+    .risk-review { color: #1d4ed8; font-weight: 700; }
+    .risk-low { color: var(--accent); font-weight: 700; }
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-report-id="ucf-runtime-test-report">
+  <div class="page">
+    <section class="hero">
+      <h1>fight_demo.mp4</h1>
+      <p>系统按 5 帧切段与 10 帧窗口完成分析，共识别到 2 段 打架斗殴 相关异常。</p>
+      <div class="stats">
+        <div class="stat"><div class="label">Dataset</div><div class="value">UCF-Crime</div></div>
+        <div class="stat"><div class="label">Source Class</div><div class="value">打架斗殴</div></div>
+        <div class="stat"><div class="label">Campus Label</div><div class="value">打架斗殴</div></div>
+        <div class="stat"><div class="label">Events</div><div class="value">2</div></div>
+        <div class="stat"><div class="label">Peak Score</div><div class="value">0.746</div></div>
+        <div class="stat"><div class="label">Generated</div><div class="value" style="font-size:18px">2026-04-21 20:32:05</div></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <div>
+        <section class="panel">
+          <h2>Video Playback</h2>
+          <video id="main-video" controls preload="metadata" src="../../test_runtime_input.mp4" width="100%"></video><p class="note">Click any event row to jump to its start time.</p>
+        </section>
+        <section class="panel">
+          <h2>Timeline</h2>
+          <img src="score.svg" alt="score timeline" style="width:100%;height:auto" />
+          <p class="note">
+            Clip export mode: <strong>opencv</strong>. If direct mp4 slices are unavailable,
+            use the jump links to open the source video at the alert segment.
+          </p>
+        </section>
+      </div>
+      <div>
+        <section class="panel">
+          <h2>Downloads</h2>
+          <div class="downloads">
+            <a href="analysis.json">analysis.json</a>
+            <a href="analysis.current.json">analysis.current.json</a>
+            <a href="events.json">events.json</a>
+            <a href="events.current.json">events.current.json</a>
+            <a href="events.csv">events.csv</a>
+            <a href="events.current.csv">events.current.csv</a>
+            <a href="clips_manifest.json">clips_manifest.json</a>
+            <a href="report_bundle.zip">report_bundle.zip</a>
+            <a href="../../index.html">history index</a>
+            <a href="/campus_demo/console">web console</a>
+          </div>
+          <p class="note">
+            Threshold 0.500, high-risk threshold 0.750,
+            score mean 0.509.
+          </p>
+        </section>
+        <section class="panel">
+          <h2>Metrics Snapshot</h2>
+          <p class="note">
+            ROC AUC: None | PR AUC: None<br/>
+            Positive mean: None | Negative mean: None
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <section class="panel">
+      <h2>Alert Events</h2>
+      <div class="toolbar">
+        <button id="save-events">保存日志修改</button>
+        <button id="reload-events" class="secondary">重新加载当前日志</button>
+        <span id="save-status" class="status">在线修改功能仅在 `python3 campus_demo/app.py serve` 启动后可用。</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Campus Label</th>
+            <th>Risk</th>
+            <th>Range</th>
+            <th>Peak</th>
+            <th>Mean</th>
+            <th>Reason</th>
+            <th>Clip</th>
+          </tr>
+        </thead>
+        <tbody id="event-table-body"></tbody>
+      </table>
+    </section>
+  </div>
+  <script>
+    const clipLookup = {"evt_0001": {"event_id": "evt_0001", "start_sec": 0.5, "end_sec": 1.5, "status": "opencv", "clip_path": "D:\\VADTree (2)\\VADTree\\campus_demo_outputs\\reports\\ucf-runtime-test-report\\clips\\evt_0001.mp4", "source_video": "campus_demo_outputs\\test_runtime_input.mp4", "fragment_href": "../../test_runtime_input.mp4#t=0.5,1.5"}, "evt_0002": {"event_id": "evt_0002", "start_sec": 2.5, "end_sec": 3.5, "status": "opencv", "clip_path": "D:\\VADTree (2)\\VADTree\\campus_demo_outputs\\reports\\ucf-runtime-test-report\\clips\\evt_0002.mp4", "source_video": "campus_demo_outputs\\test_runtime_input.mp4", "fragment_href": "../../test_runtime_input.mp4#t=2.5,3.5"}};
+    const fallbackEvents = [{"event_id": "evt_0001", "behavior_type": "打架斗殴", "campus_label": "打架斗殴", "risk_level": "medium", "track_ids": ["evt_0001"], "start_sec": 0.5, "end_sec": 1.5, "confidence": 0.6346, "review_status": "pending", "note": "", "clip_href": null, "reason_text": "10帧窗口运动强度 0.021，活跃像素占比 0.032，亮度波动 0.049，综合置信度 0.635。", "source_class": "打架斗殴", "peak_score": 0.6346, "mean_score": 0.6346, "duration_sec": 1.0, "start_frame": 5, "end_frame": 14}, {"event_id": "evt_0002", "behavior_type": "打架斗殴", "campus_label": "打架斗殴", "risk_level": "medium", "track_ids": ["evt_0002"], "start_sec": 2.5, "end_sec": 3.5, "confidence": 0.7458, "review_status": "pending", "note": "", "clip_href": null, "reason_text": "10帧窗口运动强度 0.025，活跃像素占比 0.039，亮度波动 0.048，综合置信度 0.746。", "source_class": "打架斗殴", "peak_score": 0.7458, "mean_score": 0.7458, "duration_sec": 1.0, "start_frame": 25, "end_frame": 34}];
+    const reportId = document.body.dataset.reportId;
+    const eventTableBody = document.getElementById('event-table-body');
+    const saveStatus = document.getElementById('save-status');
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function clipCell(eventId) {
+      const clipEntry = clipLookup[eventId] || {};
+      if (clipEntry.clip_path) {
+        const fileName = String(clipEntry.clip_path).split('/').pop();
+        return `<a href="clips/${escapeHtml(fileName)}">mp4</a>`;
+      }
+      if (clipEntry.fragment_href) {
+        return `<a href="${escapeHtml(clipEntry.fragment_href)}">jump</a>`;
+      }
+      return '-';
+    }
+
+    function renderEvents(events) {
+      if (!events.length) {
+        eventTableBody.innerHTML = '<tr><td colspan="8">No alert segment was generated for this video.</td></tr>';
+        return;
+      }
+      eventTableBody.innerHTML = events.map((event) => `
+        <tr data-event-id="${escapeHtml(event.event_id)}">
+          <td><button class="jump" data-start="${event.start_sec}">${escapeHtml(event.event_id)}</button></td>
+          <td><input type="text" name="campus_label" value="${escapeHtml(event.campus_label)}" /></td>
+          <td>
+            <select name="risk_level">
+              <option value="low" ${event.risk_level === 'low' ? 'selected' : ''}>low</option>
+              <option value="review" ${event.risk_level === 'review' ? 'selected' : ''}>review</option>
+              <option value="medium" ${event.risk_level === 'medium' ? 'selected' : ''}>medium</option>
+              <option value="high" ${event.risk_level === 'high' ? 'selected' : ''}>high</option>
+            </select>
+          </td>
+          <td>${event.start_sec.toFixed(2)}s - ${event.end_sec.toFixed(2)}s</td>
+          <td>${Number(event.peak_score).toFixed(3)}</td>
+          <td>${Number(event.mean_score).toFixed(3)}</td>
+          <td><textarea name="reason_text">${escapeHtml(event.reason_text)}</textarea></td>
+          <td>${clipCell(event.event_id)}</td>
+        </tr>
+      `).join('');
+
+      document.querySelectorAll('.jump').forEach((button) => {
+        button.addEventListener('click', () => {
+          const video = document.getElementById('main-video');
+          if (!video) return;
+          video.currentTime = Number(button.dataset.start || 0);
+          video.play();
+        });
+      });
+    }
+
+    async function loadEvents() {
+      try {
+        const response = await fetch(`events.current.json?ts=${Date.now()}`);
+        if (!response.ok) throw new Error('failed');
+        renderEvents(await response.json());
+        saveStatus.textContent = '当前展示的是最新已保存的日志。';
+      } catch (_error) {
+        renderEvents(fallbackEvents);
+      }
+    }
+
+    function collectEditedEvents() {
+      return Array.from(document.querySelectorAll('#event-table-body tr[data-event-id]')).map((row) => {
+        const eventId = row.dataset.eventId;
+        const original = fallbackEvents.find((item) => item.event_id === eventId) || {};
+        return {
+          ...original,
+          event_id: eventId,
+          campus_label: row.querySelector('[name="campus_label"]').value.trim(),
+          risk_level: row.querySelector('[name="risk_level"]').value,
+          reason_text: row.querySelector('[name="reason_text"]').value.trim(),
+        };
+      });
+    }
+
+    async function saveEvents() {
+      const payload = {
+        report_id: reportId,
+        events: collectEditedEvents(),
+      };
+      saveStatus.textContent = '正在保存...';
+      try {
+        const response = await fetch('/campus_demo/api/save-events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.ok) {
+          throw new Error(result.error || 'save failed');
+        }
+        saveStatus.textContent = '日志修改已保存，并已更新 current 导出文件与 zip 包。';
+        await loadEvents();
+      } catch (error) {
+        saveStatus.textContent = `保存失败：${error.message}`;
+      }
+    }
+
+    document.getElementById('save-events').addEventListener('click', saveEvents);
+    document.getElementById('reload-events').addEventListener('click', loadEvents);
+    loadEvents();
+  </script>
+</body>
+</html>

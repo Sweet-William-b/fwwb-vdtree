@@ -97,7 +97,7 @@ def get_split_100frames_opencv_trans(video_fn, input_size=(224,224,3), Trans=Non
     if fps<10:
         print(f"video fps less than 10, videlolen: {videolen} frames, fps: {fps}")
 
-    sample_frames = int((videolen/fps)*min(10, fps)) # 10s采样100帧,即1s采样10帧
+    sample_frames = int((videolen/fps)*min(3, fps)) # 10s采样100帧,即1s采样10帧
 
     frames = []
     org_frames = []

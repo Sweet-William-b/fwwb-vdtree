@@ -1,4 +1,4 @@
-import argparse, glob
+import argparse, glob, hashlib
 import numpy as np, re
 
 from src.data.video_record import VideoRecord
@@ -101,9 +101,16 @@ def parse_args():
         name = os.path.normpath(os.path.dirname(args.fine_scores_json)).replace('EGEBD_x2x3x4_r50_eff_split_out_th',
             'EX234R50ES')
         name =name.replace('LLaVA-Video-7B-Qwen2', 'LV7Q').replace('DeepSeek-R1-Distill-Qwen-14B', 'DRDQ14')
-        name = '_'.join(name.split('/')[-3:])
+        name = '_'.join(Path(name).parts[-3:])
+        if os.name == 'nt':
+            digest = hashlib.md5(os.path.dirname(args.fine_scores_json).encode('utf-8')).hexdigest()[:8]
+            name = f'win_{digest}'
         args.output_dir += f'_{name}_beat{args.beta}'
-        args.ense_score_output_json = os.path.join(args.output_dir, 'ense_'+os.path.basename(args.coarse_scores_json))
+        ense_filename = 'ense_'+os.path.basename(args.coarse_scores_json)
+        if os.name == 'nt':
+            ense_digest = hashlib.md5(args.coarse_scores_json.encode('utf-8')).hexdigest()[:8]
+            ense_filename = f'ense_{ense_digest}.json'
+        args.ense_score_output_json = os.path.join(args.output_dir, ense_filename)
 
 
     return args
@@ -120,7 +127,7 @@ def main(
 
     # Load video records from the annotation file
     video_list = [VideoRecord(x.strip().split(), '' if args.video_root is None else args.video_root) for x in open(
-        args.annotationfile_path)]
+        args.annotationfile_path, 'r', encoding='utf-8-sig')]
 
     flat_scores, flat_labels = initialize_score_dicts(
         scores_json=args.coarse_scores_json
@@ -130,22 +137,22 @@ def main(
     dataset_metric = {}
 
     # load all_video_scores_dict
-    with open(args.coarse_scores_json) as f:
+    with open(args.coarse_scores_json, 'r', encoding='utf-8-sig') as f:
         all_video_scores_dict = json.load(f)
     # pprint(all_video_scores_dict['config'])
     out_all_video_scores_dict = copy.deepcopy(all_video_scores_dict)
 
     # load ense_scores_dict
-    with open(args.fine_scores_json) as f:
+    with open(args.fine_scores_json, 'r', encoding='utf-8-sig') as f:
         all_ense_scores_dict = json.load(f)
 
     if args.split_pred is not None:
-        with open(args.split_pred) as f:
+        with open(args.split_pred, 'r', encoding='utf-8-sig') as f:
             all_video_split_pred = json.load(f)
 
     if 'MSAD' in args.coarse_scores_json: # load video info for fps
         with open(f'{args.vadtree_path}/MSAD_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.4'
-                  '/dfs_coarse_sences.json') as f:
+                  '/dfs_coarse_sences.json', 'r', encoding='utf-8-sig') as f:
             msad_video_info = json.load(f)
 
     ab_pro_mean = []
@@ -349,4 +356,3 @@ if __name__ == "__main__":
     main(
         args
     )
-

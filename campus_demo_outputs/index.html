@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Campus Demo Reports</title>
+  <style>
+    body {
+      margin: 0;
+      background: #f5f5f4;
+      color: #1c1917;
+      font-family: "Georgia", serif;
+    }
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .hero, .panel {
+      background: #fffbeb;
+      border: 1px solid #d6d3d1;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border-top: 1px solid #d6d3d1;
+      padding: 10px 8px;
+      text-align: left;
+    }
+    th {
+      color: #57534e;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    a {
+      color: #14532d;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .links a {
+      display: inline-block;
+      margin-right: 14px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <h1 style="margin-top:0">Campus Security Demo Reports</h1>
+      <p>Static offline reports generated from cached VADTree anomaly results.</p>
+      <div class="links">
+        <a href="/campus_demo/console">Open web console</a>
+      </div>
+    </section>
+    <section class="panel">
+      <table>
+        <thead>
+          <tr>
+            <th>Video</th>
+            <th>Dataset</th>
+            <th>Source Class</th>
+            <th>Campus Label</th>
+            <th>Events</th>
+            <th>Peak Score</th>
+            <th>Generated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><a href="reports/ucf-rtsp-job-94a5f21bfd-rtsp-job-94a5f21bfd/index.html">rtsp-job_94a5f21bfd.mp4</a></td><td>UCF-Crime</td><td>RuntimeMotion</td><td>异常行为</td><td>2</td><td>0.746</td><td>2026-04-21T20:36:45</td></tr><tr><td><a href="reports/ucf-upload-job-1900926ec1-fight-demo/index.html">fight_demo.mp4</a></td><td>UCF-Crime</td><td>打架斗殴</td><td>打架斗殴</td><td>2</td><td>0.746</td><td>2026-04-21T20:36:44</td></tr><tr><td><a href="reports/ucf-rtsp-job-0ff3736030-rtsp-job-0ff3736030/index.html">rtsp-job_0ff3736030.mp4</a></td><td>UCF-Crime</td><td>RuntimeMotion</td><td>异常行为</td><td>2</td><td>0.746</td><td>2026-04-21T20:32:30</td></tr><tr><td><a href="reports/ucf-upload-job-31f7d9c9b8-fight-demo/index.html">fight_demo.mp4</a></td><td>UCF-Crime</td><td>打架斗殴</td><td>打架斗殴</td><td>2</td><td>0.746</td><td>2026-04-21T20:32:19</td></tr><tr><td><a href="reports/ucf-runtime-test-report/index.html">fight_demo.mp4</a></td><td>UCF-Crime</td><td>打架斗殴</td><td>打架斗殴</td><td>2</td><td>0.746</td><td>2026-04-21T20:32:05</td></tr><tr><td><a href="reports/ucf-fighting047-x264/index.html">Fighting047_x264.mp4</a></td><td>UCF-Crime</td><td>Fighting</td><td>打架斗殴</td><td>1</td><td>0.405</td><td>2026-04-21T16:39:19</td></tr><tr><td><a href="reports/ucf-assault006-x264/index.html">Assault006_x264.mp4</a></td><td>UCF-Crime</td><td>Assault</td><td>单向攻击/疑似霸凌</td><td>2</td><td>0.587</td><td>2026-04-21T14:39:23</td></tr><tr><td><a href="reports/ucf-normal-videos-189-x264/index.html">Normal_Videos_189_x264.mp4</a></td><td>UCF-Crime</td><td>Normal</td><td>正常行为</td><td>0</td><td>0.000</td><td>2026-04-21T14:39:23</td></tr><tr><td><a href="reports/ucf-robbery048-x264/index.html">Robbery048_x264.mp4</a></td><td>UCF-Crime</td><td>Robbery</td><td>可疑闯入/财物风险</td><td>1</td><td>0.300</td><td>2026-04-21T14:39:23</td></tr><tr><td><a href="reports/ucf-burglary018-x264/index.html">Burglary018_x264.mp4</a></td><td>UCF-Crime</td><td>Burglary</td><td>可疑闯入/财物风险</td><td>1</td><td>0.349</td><td>2026-04-21T14:39:23</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</body>
+</html>
