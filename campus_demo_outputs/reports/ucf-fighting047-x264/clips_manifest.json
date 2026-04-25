@@ -3,9 +3,9 @@
     "event_id": "evt_0001",
     "start_sec": 30.1,
     "end_sec": 52.53,
-    "status": "fragment_only",
-    "clip_path": null,
-    "source_video": "/home/zh-star/rspace/VADTree/UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4",
+    "status": "opencv",
+    "clip_path": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/reports/ucf-fighting047-x264/clips/evt_0001.mp4",
+    "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4",
     "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4#t=30.1,52.53"
   }
 ]

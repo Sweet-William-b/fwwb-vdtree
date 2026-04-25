@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320">
   <rect width="1200" height="320" fill="#fafafa" />
-  <text x="56" y="14" font-size="14" fill="#111827">Anomaly score timeline</text>
+  <text x="56" y="14" font-size="14" fill="#111827">Anomaly Score Timeline</text>
   <rect x="248.44" y="18" width="158.99" height="262" fill="#fecaca" fill-opacity="0.35" /><rect x="602.65" y="18" width="12.40" height="262" fill="#fecaca" fill-opacity="0.35" />
   <line x1="56" y1="18" x2="56" y2="280" stroke="#777777" />
   <line x1="56" y1="280" x2="1184" y2="280" stroke="#777777" />

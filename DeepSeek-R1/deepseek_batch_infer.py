@@ -5,6 +5,7 @@ import sys, os, io, re
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import json, argparse
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # 在torch之前
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "max_split_size_mb:128")
 # os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"  # 在torch之前
 # os.environ["CUDA_VISIBLE_DEVICES"] = "4,5"  # 在torch之前
 # os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"  # 在torch之前
@@ -23,7 +24,7 @@ from tqdm import tqdm
 from src.data.video_record import VideoRecord
 from src.utils.path_utils import find_unprocessed_videos
 
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
 
 
@@ -74,7 +75,7 @@ def parse_args():
         default=addition_prompt, 
         help="additional prompt to be added to prompt_flag's prompt"
         )
-    parser.add_argument("--think", type=bool, default=True)
+    parser.add_argument("--think", type=bool, default=False)
     parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--frame_interval", type=int, default=1)
     parser.add_argument("--summary_prompt", type=str, default=summary_prompt)
@@ -92,8 +93,8 @@ def parse_args():
     parser.add_argument("--tokenizer_path", type=str, default=None)
     parser.add_argument("--temperature", type=float, default=0.6)
     parser.add_argument("--top_p", type=float, default=0.9)
-    parser.add_argument("--max_seq_len", type=int, default=128)
-    parser.add_argument("--max_gen_len", type=int, default=128)
+    parser.add_argument("--max_seq_len", type=int, default=64)
+    parser.add_argument("--max_gen_len", type=int, default=8)
     parser.add_argument("--resume",type=bool,
         # default=True,
         default=False,
@@ -115,7 +116,7 @@ def parse_args():
     elif 'XD' in args.output_summary_json:
         args.annotationfile_path = f'{vadtree_path}/dataset_info/xd_violence/annotations/anomaly_test.txt'
     elif 'MSAD' in args.output_summary_json:
-        args.annotationfile_path=f'{vadtree_path}/dataset_info/msad/annotations/anomaly_test.txt'
+        args.annotationfile_path=f'{vadtree_path}/dataset_info/MSAD/annotations/anomaly_test.txt'
     else:
         raise ValueError('Unknown annotationfile_path file format.')
 
@@ -188,9 +189,21 @@ class LLMAnomalyScorer:
         #     max_batch_size=self.batch_size,
         # )
 
-        self.model = AutoModelForCausalLM.from_pretrained(self.ckpt_dir,  # torch_dtype=torch.bfloat16,
-            torch_dtype=torch.float16, device_map="auto", )
-        self.tokenizer = AutoTokenizer.from_pretrained(ckpt_dir, padding_side="left")
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        )
+        self.model = AutoModelForCausalLM.from_pretrained(
+            self.ckpt_dir,
+            torch_dtype=torch.float16,
+            device_map="auto",
+            quantization_config=quantization_config,
+            low_cpu_mem_usage=True,
+        )
+        self.tokenizer = AutoTokenizer.from_pretrained(self.ckpt_dir, padding_side="left")
+        self.model.eval()
 
         print(f'{"-" * 50} {self.ckpt_dir} loaded {"-" * 50}')
 
@@ -329,13 +342,21 @@ class LLMAnomalyScorer:
             text_batch = self.tokenizer.apply_chat_template(dialogs, tokenize=False, add_generation_prompt=True, )
             if not self.args.think:
                 text_batch = [i + '\n</think>\n\n' for i in text_batch]
-            model_inputs_batch = self.tokenizer(text_batch, return_tensors="pt", padding=True).to(self.model.device)
+            model_inputs_batch = self.tokenizer(
+                text_batch,
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+                max_length=self.max_seq_len,
+            ).to(self.model.device)
 
+            torch.cuda.empty_cache()
             generated_ids_batch = self.model.generate(**model_inputs_batch, max_new_tokens=self.max_gen_len,
                 temperature=self.temperature,
                 eos_token_id=self.model.config.eos_token_id,
                 pad_token_id=self.model.config.eos_token_id, do_sample=True,
-                top_k=50, top_p=self.top_p, )
+                top_k=50, top_p=self.top_p, use_cache=False, )
+            torch.cuda.empty_cache()
             generated_ids_batch = generated_ids_batch[:, model_inputs_batch.input_ids.shape[1]:]
             results = self.tokenizer.batch_decode(generated_ids_batch, skip_special_tokens=True)
 
@@ -388,12 +409,20 @@ class LLMAnomalyScorer:
             sum_text_batch = self.tokenizer.apply_chat_template(sum_dialogs, tokenize=False, add_generation_prompt=True, )
             if not self.args.think:
                 sum_text_batch = [i + '\n</think>\n\n' for i in sum_text_batch]
-            sum_model_inputs_batch = self.tokenizer(sum_text_batch, return_tensors="pt", padding=True).to(self.model.device)
+            sum_model_inputs_batch = self.tokenizer(
+                sum_text_batch,
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+                max_length=self.max_seq_len,
+            ).to(self.model.device)
+            torch.cuda.empty_cache()
             sum_generated_ids_batch = self.model.generate(**sum_model_inputs_batch, max_new_tokens=self.max_gen_len,
                 temperature=self.temperature,
                 eos_token_id=self.model.config.eos_token_id,
                 pad_token_id=self.model.config.eos_token_id, do_sample=True,
-                top_k=50, top_p=self.top_p, )
+                top_k=50, top_p=self.top_p, use_cache=False, )
+            torch.cuda.empty_cache()
             sum_generated_ids_batch = sum_generated_ids_batch[:, sum_model_inputs_batch.input_ids.shape[1]:]
             sum_results = self.tokenizer.batch_decode(sum_generated_ids_batch, skip_special_tokens=True)
 
@@ -419,13 +448,21 @@ class LLMAnomalyScorer:
             text_batch = self.tokenizer.apply_chat_template(dialogs, tokenize=False, add_generation_prompt=True, )
             if not self.args.think:
                 text_batch = [i + '\n</think>\n\n' for i in text_batch]
-            model_inputs_batch = self.tokenizer(text_batch, return_tensors="pt", padding=True).to(self.model.device)
+            model_inputs_batch = self.tokenizer(
+                text_batch,
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+                max_length=self.max_seq_len,
+            ).to(self.model.device)
 
+            torch.cuda.empty_cache()
             generated_ids_batch = self.model.generate(**model_inputs_batch, max_new_tokens=self.max_gen_len,
                 temperature=self.temperature,
                 eos_token_id=self.model.config.eos_token_id,
                 pad_token_id=self.model.config.eos_token_id, do_sample=True,
-                top_k=50, top_p=self.top_p, )
+                top_k=50, top_p=self.top_p, use_cache=False, )
+            torch.cuda.empty_cache()
             generated_ids_batch = generated_ids_batch[:, model_inputs_batch.input_ids.shape[1]:]
             results = self.tokenizer.batch_decode(generated_ids_batch, skip_special_tokens=True)
 

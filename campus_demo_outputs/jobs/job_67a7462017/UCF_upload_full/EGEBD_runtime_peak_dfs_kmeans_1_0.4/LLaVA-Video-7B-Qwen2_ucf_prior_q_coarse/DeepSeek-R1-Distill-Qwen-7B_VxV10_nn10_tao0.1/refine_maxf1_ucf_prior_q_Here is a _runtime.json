@@ -1,0 +1,68 @@
+{
+    "config": {
+        "video_root": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_67a7462017/UCF_upload_full/runtime_video_root",
+        "ckpt_dir": "/home/zh-star/rspace/fwwb-vdtree/DeepSeek-R1/DeepSeek-R1-Distill-Qwen-7B",
+        "video_clip_summary_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_67a7462017/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/maxf1_ucf_prior_q_Here is a _runtime.json",
+        "prompt_flag": "",
+        "addition_prompt": null,
+        "think": false,
+        "batch_size": 1,
+        "frame_interval": 1,
+        "summary_prompt": "Please summarize what happened in few sentences, based on the following temporal description of a scene. Do not include any unnecessary details or descriptions.",
+        "context_prompt": "How would you rate the scene described on a scale from 0 to 1, with 0 representing a standard scene and 1 denoting a scene with suspicious or potentially criminal activities?",
+        "format_prompt": "Please provide the response in the form of a Python list and respond with only one number in the provided list below [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] without any textual explanation. It should begin with '[' and end with  ']'.",
+        "output_summary_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_67a7462017/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/maxf1_ucf_prior_q_Here is a _runtime.json",
+        "captions_json": null,
+        "tokenizer_path": null,
+        "temperature": 0.6,
+        "top_p": 0.9,
+        "max_seq_len": 64,
+        "max_gen_len": 8,
+        "resume": false,
+        "pathname": "*.json",
+        "num_jobs": 1,
+        "job_index": 0,
+        "score_summary": true,
+        "annotationfile_path": "/home/zh-star/rspace/fwwb-vdtree/dataset_info/ucf_crime/annotations/anomaly_test.txt",
+        "output_scores_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_67a7462017/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/DeepSeek-R1-Distill-Qwen-7B//maxf1_ucf_prior_q_Here is a _runtime.json"
+    },
+    "vid_score": {
+        "Vandalism019_x264.mp4": {
+            "0, 725": [
+                -1.0,
+                -1,
+                "0.0, 0.1"
+            ],
+            "725, 1118": [
+                -1.0,
+                -1,
+                "0.0, 1.0"
+            ],
+            "1118, 2046": [
+                -1.0,
+                -1,
+                "0.0, 0.1"
+            ]
+        }
+    },
+    "args_dict": {
+        "scores_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_67a7462017/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/DeepSeek-R1-Distill-Qwen-7B/maxf1_ucf_prior_q_Here is a _runtime.json",
+        "video_root": "/root/autodl-fs/lwl/data/UCF_Crime_test/test_videos",
+        "similarity_pkl": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_67a7462017/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/sim_maxf1_ucf_prior_q_Here is a _runtime.pkl",
+        "similarity_type": "VxV",
+        "topK": 10,
+        "num_neighbors": 10,
+        "dyn_ratio": null,
+        "tao": 0.1,
+        "without_labels": true,
+        "visualize": false,
+        "vadtree_path": "/home/zh-star/rspace/fwwb-vdtree",
+        "normal_label": 7,
+        "video_fps": 30.0,
+        "annotationfile_path": "/home/zh-star/rspace/fwwb-vdtree/dataset_info/ucf_crime/annotations/anomaly_test.txt",
+        "temporal_annotation_file": "/home/zh-star/rspace/fwwb-vdtree/dataset_info/ucf_crime/annotations/Temporal_Anomaly_Annotation_for_Testing_Videos.txt",
+        "output_dir": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_67a7462017/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/DeepSeek-R1-Distill-Qwen-7B_VxV10_nn10_tao0.1",
+        "refine_score_output_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_67a7462017/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/DeepSeek-R1-Distill-Qwen-7B_VxV10_nn10_tao0.1/refine_maxf1_ucf_prior_q_Here is a _runtime.json"
+    },
+    "dataset_metric": {}
+}

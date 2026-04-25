@@ -1,6 +1,7 @@
 import sys, os, json
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "max_split_size_mb:128")
 # os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "5,6"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "8,9"
@@ -208,14 +209,14 @@ if __name__ == "__main__":
     args = parse_args()
 
     model_name = "llava_qwen"
-    device = "cuda"
+    device = "cuda:0"
     device_map = "auto"
     # device_map = "balanced_low_0"
-    tokenizer, model, image_processor, max_length = load_pretrained_model(args.pretrained, None, model_name,      
-        load_4bit=True, 
+    tokenizer, model, image_processor, max_length = load_pretrained_model(args.pretrained, None, model_name,
+        load_4bit=True,
         torch_dtype="float16",
         device_map=device_map,
-        attn_implementation=None,)  # Add any other thing you want to pass in llava_model_args
+        attn_implementation="eager")  # Avoid requiring flash_attn in runtime inference
     model.eval()
 
     json_path = args.json_path
@@ -243,10 +244,10 @@ if __name__ == "__main__":
 
 
 
-    maxf = 2 # default max_num_frames=64   双卡
-    max_new_tokens = 8 # default max_new_tokens = 4096
+    maxf = 1
+    max_new_tokens = 8
     batch_size = 1
-    num_workers = 0  # 根据 CPU 核心数调整
+    num_workers = 0
     force_sample = False
 
     # with open('/root/autodl-tmp/data/UCF_Crime_test/EGEBD_basic_r50_out_th0.5/LLaVA-Video-7B-Qwen2/maxf64_out_Please describe in one sentence what happened in the video..json', 'r', encoding='utf-8') as file:
@@ -254,11 +255,13 @@ if __name__ == "__main__":
     # out_json_path = os.path.join(output_dir, f"maxf{maxf}_out_prior_question.json")
     out_json_path = os.path.join(output_dir, f"maxf{maxf}_{args.prompt_flag}_{question[:10]}.json")
 
+    s = e = None
     if args.dataset_clip!=None:
         [s, e] = args.dataset_clip
         json_data = dict(list(json_data.items())[s:e+1])
     if len(json_data.keys()) not in [800, 290, 240]:
-        out_json_path = out_json_path.replace('.json', f'_{s}_{e}.json')
+        suffix = f'_{s}_{e}' if s is not None and e is not None else '_runtime'
+        out_json_path = out_json_path.replace('.json', f'{suffix}.json')
     print('-----save to :', out_json_path)
 
 
@@ -293,7 +296,7 @@ if __name__ == "__main__":
         shuffle=False,  # 是否打乱数据
         # num_workers=num_workers,  # 使用多进程加载数据
         num_workers=num_workers,  # 使用多进程加载数据,当前仅支持后台的单进程传输，因为涉及到batch间的数据切片
-        pin_memory=True  # 如果使用 GPU，建议启用 pin_memory 加速数据传输
+        pin_memory=False
     )
 
     vid_captions = {}
@@ -312,7 +315,7 @@ if __name__ == "__main__":
                 (idx, video,input_ids,k, vid_seg_str) = out
                 idx, video,input_ids,k, vid_seg_str = (int(idx), video[0], input_ids[0], k[0],
                 vid_seg_str[0])
-                # torch.cuda.empty_cache()
+                torch.cuda.empty_cache()
                 cont = model.generate(
                     input_ids.to(device),
                     images=[video.to(device)],
@@ -322,6 +325,7 @@ if __name__ == "__main__":
                     max_new_tokens=max_new_tokens,
                     use_cache=False,
                 )
+                torch.cuda.empty_cache()
                 text_outputs = tokenizer.batch_decode(cont, skip_special_tokens=True)[0].strip()
                 # print(text_outputs)
                 vid_captions[k][vid_seg_str] = text_outputs

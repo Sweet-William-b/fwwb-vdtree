@@ -82,6 +82,9 @@ RISK_LEVELS = {"low", "review", "medium", "high"}
 REVIEW_STATUSES = {"pending", "confirmed", "false_positive"}
 TERMINAL_JOB_STATUSES = {"failed", "completed", "cancelled"}
 REVIEWABLE_JOB_STATUSES = {"reviewable", "completed"}
+SUCCESSFUL_HISTORY_STATUSES = {"reviewable", "completed"}
+MAX_HISTORY_ITEMS = 30
+MAX_TRANSIENT_HISTORY_ITEMS = 6
 
 RUNTIME_LOCK = threading.Lock()
 JOB_STORE: dict[str, dict[str, Any]] = {}
@@ -227,6 +230,47 @@ def _alert_event_from_raw(event: dict[str, Any], clip_lookup: dict[str, str | No
     }
 
 
+def _resolve_local_dataset_video_path(dataset_name: Any, video_name: Any) -> Path | None:
+    if not dataset_name or not video_name:
+        return None
+    try:
+        store = get_store(str(dataset_name))
+    except Exception:
+        return None
+    video_root = store.config.video_root
+    if video_root is None:
+        return None
+    candidate = video_root / Path(str(video_name)).name
+    return candidate if candidate.exists() else None
+
+
+def _resolve_job_preview_href(job: dict[str, Any]) -> str | None:
+    existing = job.get("preview_href")
+    if existing:
+        return existing
+
+    summary = job.get("summary") or {}
+    video_path = summary.get("video_path")
+    if video_path:
+        served = _served_href_for_path(video_path)
+        if served:
+            return served
+        candidate_path = Path(str(video_path))
+        if candidate_path.exists():
+            served = _served_href_for_path(candidate_path)
+            if served:
+                return served
+
+    for candidate_name in (job.get("video_name"), job.get("source_label"), summary.get("video_name")):
+        local_path = _resolve_local_dataset_video_path(job.get("dataset_name"), candidate_name)
+        if local_path is not None:
+            served = _served_href_for_path(local_path)
+            if served:
+                return served
+
+    return None
+
+
 def _job_public_view(job: dict[str, Any]) -> dict[str, Any]:
     processing_fps = job.get("processing_fps", job.get("current_fps", 0.0))
     payload = {
@@ -255,7 +299,7 @@ def _job_public_view(job: dict[str, Any]) -> dict[str, Any]:
         "output_dir": job.get("output_dir"),
         "report_id": job.get("report_id"),
         "report_href": job.get("report_href"),
-        "preview_href": job.get("preview_href"),
+        "preview_href": _resolve_job_preview_href(job),
         "event_count": job.get("event_count", 0),
         "current_sec": job.get("current_sec", 0.0),
         "total_frames": job.get("total_frames", 0),
@@ -265,6 +309,51 @@ def _job_public_view(job: dict[str, Any]) -> dict[str, Any]:
         "exports": deepcopy(job.get("exports", [])),
     }
     return sanitize_for_json(payload)
+
+
+def _history_timestamp_value(record: dict[str, Any]) -> float:
+    for field in ("updated_at", "generated_at", "created_at"):
+        value = record.get(field)
+        if not value:
+            continue
+        try:
+            return datetime.fromisoformat(str(value)).timestamp()
+        except ValueError:
+            continue
+    return 0.0
+
+
+def _history_record_is_successful(record: dict[str, Any]) -> bool:
+    return bool(record.get("report_id") or record.get("report_href")) or record.get("status") in SUCCESSFUL_HISTORY_STATUSES
+
+
+def _history_status_rank(record: dict[str, Any]) -> int:
+    return {
+        "reviewable": 0,
+        "completed": 1,
+        "running": 2,
+        "queued": 3,
+        "cancelled": 4,
+        "failed": 5,
+    }.get(str(record.get("status") or ""), 9)
+
+
+def _history_sort_key(record: dict[str, Any]) -> tuple[int, int, float]:
+    return (
+        0 if _history_record_is_successful(record) else 1,
+        _history_status_rank(record),
+        -_history_timestamp_value(record),
+    )
+
+
+def _pick_newer_history_record(current: dict[str, Any] | None, candidate: dict[str, Any]) -> dict[str, Any]:
+    if current is None:
+        return candidate
+    if _history_record_is_successful(candidate) and not _history_record_is_successful(current):
+        return candidate
+    if _history_timestamp_value(candidate) >= _history_timestamp_value(current):
+        return candidate
+    return current
 
 
 def _record_job_history(job: dict[str, Any]) -> None:
@@ -281,6 +370,52 @@ def _latest_report_history() -> list[dict[str, Any]]:
         if existing is None or record.get("generated_at", "") >= existing.get("generated_at", ""):
             latest_by_report[report_href] = record
     return sorted(latest_by_report.values(), key=lambda item: item.get("generated_at", ""), reverse=True)
+
+
+def _history_job_from_report_record(record: dict[str, Any]) -> dict[str, Any]:
+    report_href = record["report_href"]
+    report_id = _report_id_from_href(report_href)
+    report_dir = _report_dir_from_id(report_id)
+    preview_href = None
+    summary = {}
+    analysis_path = report_dir / "analysis.current.json"
+    if analysis_path.exists():
+        summary = read_json(analysis_path).get("summary", {})
+        preview_href = _served_href_for_path(summary.get("video_path"))
+    return {
+        "job_id": f"hist-{report_id}",
+        "source_type": "history",
+        "source_label": record.get("video_name"),
+        "dataset_name": record.get("dataset_name"),
+        "dataset_display_name": record.get("dataset_display_name"),
+        "video_name": record.get("video_name"),
+        "status": "completed",
+        "progress_mode": "determinate",
+        "progress": 1.0,
+        "stream_state": None,
+        "segment_frames": summary.get("segment_frames", SEGMENT_FRAMES),
+        "window_frames": summary.get("window_frames", WINDOW_FRAMES),
+        "processed_segments": summary.get("processed_segments", 0),
+        "analyzed_windows": summary.get("analyzed_windows", 0),
+        "buffered_segments": 0,
+        "source_fps": summary.get("fps", 0.0),
+        "processing_fps": summary.get("processing_fps", 0.0),
+        "current_fps": 0.0,
+        "latency_ms": 0.0,
+        "created_at": record.get("generated_at"),
+        "updated_at": record.get("generated_at"),
+        "output_dir": str(report_dir),
+        "report_id": report_id,
+        "report_href": report_href,
+        "preview_href": preview_href,
+        "event_count": record.get("event_count", 0),
+        "current_sec": 0.0,
+        "total_frames": 0,
+        "error": None,
+        "summary": summary,
+        "latest_alerts": [],
+        "exports": _report_artifacts(report_dir),
+    }
 
 
 def _seed_runtime_from_history() -> None:
@@ -303,47 +438,7 @@ def _seed_runtime_from_history() -> None:
             report_id = _report_id_from_href(report_href)
             if report_id in known_report_ids:
                 continue
-            report_dir = _report_dir_from_id(report_id)
-            preview_href = None
-            summary = {}
-            analysis_path = report_dir / "analysis.current.json"
-            if analysis_path.exists():
-                summary = read_json(analysis_path).get("summary", {})
-                preview_href = _served_href_for_path(summary.get("video_path"))
-            JOB_STORE[f"hist-{report_id}"] = {
-                "job_id": f"hist-{report_id}",
-                "source_type": "history",
-                "source_label": record.get("video_name"),
-                "dataset_name": record.get("dataset_name"),
-                "dataset_display_name": record.get("dataset_display_name"),
-                "video_name": record.get("video_name"),
-                "status": "completed",
-                "progress_mode": "determinate",
-                "progress": 1.0,
-                "stream_state": None,
-                "segment_frames": summary.get("segment_frames", SEGMENT_FRAMES),
-                "window_frames": summary.get("window_frames", WINDOW_FRAMES),
-                "processed_segments": summary.get("processed_segments", 0),
-                "analyzed_windows": summary.get("analyzed_windows", 0),
-                "buffered_segments": 0,
-                "source_fps": summary.get("fps", 0.0),
-                "processing_fps": summary.get("processing_fps", 0.0),
-                "current_fps": 0.0,
-                "latency_ms": 0.0,
-                "created_at": record.get("generated_at"),
-                "updated_at": record.get("generated_at"),
-                "output_dir": str(report_dir),
-                "report_id": report_id,
-                "report_href": report_href,
-                "preview_href": preview_href,
-                "event_count": record.get("event_count", 0),
-                "current_sec": 0.0,
-                "total_frames": 0,
-                "error": None,
-                "summary": summary,
-                "latest_alerts": [],
-                "exports": _report_artifacts(report_dir),
-            }
+            JOB_STORE[f"hist-{report_id}"] = _history_job_from_report_record(record)
         BOOTSTRAPPED_HISTORY = True
 
 
@@ -364,20 +459,24 @@ def _get_job(job_id: str) -> dict[str, Any]:
 
 
 def _list_history_jobs() -> list[dict[str, Any]]:
-    latest_by_job: dict[str, dict[str, Any]] = {}
+    successful_by_report: dict[str, dict[str, Any]] = {}
+    transient_by_job: dict[str, dict[str, Any]] = {}
     for record in read_history(JOB_HISTORY_PATH):
         job_id = record.get("job_id")
         if not job_id:
             continue
-        existing = latest_by_job.get(job_id)
-        if existing is None or record.get("updated_at", "") >= existing.get("updated_at", ""):
-            latest_by_job[job_id] = record
+        report_id = record.get("report_id")
+        report_href = record.get("report_href")
+        if report_id or report_href:
+            report_key = str(report_id or _report_id_from_href(str(report_href)))
+            successful_by_report[report_key] = _pick_newer_history_record(
+                successful_by_report.get(report_key),
+                record,
+            )
+            continue
+        transient_by_job[str(job_id)] = _pick_newer_history_record(transient_by_job.get(str(job_id)), record)
 
-    known_report_ids = {
-        str(record.get("report_id"))
-        for record in latest_by_job.values()
-        if record.get("report_id")
-    }
+    known_report_ids = set(successful_by_report)
     for record in _latest_report_history():
         report_href = record.get("report_href")
         if not report_href:
@@ -385,50 +484,19 @@ def _list_history_jobs() -> list[dict[str, Any]]:
         report_id = _report_id_from_href(report_href)
         if report_id in known_report_ids:
             continue
-        report_dir = _report_dir_from_id(report_id)
-        preview_href = None
-        summary = {}
-        analysis_path = report_dir / "analysis.current.json"
-        if analysis_path.exists():
-            summary = read_json(analysis_path).get("summary", {})
-            preview_href = _served_href_for_path(summary.get("video_path"))
-        latest_by_job[f"hist-{report_id}"] = {
-            "job_id": f"hist-{report_id}",
-            "source_type": "history",
-            "source_label": record.get("video_name"),
-            "dataset_name": record.get("dataset_name"),
-            "dataset_display_name": record.get("dataset_display_name"),
-            "video_name": record.get("video_name"),
-            "status": "completed",
-            "progress_mode": "determinate",
-            "progress": 1.0,
-            "stream_state": None,
-            "segment_frames": summary.get("segment_frames", SEGMENT_FRAMES),
-            "window_frames": summary.get("window_frames", WINDOW_FRAMES),
-            "processed_segments": summary.get("processed_segments", 0),
-            "analyzed_windows": summary.get("analyzed_windows", 0),
-            "buffered_segments": 0,
-            "source_fps": summary.get("fps", 0.0),
-            "processing_fps": summary.get("processing_fps", 0.0),
-            "current_fps": 0.0,
-            "latency_ms": 0.0,
-            "created_at": record.get("generated_at"),
-            "updated_at": record.get("generated_at"),
-            "output_dir": str(report_dir),
-            "report_id": report_id,
-            "report_href": report_href,
-            "preview_href": preview_href,
-            "event_count": record.get("event_count", 0),
-            "current_sec": 0.0,
-            "total_frames": 0,
-            "error": None,
-            "summary": summary,
-            "latest_alerts": [],
-            "exports": _report_artifacts(report_dir),
-        }
+        successful_by_report[report_id] = _history_job_from_report_record(record)
 
-    jobs = [_job_public_view(job) for job in latest_by_job.values()]
-    return sorted(jobs, key=lambda item: item.get("created_at", ""), reverse=True)
+    jobs = [_job_public_view(job) for job in successful_by_report.values()]
+    transient_jobs = [_job_public_view(job) for job in transient_by_job.values()]
+    ordered_successful = sorted(jobs, key=_history_sort_key)
+    ordered_transient = sorted(transient_jobs, key=_history_sort_key)
+
+    if ordered_successful:
+        transient_limit = min(MAX_TRANSIENT_HISTORY_ITEMS, max(2, MAX_HISTORY_ITEMS - len(ordered_successful)))
+    else:
+        transient_limit = min(MAX_HISTORY_ITEMS, 12)
+
+    return (ordered_successful + ordered_transient[:transient_limit])[:MAX_HISTORY_ITEMS]
 
 
 def _create_uploaded_source(filename: str, payload: bytes, dataset_hint: str | None = None) -> dict[str, Any]:
@@ -1179,12 +1247,17 @@ class CampusDemoHandler(SimpleHTTPRequestHandler):
         if path == "/campus_demo/api/videos":
             dataset = parse_qs(parsed.query).get("dataset", ["ucf"])[0]
             store = get_store(dataset)
+            website_videos = store.website_videos()
             self._send_json(
                 {
                     "dataset": dataset,
                     "dataset_display_name": store.config.display_name,
-                    "videos": store.list_videos(),
+                    "videos": website_videos,
                     "default_samples": store.default_samples(),
+                    "website_samples": store.website_sample_names(),
+                    "displayed_video_count": len(website_videos),
+                    "total_video_count": len(store.available_videos()),
+                    "sample_scope": "website_curated" if store.config.website_samples else "all",
                 }
             )
             return True

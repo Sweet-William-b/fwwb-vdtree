@@ -3,18 +3,14 @@
     "event_id": "evt_0001",
     "start_sec": 0.5,
     "end_sec": 1.5,
-    "status": "opencv",
-    "clip_path": "D:\\VADTree (2)\\VADTree\\campus_demo_outputs\\reports\\ucf-runtime-test-report\\clips\\evt_0001.mp4",
-    "source_video": "campus_demo_outputs\\test_runtime_input.mp4",
-    "fragment_href": "../../test_runtime_input.mp4#t=0.5,1.5"
+    "status": "source_video_missing",
+    "clip_path": null
   },
   {
     "event_id": "evt_0002",
     "start_sec": 2.5,
     "end_sec": 3.5,
-    "status": "opencv",
-    "clip_path": "D:\\VADTree (2)\\VADTree\\campus_demo_outputs\\reports\\ucf-runtime-test-report\\clips\\evt_0002.mp4",
-    "source_video": "campus_demo_outputs\\test_runtime_input.mp4",
-    "fragment_href": "../../test_runtime_input.mp4#t=2.5,3.5"
+    "status": "source_video_missing",
+    "clip_path": null
   }
 ]

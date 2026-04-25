@@ -4,6 +4,7 @@ import json
 import math
 import os
 import re
+import shutil
 import subprocess
 import sys
 import hashlib
@@ -28,6 +29,20 @@ REFINE_TOP_K = 10
 REFINE_NUM_NEIGHBORS = 10
 REFINE_TAO = 0.1
 CORRELATION_BETA = 0.2
+DEFAULT_GEBD_WEIGHTS = REPO_ROOT / "EfficientGEBD" / "output" / "x2x3x4_r50_eff" / "model_best.pth"
+DEFAULT_GEBD_CONFIG = REPO_ROOT / "EfficientGEBD" / "config-files" / "baseline.yaml"
+DEFAULT_VLM_MODEL_DIR = REPO_ROOT / "LLaVA-NeXT" / "LLaVA-Video-7B-Qwen2"
+DEFAULT_LLM_MODEL_DIR = REPO_ROOT / "DeepSeek-R1" / "DeepSeek-R1-Distill-Qwen-7B"
+DEFAULT_VADTREE_PYTHON = Path.home() / "miniconda3" / "envs" / "EfficientGEBD" / "bin" / "python"
+DEFAULT_LLAVA_PYTHON = Path.home() / "miniconda3" / "envs" / "llava" / "bin" / "python"
+DEFAULT_LLM_PYTHON = Path.home() / "miniconda3" / "envs" / "llava" / "bin" / "python"
+DEFAULT_IMAGEBIND_PYTHON = Path.home() / "miniconda3" / "envs" / "VADTree" / "bin" / "python"
+DEFAULT_PYTHON_BY_ENV = {
+    "VADTREE_VADTREE_PYTHON": DEFAULT_VADTREE_PYTHON,
+    "VADTREE_LLaVA_PYTHON": DEFAULT_LLAVA_PYTHON,
+    "VADTREE_LLM_PYTHON": DEFAULT_LLM_PYTHON,
+    "VADTREE_IMAGEBIND_PYTHON": DEFAULT_IMAGEBIND_PYTHON,
+}
 
 
 class VADTreeDependencyError(RuntimeError):
@@ -41,6 +56,7 @@ class VADTreeDependencyConfig:
     llm_python: str
     imagebind_python: str
     gebd_weights: Path
+    gebd_config: Path
     vlm_model_dir: Path
     llm_model_dir: Path
 
@@ -79,32 +95,62 @@ def _normalize_video_name(video_name: str) -> str:
 
 
 def _default_python_env(env_name: str) -> str:
-    return os.environ.get(env_name, sys.executable)
+    raw = os.environ.get(env_name, "").strip()
+    if not raw:
+        default_candidate = DEFAULT_PYTHON_BY_ENV.get(env_name)
+        if default_candidate is not None and default_candidate.exists():
+            return str(default_candidate.resolve())
+        return sys.executable
+    if "/" not in raw and "\\" not in raw:
+        return raw
+    candidate = Path(raw).expanduser()
+    if not candidate.is_absolute():
+        candidate = REPO_ROOT / candidate
+    return str(candidate.resolve())
+
+
+def _resolve_env_path(env_name: str, default: Path | None = None) -> tuple[str, Path | None]:
+    raw = os.environ.get(env_name, "").strip()
+    if not raw:
+        if default is None:
+            return "", None
+        return str(default), default.resolve()
+
+    candidate = Path(raw).expanduser()
+    if not candidate.is_absolute():
+        candidate = REPO_ROOT / candidate
+    return raw, candidate.resolve()
 
 
 def load_dependency_config() -> VADTreeDependencyConfig:
-    gebd_weights = Path(
-        os.environ.get(
-            "VADTREE_GEBD_WEIGHTS",
-            str(REPO_ROOT / "EfficientGEBD" / "export" / "E2EModel.pth"),
-        )
+    _gebd_weights_raw, gebd_weights = _resolve_env_path(
+        "VADTREE_GEBD_WEIGHTS",
+        DEFAULT_GEBD_WEIGHTS,
     )
-    vlm_model_dir_raw = os.environ.get("VADTREE_VLM_MODEL_DIR", "").strip()
-    llm_model_dir_raw = os.environ.get("VADTREE_LLM_MODEL_DIR", "").strip()
-    vlm_model_dir = Path(vlm_model_dir_raw).expanduser() if vlm_model_dir_raw else Path()
-    llm_model_dir = Path(llm_model_dir_raw).expanduser() if llm_model_dir_raw else Path()
+    _gebd_config_raw, gebd_config = _resolve_env_path(
+        "VADTREE_GEBD_CONFIG",
+        DEFAULT_GEBD_CONFIG,
+    )
+    vlm_model_dir_raw, vlm_model_dir = _resolve_env_path("VADTREE_VLM_MODEL_DIR", DEFAULT_VLM_MODEL_DIR)
+    llm_model_dir_raw, llm_model_dir = _resolve_env_path("VADTREE_LLM_MODEL_DIR", DEFAULT_LLM_MODEL_DIR)
 
     missing: list[str] = []
-    if not gebd_weights.exists():
+    if gebd_weights is None or not gebd_weights.exists():
         missing.append(f"GEBD weights not found: {gebd_weights}")
-    if not vlm_model_dir_raw:
-        missing.append("Missing env VADTREE_VLM_MODEL_DIR")
-    elif not vlm_model_dir.exists():
+    elif not gebd_weights.is_file():
+        missing.append(f"GEBD weights must point to a checkpoint file, not a directory: {gebd_weights}")
+    if gebd_config is None or not gebd_config.exists():
+        missing.append(f"GEBD config not found: {gebd_config}")
+    elif not gebd_config.is_file():
+        missing.append(f"GEBD config must point to a config file: {gebd_config}")
+    if vlm_model_dir is None or not vlm_model_dir.exists():
         missing.append(f"VLM model dir not found: {vlm_model_dir}")
-    if not llm_model_dir_raw:
-        missing.append("Missing env VADTREE_LLM_MODEL_DIR")
-    elif not llm_model_dir.exists():
+    elif not vlm_model_dir.is_dir():
+        missing.append(f"VLM model dir must be a directory: {vlm_model_dir}")
+    if llm_model_dir is None or not llm_model_dir.exists():
         missing.append(f"LLM model dir not found: {llm_model_dir}")
+    elif not llm_model_dir.is_dir():
+        missing.append(f"LLM model dir must be a directory: {llm_model_dir}")
 
     for path in (
         REPO_ROOT / "LLaVA-NeXT" / "infer_VAD.py",
@@ -120,6 +166,7 @@ def load_dependency_config() -> VADTreeDependencyConfig:
         raise VADTreeDependencyError(
             "Real VADTree pipeline is unavailable. "
             + " | ".join(missing)
+            + " | Relative env paths are resolved from the repository root."
             + " | Configure the model directories and Python environments before using upload/RTSP."
         )
 
@@ -129,6 +176,7 @@ def load_dependency_config() -> VADTreeDependencyConfig:
         llm_python=_default_python_env("VADTREE_LLM_PYTHON"),
         imagebind_python=_default_python_env("VADTREE_IMAGEBIND_PYTHON"),
         gebd_weights=gebd_weights,
+        gebd_config=gebd_config,
         vlm_model_dir=vlm_model_dir,
         llm_model_dir=llm_model_dir,
     )
@@ -171,68 +219,130 @@ def _inspect_video(video_path: Path) -> tuple[float, int]:
     return fps, frame_count
 
 
-def _gebd_python_code(repo_root: Path, video_path: Path, weights_path: Path) -> str:
-    return f"""
-import json
-import sys
-from pathlib import Path
+def _gebd_dataset_metadata(dataset_name: str) -> tuple[str, str]:
+    normalized = dataset_name.strip().lower()
+    if normalized == "ucf":
+        return "ucf_crime", "UCF_Crime_test"
+    if normalized == "msad":
+        return "MSAD", "MSAD_test"
+    if normalized == "xd":
+        return "xd_violence", "XD_Violence_test"
+    raise ValueError(f"Unsupported dataset '{dataset_name}'.")
 
-repo_root = Path(r\"{repo_root}\")
-export_dir = repo_root / "EfficientGEBD" / "export"
-sys.path.insert(0, str(export_dir))
 
-import torch
-from inference import load_video
-from model import E2EModel
+def _safe_link_or_copy(source: Path, target: Path) -> None:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists() or target.is_symlink():
+        target.unlink()
+    try:
+        target.symlink_to(source)
+    except OSError:
+        shutil.copy2(source, target)
 
-video_path = Path(r\"{video_path}\")
-weights_path = Path(r\"{weights_path}\")
-imgs, frame_indices, fps, total_frames = load_video(str(video_path))
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = E2EModel()
-state_dict = torch.load(str(weights_path), map_location=device)
-model.load_state_dict(state_dict)
-model = model.to(device)
-model.eval()
-with torch.no_grad():
-    scores = model(imgs.to(device)[None])[0].detach().cpu().numpy().tolist()
-payload = {{
-    "pred": [round(float(item), 4) for item in scores],
-    "frame_indices": [int(item) for item in frame_indices],
-    "fps": float(fps),
-    "frames": int(total_frames),
-}}
-print(json.dumps(payload))
-"""
+
+def _prepare_runtime_gebd_inputs(
+    *,
+    dataset_name: str,
+    video_path: Path,
+    video_name: str,
+    total_frames: int,
+    work_dir: Path,
+) -> tuple[Path, Path]:
+    annotation_token, _result_token = _gebd_dataset_metadata(dataset_name)
+    runtime_video_dir = work_dir / "gebd_video_dir"
+    runtime_video_dir.mkdir(parents=True, exist_ok=True)
+
+    normalized_video_name = _normalize_video_name(video_name)
+    runtime_video_path = runtime_video_dir / normalized_video_name
+    _safe_link_or_copy(video_path, runtime_video_path)
+
+    runtime_annotation_dir = work_dir / annotation_token / "annotations"
+    runtime_annotation_dir.mkdir(parents=True, exist_ok=True)
+    annotation_path = runtime_annotation_dir / "runtime_single_video.txt"
+    video_stem = Path(normalized_video_name).stem
+    annotation_line = f"{video_stem} 0 {max(total_frames - 1, 0)} 0\n"
+    annotation_path.write_text(annotation_line, encoding="utf-8")
+    return runtime_video_dir, annotation_path
+
+
+def _prepare_runtime_video_root(*, video_path: Path, video_name: str, work_dir: Path) -> Path:
+    runtime_video_root = work_dir / "runtime_video_root"
+    runtime_video_root.mkdir(parents=True, exist_ok=True)
+    runtime_video_path = runtime_video_root / _normalize_video_name(video_name)
+    _safe_link_or_copy(video_path, runtime_video_path)
+    return runtime_video_root
 
 
 def _run_gebd(
     config: VADTreeDependencyConfig,
     *,
+    dataset_name: str,
+    video_name: str,
     video_path: Path,
     work_dir: Path,
 ) -> tuple[list[float], list[int], float, int]:
-    export_dir = REPO_ROOT / "EfficientGEBD" / "export"
+    fps_hint, total_frames_hint = _inspect_video(video_path)
+    runtime_video_dir, annotation_path = _prepare_runtime_gebd_inputs(
+        dataset_name=dataset_name,
+        video_path=video_path,
+        video_name=video_name,
+        total_frames=total_frames_hint,
+        work_dir=work_dir,
+    )
+    dataset_token, result_dir_name = _gebd_dataset_metadata(dataset_name)
+    runtime_ckpt_dir = work_dir / f"{config.gebd_weights.parent.name}__{work_dir.parent.name}"
+    runtime_ckpt_dir.mkdir(parents=True, exist_ok=True)
+    runtime_ckpt_path = runtime_ckpt_dir / config.gebd_weights.name
+    _safe_link_or_copy(config.gebd_weights, runtime_ckpt_path)
+
     command = [
         config.vadtree_python,
-        "-c",
-        _gebd_python_code(REPO_ROOT, video_path, config.gebd_weights),
+        str(REPO_ROOT / "EfficientGEBD" / "GEBD_split100.py"),
+        "--video_dir",
+        str(runtime_video_dir),
+        "--annotationfile_path",
+        str(annotation_path),
+        "--config-file",
+        str(config.gebd_config),
+        "--resume",
+        str(runtime_ckpt_path),
     ]
-    result = _run_command(command, cwd=export_dir, stage="GEBD inference")
-    try:
-        payload = json.loads(result.stdout.strip().splitlines()[-1])
-    except (IndexError, json.JSONDecodeError) as exc:
-        raise RuntimeError("GEBD inference did not return valid JSON output.") from exc
+    _run_command(command, cwd=REPO_ROOT / "EfficientGEBD", stage="GEBD inference")
+
+    model_name = runtime_ckpt_path.parent.name
+    if dataset_token == "xd_violence":
+        output_dir = REPO_ROOT / "result" / result_dir_name / f"EGEBD_{model_name}_split_th{GEBD_THRESHOLD}"
+    else:
+        output_dir = REPO_ROOT / "result" / result_dir_name / f"EGEBD_{model_name}_split_out_th{GEBD_THRESHOLD}"
+    pred_json_path = output_dir / f"pred_scenes_th{GEBD_THRESHOLD}.json"
+    scenes_json_path = output_dir / f"scenes_th{GEBD_THRESHOLD}.json"
+    if not pred_json_path.exists():
+        raise RuntimeError(f"GEBD inference did not create {pred_json_path}.")
+
+    pred_payload = json.loads(pred_json_path.read_text(encoding="utf-8"))
+    video_key = _normalize_video_name(video_name)
+    if video_key not in pred_payload:
+        raise RuntimeError(f"GEBD output does not contain video '{video_key}'.")
+    payload = pred_payload[video_key]
 
     pred = [float(item) for item in payload.get("pred", [])]
-    frame_indices = [int(item) for item in payload.get("frame_indices", [])]
-    fps = float(payload.get("fps") or 0.0)
-    total_frames = int(payload.get("frames") or 0)
+    total_frames = int(payload.get("frames") or total_frames_hint)
+    fps = float(payload.get("fps") or fps_hint)
+    frame_indices = np.linspace(0, max(total_frames - 1, 0), len(pred), dtype=int).tolist() if pred else []
     if not pred or not frame_indices or total_frames <= 0:
         raise RuntimeError("GEBD inference returned empty boundary scores.")
 
     (work_dir / "gebd.raw.json").write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2),
+        json.dumps(
+            {
+                "video_name": video_key,
+                "pred_json": str(pred_json_path),
+                "scenes_json": str(scenes_json_path),
+                "pred_entry": payload,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
         encoding="utf-8",
     )
     return pred, frame_indices, fps, total_frames
@@ -626,7 +736,9 @@ def _run_imagebind(
 
 
 def _run_refinement(config: VADTreeDependencyConfig, *, scores_json: Path) -> Path:
-    output_dir = scores_json.parent / f"{scores_json.parent.name}_VxV{REFINE_TOP_K}_nn{REFINE_NUM_NEIGHBORS}_tao{REFINE_TAO}"
+    output_dir = Path(
+        str(scores_json.parent) + f"_VxV{REFINE_TOP_K}_nn{REFINE_NUM_NEIGHBORS}_tao{REFINE_TAO}"
+    )
     target = output_dir / f"refine_{scores_json.name}"
     command = [
         config.vadtree_python,
@@ -651,10 +763,18 @@ def _run_refinement(config: VADTreeDependencyConfig, *, scores_json: Path) -> Pa
 
 def _correlation_output_path(coarse_scores_json: Path, fine_scores_json: Path) -> Path:
     coarse_parent = coarse_scores_json.parent
-    digest = hashlib.md5(str(fine_scores_json.parent).encode("utf-8")).hexdigest()[:8]
-    coarse_digest = hashlib.md5(str(coarse_scores_json).encode("utf-8")).hexdigest()[:8]
-    output_dir = Path(str(coarse_parent) + f"_ENSE_win_{digest}_beat{CORRELATION_BETA}")
-    return output_dir / f"ense_{coarse_digest}.json"
+    output_dir = Path(str(coarse_parent) + "_ENSE")
+    fine_parent_name = os.path.normpath(str(fine_scores_json.parent)).replace(
+        "EGEBD_x2x3x4_r50_eff_split_out_th",
+        "EX234R50ES",
+    )
+    fine_parent_name = fine_parent_name.replace("LLaVA-Video-7B-Qwen2", "LV7Q").replace(
+        "DeepSeek-R1-Distill-Qwen-14B",
+        "DRDQ14",
+    )
+    suffix = "_".join(Path(fine_parent_name).parts[-3:])
+    output_dir = Path(str(output_dir) + f"_{suffix}_beat{CORRELATION_BETA}")
+    return output_dir / f"ense_{coarse_scores_json.name}"
 
 
 def _run_correlation(
@@ -760,6 +880,8 @@ class VADTreeRuntimeAdapter:
         _emit_stage(stage_callback, "gebd", 0.12)
         sampled_scores, _frame_indices, gebd_fps, gebd_total_frames = _run_gebd(
             config,
+            dataset_name=self.dataset_name,
+            video_name=video_name,
             video_path=source_path,
             work_dir=work_dir,
         )
@@ -777,28 +899,33 @@ class VADTreeRuntimeAdapter:
             total_frames=total_frames,
             work_dir=work_dir,
         )
+        runtime_video_root = _prepare_runtime_video_root(
+            video_path=source_path,
+            video_name=video_name,
+            work_dir=work_dir,
+        )
 
         _emit_stage(stage_callback, "llava_coarse", 0.34)
         coarse_caption_json = _run_llava(
             config,
             json_path=hgtree_outputs["coarse_json"],
-            video_root=source_path.parent,
+            video_root=runtime_video_root,
         )
         _emit_stage(stage_callback, "llava_fine", 0.44)
         fine_caption_json = _run_llava(
             config,
             json_path=hgtree_outputs["fine_json"],
-            video_root=source_path.parent,
+            video_root=runtime_video_root,
         )
 
         _emit_stage(stage_callback, "deepseek_coarse", 0.56)
-        coarse_reason_json = _run_deepseek(config, caption_json=coarse_caption_json, video_root=source_path.parent)
+        coarse_reason_json = _run_deepseek(config, caption_json=coarse_caption_json, video_root=runtime_video_root)
         _emit_stage(stage_callback, "deepseek_fine", 0.66)
-        fine_reason_json = _run_deepseek(config, caption_json=fine_caption_json, video_root=source_path.parent)
+        fine_reason_json = _run_deepseek(config, caption_json=fine_caption_json, video_root=runtime_video_root)
 
         _emit_stage(stage_callback, "imagebind", 0.74)
-        coarse_similarity_pkl = _run_imagebind(config, caption_json=coarse_caption_json, video_root=source_path.parent)
-        fine_similarity_pkl = _run_imagebind(config, caption_json=fine_caption_json, video_root=source_path.parent)
+        coarse_similarity_pkl = _run_imagebind(config, caption_json=coarse_caption_json, video_root=runtime_video_root)
+        fine_similarity_pkl = _run_imagebind(config, caption_json=fine_caption_json, video_root=runtime_video_root)
 
         _emit_stage(stage_callback, "refine", 0.84)
         coarse_refine_json = _run_refinement(config, scores_json=coarse_reason_json)

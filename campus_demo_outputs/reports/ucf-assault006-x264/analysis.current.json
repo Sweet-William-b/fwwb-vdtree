@@ -1,0 +1,118 @@
+{
+  "summary": {
+    "dataset_name": "ucf",
+    "dataset_display_name": "UCF-Crime",
+    "video_name": "Assault006_x264.mp4",
+    "video_stem": "Assault006_x264",
+    "video_path": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4",
+    "source_class": "Assault",
+    "campus_label": "单向攻击/疑似欺凌",
+    "headline": "疑似存在持续攻击、压制或校园欺凌场景，需要立即复核。",
+    "event_count": 2,
+    "peak_score": 0.5867,
+    "mean_score": 0.4434,
+    "threshold": 0.5398,
+    "high_threshold": 0.5867,
+    "roc_auc": 0.9978,
+    "pr_auc": 0.9997,
+    "pos_mean": 0.4856,
+    "neg_mean": 0.1974,
+    "fps": 30.0,
+    "clip_mode": "opencv",
+    "current_event_count": 2,
+    "last_edited_at": "2026-04-22T15:02:13"
+  },
+  "events": [
+    {
+      "event_id": "evt_0001",
+      "start_frame": 1381,
+      "end_frame": 2522,
+      "start_sec": 46.03,
+      "end_sec": 84.07,
+      "duration_sec": 38.07,
+      "peak_frame": 2002,
+      "peak_score": 0.5867,
+      "mean_score": 0.5673,
+      "risk_level": "high",
+      "source_class": "Assault",
+      "campus_label": "单向攻击/疑似欺凌",
+      "behavior_type": "单向攻击/疑似欺凌",
+      "mapping_summary": "疑似存在持续攻击、压制或校园欺凌场景，需要立即复核。",
+      "caption_interval": "1203, 2833",
+      "caption_summary": "The video depicts a series of events inside a small, cluttered room that appears to be a shop or office. The room contains various items such as a television on a wooden table, shelves with electronic devices, and other miscellaneous objects.",
+      "reason_interval": "1203, 2833",
+      "reasoning_score": 0.3,
+      "reason_excerpt": "Okay, so I need to rate this scene on a scale from 0 to 1.",
+      "reason_text": "单向攻击/疑似欺凌：The video depicts a series of events inside a small, cluttered room that appears to be a shop or office. The room contains various items such as a television on a wooden table, shelves with electronic devices, and other miscellaneous objects.",
+      "review_status": "pending",
+      "note": "",
+      "track_ids": [
+        "evt_0001"
+      ],
+      "confidence": 0.5867,
+      "clip_href": null,
+      "html_reason_text": "单向攻击/疑似欺凌：The video depicts a series of events inside a small, cluttered room that appears to be a shop or office. The room contains various items such as a television on a wooden table, shelves with electronic devices, and other miscellaneous objects."
+    },
+    {
+      "event_id": "evt_0002",
+      "start_frame": 3923,
+      "end_frame": 4012,
+      "start_sec": 130.77,
+      "end_sec": 133.73,
+      "duration_sec": 3.0,
+      "peak_frame": 3974,
+      "peak_score": 0.5467,
+      "mean_score": 0.5436,
+      "risk_level": "high",
+      "source_class": "Assault",
+      "campus_label": "单向攻击/疑似欺凌",
+      "behavior_type": "单向攻击/疑似欺凌",
+      "mapping_summary": "疑似存在持续攻击、压制或校园欺凌场景，需要立即复核。",
+      "caption_interval": "2833, 4601",
+      "caption_summary": "The video depicts a series of events inside a small, cluttered room that appears to be a shop or a workshop. The room is filled with various items, including tools and electronic devices on the counters.",
+      "reason_interval": "2833, 4601",
+      "reasoning_score": 0.7,
+      "reason_excerpt": "Alright, I need to figure out how to rate this scene on a scale from 0 to 1.",
+      "reason_text": "单向攻击/疑似欺凌：The video depicts a series of events inside a small, cluttered room that appears to be a shop or a workshop. The room is filled with various items, including tools and electronic devices on the counters.",
+      "review_status": "pending",
+      "note": "",
+      "track_ids": [
+        "evt_0002"
+      ],
+      "confidence": 0.5467,
+      "clip_href": null,
+      "html_reason_text": "单向攻击/疑似欺凌：The video depicts a series of events inside a small, cluttered room that appears to be a shop or a workshop. The room is filled with various items, including tools and electronic devices on the counters."
+    }
+  ],
+  "metrics": {
+    "roc_auc": 0.9978,
+    "pr_auc": 0.9997,
+    "1_mean": 0.4856,
+    "0_mean": 0.1974
+  },
+  "thresholds": {
+    "threshold": 0.5398,
+    "high_threshold": 0.5867,
+    "smoothed_peak": 0.5867
+  },
+  "clip_manifest": [
+    {
+      "event_id": "evt_0001",
+      "start_sec": 46.03,
+      "end_sec": 84.07,
+      "status": "opencv",
+      "clip_path": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/reports/ucf-assault006-x264/clips/evt_0001.mp4",
+      "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4",
+      "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4#t=46.03,84.07"
+    },
+    {
+      "event_id": "evt_0002",
+      "start_sec": 130.77,
+      "end_sec": 133.73,
+      "status": "opencv",
+      "clip_path": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/reports/ucf-assault006-x264/clips/evt_0002.mp4",
+      "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4",
+      "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4#t=130.77,133.73"
+    }
+  ]
+}

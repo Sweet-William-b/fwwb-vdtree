@@ -1,0 +1,75 @@
+{
+  "summary": {
+    "dataset_name": "msad",
+    "dataset_display_name": "MSAD",
+    "video_name": "Assault_11.mp4",
+    "video_stem": "Assault_11",
+    "video_path": null,
+    "source_class": "Assault",
+    "campus_label": "单向攻击/疑似欺凌",
+    "headline": "疑似存在持续攻击、压制或校园欺凌场景，需要立即复核。",
+    "event_count": 1,
+    "peak_score": 0.5419,
+    "mean_score": 0.3514,
+    "threshold": 0.4327,
+    "high_threshold": 0.5238,
+    "roc_auc": 0.9984,
+    "pr_auc": 0.9914,
+    "pos_mean": 0.4499,
+    "neg_mean": 0.3078,
+    "fps": 25.0,
+    "clip_mode": "source_video_missing"
+  },
+  "events": [
+    {
+      "event_id": "evt_0001",
+      "start_frame": 0,
+      "end_frame": 124,
+      "start_sec": 0.0,
+      "end_sec": 4.96,
+      "duration_sec": 5.0,
+      "peak_frame": 31,
+      "peak_score": 0.5367,
+      "mean_score": 0.4922,
+      "risk_level": "high",
+      "source_class": "Assault",
+      "campus_label": "单向攻击/疑似欺凌",
+      "behavior_type": "单向攻击/疑似欺凌",
+      "mapping_summary": "疑似存在持续攻击、压制或校园欺凌场景，需要立即复核。",
+      "caption_interval": "27, 300",
+      "caption_summary": "The video takes place in a hospital or medical facility, as indicated by the presence of medical equipment such as stretchers and the overall clinical environment. The scene opens with two individuals engaged in a physical altercation.",
+      "reason_interval": "27, 300",
+      "reasoning_score": 0.9,
+      "reason_excerpt": "Okay, so I need to figure out how to rate this scene on a scale from 0 to 1.",
+      "reason_text": "单向攻击/疑似欺凌：The video takes place in a hospital or medical facility, as indicated by the presence of medical equipment such as stretchers and the overall clinical environment. The scene opens with two individuals engaged in a physical altercation.",
+      "review_status": "pending",
+      "note": "",
+      "track_ids": [
+        "evt_0001"
+      ],
+      "confidence": 0.5367,
+      "clip_href": null,
+      "html_reason_text": "单向攻击/疑似欺凌：The video takes place in a hospital or medical facility, as indicated by the presence of medical equipment such as stretchers and the overall clinical environment. The scene opens with two individuals engaged in a physical altercation."
+    }
+  ],
+  "metrics": {
+    "roc_auc": 0.9984,
+    "pr_auc": 0.9914,
+    "1_mean": 0.4499,
+    "0_mean": 0.3078
+  },
+  "thresholds": {
+    "threshold": 0.4327,
+    "high_threshold": 0.5238,
+    "smoothed_peak": 0.5367
+  },
+  "clip_manifest": [
+    {
+      "event_id": "evt_0001",
+      "start_sec": 0.0,
+      "end_sec": 4.96,
+      "status": "source_video_missing",
+      "clip_path": null
+    }
+  ]
+}

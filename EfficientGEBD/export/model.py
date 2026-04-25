@@ -1,6 +1,7 @@
 import math
 
 import einops
+import mmengine
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -9,8 +10,8 @@ from transformers import BertConfig, BertLayer
 
 import os
 import mmaction
-from mmaction.models import build_model
-from mmcv import Config
+from mmaction.registry import MODELS
+from mmengine.registry import init_default_scope
 
 
 class CSN(nn.Module):
@@ -18,13 +19,12 @@ class CSN(nn.Module):
         super().__init__()
         mmaction_root = os.path.dirname(os.path.abspath(mmaction.__file__))
         config_file = os.path.join(mmaction_root, os.pardir, 'configs/recognition/csn/ircsn_ig65m_pretrained_bnfrozen_r152_32x2x1_58e_kinetics400_rgb.py')
-        cfg = Config.fromfile(config_file)
-        cfg.model.backbone.pretrained = None
+        cfg = mmengine.Config.fromfile(config_file)
+        init_default_scope(cfg.get('default_scope', 'mmaction'))
+        if hasattr(cfg.model, 'backbone') and cfg.model.backbone.get('pretrained', None):
+            cfg.model.backbone.pretrained = None
 
-        model = build_model(
-            cfg.model,
-            train_cfg=cfg.get('train_cfg'),
-            test_cfg=cfg.get('test_cfg'))
+        model = MODELS.build(cfg.model)
         del model.cls_head
         self.model = model
 

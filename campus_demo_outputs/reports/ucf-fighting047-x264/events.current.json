@@ -9,17 +9,24 @@
     "peak_frame": 1144,
     "peak_score": 0.4049,
     "mean_score": 0.3906,
-    "risk_level": "medium",
+    "risk_level": "high",
     "source_class": "Fighting",
-    "campus_label": "二次确认标签",
+    "campus_label": "打架斗殴",
+    "behavior_type": "打架斗殴",
     "mapping_summary": "多人发生明显肢体冲突，属于校园高风险异常行为。",
     "caption_interval": "798, 4458",
     "caption_summary": "The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads '2016/05/23 08:30:00'.",
     "reason_interval": "798, 4458",
     "reasoning_score": 0.3,
     "reason_excerpt": "Okay, so I need to figure out how to rate the described scene on a scale from 0 to 1.",
-    "reason_text": "二次确认说明",
-    "html_reason_text": "打架斗殴：The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads &#x27;2016/05/23 08:30:00&#x27;.",
-    "last_edited_at": "2026-04-21T16:49:53"
+    "reason_text": "打架斗殴：The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads '2016/05/23 08:30:00'.",
+    "review_status": "pending",
+    "note": "",
+    "track_ids": [
+      "evt_0001"
+    ],
+    "confidence": 0.4049,
+    "clip_href": null,
+    "html_reason_text": "打架斗殴：The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads &#x27;2016/05/23 08:30:00&#x27;."
   }
 ]

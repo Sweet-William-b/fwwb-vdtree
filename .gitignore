@@ -5,6 +5,9 @@
 # Model weights / checkpoints / large binaries
 .checkpoints/
 siglip-so400m-patch14-384/
+DeepSeek-R1/DeepSeek-R1-Distill-Qwen-7B/
+LLaVA-NeXT/LLaVA-Video-7B-Qwen2/
+EfficientGEBD/output/
 
 weights/
 *.pth

@@ -253,7 +253,7 @@ def build_score_svg(
 
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
   <rect width="{width}" height="{height}" fill="{background}" />
-  <text x="{margin_left}" y="14" font-size="14" fill="#111827">Anomaly score timeline</text>
+  <text x="{margin_left}" y="14" font-size="14" fill="#111827">Anomaly Score Timeline</text>
   {''.join(event_rects)}
   <line x1="{margin_left}" y1="{margin_top}" x2="{margin_left}" y2="{margin_top + plot_height}" stroke="{axis}" />
   <line x1="{margin_left}" y1="{margin_top + plot_height}" x2="{margin_left + plot_width}" y2="{margin_top + plot_height}" stroke="{axis}" />
@@ -394,275 +394,481 @@ def build_report_html(
 ) -> str:
     video_path = summary.get("video_path")
     report_id = report_dir.name
-    video_html = '<p class="note">No local source video is available for this dataset.</p>'
+    report_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    clip_lookup_json = json.dumps(
+        sanitize_for_json({item.get("event_id"): item for item in clip_manifest if item.get("event_id")}),
+        ensure_ascii=False,
+    )
+    fallback_events_json = json.dumps(sanitize_for_json(events), ensure_ascii=False)
+    downloads = [
+        ("analysis.json", "原始分析结果"),
+        ("analysis.current.json", "当前分析结果"),
+        ("events.json", "原始事件日志"),
+        ("events.current.json", "当前事件日志"),
+        ("events.csv", "原始事件 CSV"),
+        ("events.current.csv", "当前事件 CSV"),
+        ("clips_manifest.json", "切片清单"),
+        ("report_bundle.zip", "报告 ZIP"),
+        ("../../index.html", "历史首页"),
+        ("/campus_demo/console", "控制台"),
+    ]
+    download_cards_parts = []
+    for href, label in downloads:
+        target_attr = ' target="_blank"' if href.endswith(".zip") or href.endswith(".html") or href.startswith("/") else ""
+        display_name = Path(href).name if not href.startswith("/") else href.split("/")[-1] or href
+        download_cards_parts.append(
+            f'<a class="download-card" href="{escape(href)}"{target_attr}>'
+            f"<span>{escape(label)}</span><strong>{escape(display_name)}</strong></a>"
+        )
+    download_cards = "".join(download_cards_parts)
+    video_html = '<div class="placeholder">当前数据集没有可直接回放的本地源视频，但日志、时间线、导出与复核仍可完整展示。</div>'
     if video_path:
         rel_video = _quoted_relative_path(Path(video_path), report_dir)
         video_html = (
             f'<video id="main-video" controls preload="metadata" src="{rel_video}" width="100%"></video>'
-            '<p class="note">Click any event row to jump to its start time.</p>'
+            '<p class="note">点击日志中的时间按钮可跳转对应起点；没有切片时也可使用 jump 链接打开原视频时间段。</p>'
         )
 
-    report_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    high_count = sum(1 for event in events if str(event.get("risk_level") or "") == "high")
+    pending_count = sum(1 for event in events if str(event.get("review_status") or "pending") == "pending")
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{escape(summary["video_name"])} - Campus Demo</title>
+  <title>{escape(summary["video_name"])} - 校园安防报告</title>
   <style>
     :root {{
-      --bg: #f3efe6;
-      --panel: #fffdf8;
-      --ink: #1f2937;
-      --muted: #6b7280;
-      --line: #d6d3d1;
-      --accent: #14532d;
-      --warn: #92400e;
-      --danger: #991b1b;
+      --bg-top: #f0e8d8;
+      --bg-bottom: #e0d3be;
+      --panel: rgba(255, 252, 246, 0.9);
+      --line: rgba(65, 53, 40, 0.14);
+      --ink: #172521;
+      --muted: #697169;
+      --accent: #1d5a4a;
+      --accent-deep: #143f33;
+      --review: #3c6094;
+      --warn: #a56c0d;
+      --danger: #b24034;
+      --low: #2b7a54;
+      --shadow: 0 24px 60px rgba(73, 53, 29, 0.11);
+      --shadow-soft: 0 12px 30px rgba(73, 53, 29, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
     }}
+    * {{ box-sizing: border-box; }}
     body {{
       margin: 0;
-      font-family: "Georgia", "Noto Serif SC", serif;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at top left, rgba(20,83,45,0.10), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(153,27,27,0.08), transparent 25%),
-        var(--bg);
+        radial-gradient(circle at top left, rgba(29, 90, 74, 0.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(199, 134, 38, 0.14), transparent 22%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
     }}
-    .page {{
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 24px;
-    }}
+    a {{ color: var(--accent); text-decoration: none; }}
+    button, input, select, textarea {{ font: inherit; }}
+    .page {{ max-width: 1440px; margin: 0 auto; padding: 24px 20px 40px; }}
     .hero, .panel {{
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
     }}
-    .hero {{
-      padding: 24px;
-      margin-bottom: 18px;
+    .hero {{ padding: 28px; margin-bottom: 18px; }}
+    .hero-top {{
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) 360px;
+      gap: 20px;
+      align-items: start;
+    }}
+    .eyebrow {{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }}
+    .eyebrow::before {{
+      content: "";
+      width: 28px;
+      height: 1px;
+      background: currentColor;
     }}
     .hero h1 {{
-      margin: 0 0 8px;
-      font-size: 32px;
+      margin: 16px 0 10px;
+      font-family: "STZhongsong", "Source Han Serif SC", "Songti SC", serif;
+      font-size: clamp(34px, 4vw, 48px);
+      line-height: 1.08;
     }}
-    .hero p {{
-      margin: 0;
+    .lead, .note, .status {{
       color: var(--muted);
-      line-height: 1.6;
+      line-height: 1.8;
+      font-size: 14px;
     }}
+    .hero-chips {{
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }}
+    .hero-chip {{
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 700;
+    }}
+    .summary-stack {{
+      display: grid;
+      gap: 12px;
+    }}
+    .summary-card, .stat, .download-card, .metric-line {{
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+    }}
+    .summary-card span, .stat .label, .download-card span {{
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }}
+    .summary-card strong, .stat .value {{
+      display: block;
+      margin-top: 10px;
+      font-size: 28px;
+      font-weight: 800;
+    }}
+    .summary-card p {{ margin: 8px 0 0; color: var(--muted); line-height: 1.7; }}
     .stats {{
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
       margin-top: 18px;
     }}
-    .stat {{
-      padding: 14px;
-      border-radius: 14px;
-      background: #faf7ef;
-      border: 1px solid var(--line);
-    }}
-    .stat .label {{
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }}
-    .stat .value {{
-      font-size: 24px;
-      margin-top: 8px;
-    }}
     .grid {{
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
+      grid-template-columns: minmax(0, 1.3fr) 380px;
       gap: 18px;
     }}
-    .panel {{
-      padding: 18px;
-      margin-bottom: 18px;
+    .panel {{ padding: 22px; margin-bottom: 18px; }}
+    .panel-head {{
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: start;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
     }}
     .panel h2 {{
-      margin-top: 0;
-      font-size: 22px;
+      margin: 8px 0 0;
+      font-family: "STZhongsong", "Source Han Serif SC", "Songti SC", serif;
+      font-size: 28px;
     }}
-    .downloads a {{
-      display: inline-block;
-      margin-right: 10px;
-      margin-bottom: 8px;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-    }}
-    table {{
+    .video-shell video {{
       width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
+      border-radius: 22px;
+      background: #111;
+      box-shadow: var(--shadow-soft);
     }}
-    th, td {{
-      border-top: 1px solid var(--line);
-      padding: 10px 8px;
-      vertical-align: top;
-      text-align: left;
-    }}
-    th {{
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+    .placeholder {{
+      min-height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      border-radius: 24px;
       color: var(--muted);
+      line-height: 1.8;
+      background:
+        radial-gradient(circle at top left, rgba(29, 90, 74, 0.08), transparent 40%),
+        linear-gradient(155deg, rgba(255, 255, 255, 0.9), rgba(244, 236, 223, 0.92));
+      border: 1px dashed rgba(29, 90, 74, 0.18);
     }}
-    .jump {{
-      border: none;
-      background: #ecfccb;
-      color: #365314;
-      border-radius: 999px;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-weight: 700;
+    .download-grid {{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
     }}
-    .note {{
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.6;
+    .download-card strong {{
+      display: block;
+      margin-top: 10px;
+      color: var(--ink);
+      font-size: 16px;
+    }}
+    .metric-lines {{
+      display: grid;
+      gap: 10px;
     }}
     .toolbar {{
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
+      align-items: center;
       margin-bottom: 14px;
     }}
+    .toggle {{
+      display: inline-flex;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--line);
+    }}
+    .toggle button,
     .toolbar button {{
       border: none;
       border-radius: 999px;
-      padding: 10px 16px;
-      background: #14532d;
-      color: #fff;
+      min-height: 44px;
+      padding: 0 16px;
+      font-weight: 800;
       cursor: pointer;
-      font-weight: 700;
     }}
-    .toolbar button.secondary {{
-      background: #d97706;
-    }}
-    .toolbar .status {{
-      align-self: center;
+    .toggle button {{
+      background: transparent;
       color: var(--muted);
-      font-size: 14px;
+      min-width: 92px;
+    }}
+    .toggle button.active {{
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+      color: #fff;
+    }}
+    .toolbar .primary {{
+      background: linear-gradient(135deg, var(--accent) 0%, #28705d 100%);
+      color: #fff;
+    }}
+    .toolbar .secondary {{
+      background: linear-gradient(135deg, #d8a03d 0%, #b9741f 100%);
+      color: #fff;
+    }}
+    .table-shell {{
+      overflow: auto;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+    }}
+    table {{ width: 100%; border-collapse: collapse; min-width: 1100px; }}
+    th, td {{
+      padding: 14px 12px;
+      border-top: 1px solid rgba(65, 53, 40, 0.1);
+      text-align: left;
+      vertical-align: top;
+    }}
+    th {{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }}
+    .jump {{
+      border: none;
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: rgba(29, 90, 74, 0.12);
+      color: var(--accent);
+      font-weight: 800;
+      cursor: pointer;
     }}
     input[type="text"], textarea, select {{
       width: 100%;
       box-sizing: border-box;
-      border: 1px solid var(--line);
-      border-radius: 10px;
+      border: 1px solid rgba(65, 53, 40, 0.16);
+      border-radius: 16px;
       background: #fff;
       color: var(--ink);
       font: inherit;
-      padding: 8px 10px;
+      padding: 12px 14px;
     }}
-    textarea {{
-      min-height: 76px;
-      resize: vertical;
+    textarea {{ min-height: 88px; resize: vertical; }}
+    .event-title {{ font-weight: 700; }}
+    .event-tags {{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
     }}
-    .risk-high {{ color: var(--danger); font-weight: 700; }}
+    .event-tag {{
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }}
+    .event-tag.edited {{
+      color: var(--accent);
+      border-color: rgba(29, 90, 74, 0.22);
+      background: rgba(29, 90, 74, 0.08);
+    }}
+    .risk-high, .review-false_positive {{ color: var(--danger); font-weight: 700; }}
     .risk-medium {{ color: var(--warn); font-weight: 700; }}
-    .risk-review {{ color: #1d4ed8; font-weight: 700; }}
-    .risk-low {{ color: var(--accent); font-weight: 700; }}
+    .risk-review, .review-pending {{ color: var(--review); font-weight: 700; }}
+    .risk-low, .review-confirmed {{ color: var(--low); font-weight: 700; }}
     @media (max-width: 960px) {{
-      .grid {{ grid-template-columns: 1fr; }}
+      .hero-top, .grid {{ grid-template-columns: 1fr; }}
+      .stats, .download-grid {{ grid-template-columns: 1fr; }}
     }}
   </style>
 </head>
 <body data-report-id="{escape(report_id)}">
   <div class="page">
     <section class="hero">
-      <h1>{escape(summary["video_name"])}</h1>
-      <p>{escape(summary["headline"])}</p>
+      <div class="hero-top">
+        <div>
+          <div class="eyebrow">VADTree Campus Report</div>
+          <h1>{escape(summary["video_name"])}</h1>
+          <p class="lead">{escape(summary["headline"])}</p>
+          <div class="hero-chips">
+            <span class="hero-chip">{escape(summary["dataset_display_name"])}</span>
+            <span class="hero-chip">{escape(summary["source_class"])}</span>
+            <span class="hero-chip">{escape(summary["campus_label"])}</span>
+            <span class="hero-chip">生成于 {report_time}</span>
+          </div>
+        </div>
+        <div class="summary-stack">
+          <div class="summary-card">
+            <span>复核版事件数</span>
+            <strong id="summary-current-events">{summary["event_count"]}</strong>
+            <p>当前展示的是可随日志保存即时更新的复核版本。</p>
+          </div>
+          <div class="summary-card">
+            <span>高风险事件</span>
+            <strong id="summary-high-events">{high_count}</strong>
+            <p>高风险片段在时间线与日志表里保持最强视觉提示。</p>
+          </div>
+          <div class="summary-card">
+            <span>待复核事件</span>
+            <strong id="summary-review-events">{pending_count}</strong>
+            <p>支持直接修改行为标签、风险、track、备注和误报状态。</p>
+          </div>
+        </div>
+      </div>
       <div class="stats">
         <div class="stat"><div class="label">Dataset</div><div class="value">{escape(summary["dataset_display_name"])}</div></div>
-        <div class="stat"><div class="label">Source Class</div><div class="value">{escape(summary["source_class"])}</div></div>
-        <div class="stat"><div class="label">Campus Label</div><div class="value">{escape(summary["campus_label"])}</div></div>
-        <div class="stat"><div class="label">Events</div><div class="value">{summary["event_count"]}</div></div>
         <div class="stat"><div class="label">Peak Score</div><div class="value">{summary["peak_score"]:.3f}</div></div>
-        <div class="stat"><div class="label">Generated</div><div class="value" style="font-size:18px">{report_time}</div></div>
+        <div class="stat"><div class="label">Mean Score</div><div class="value">{summary["mean_score"]:.3f}</div></div>
+        <div class="stat"><div class="label">FPS</div><div class="value">{summary["fps"]:.2f}</div></div>
       </div>
     </section>
 
     <div class="grid">
       <div>
         <section class="panel">
-          <h2>Video Playback</h2>
-          {video_html}
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">Playback</div>
+              <h2>视频回放</h2>
+            </div>
+            <div class="note">点击日志时间按钮即可跳到对应片段，适合现场答辩快速回看。</div>
+          </div>
+          <div class="video-shell">{video_html}</div>
         </section>
         <section class="panel">
-          <h2>Timeline</h2>
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">Timeline</div>
+              <h2>异常分数时间线</h2>
+            </div>
+            <div class="note">高亮区域是自动生成的告警片段，阈值线对应事件切分逻辑。</div>
+          </div>
           <img src="score.svg" alt="score timeline" style="width:100%;height:auto" />
-          <p class="note">
-            Clip export mode: <strong>{escape(clip_mode)}</strong>. If direct mp4 slices are unavailable,
-            use the jump links to open the source video at the alert segment.
-          </p>
+          <p class="note">切片导出模式：<strong>{escape(clip_mode)}</strong>。若没有直接 mp4 切片，可使用 jump 链接打开原视频时间段。</p>
         </section>
       </div>
       <div>
         <section class="panel">
-          <h2>Downloads</h2>
-          <div class="downloads">
-            <a href="analysis.json">analysis.json</a>
-            <a href="analysis.current.json">analysis.current.json</a>
-            <a href="events.json">events.json</a>
-            <a href="events.current.json">events.current.json</a>
-            <a href="events.csv">events.csv</a>
-            <a href="events.current.csv">events.current.csv</a>
-            <a href="clips_manifest.json">clips_manifest.json</a>
-            <a href="report_bundle.zip">report_bundle.zip</a>
-            <a href="../../index.html">history index</a>
-            <a href="/campus_demo/console">web console</a>
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">Downloads</div>
+              <h2>导出与跳转</h2>
+            </div>
+            <div class="note">支持直接打开原始分析文件、当前复核文件、切片清单和整包 ZIP。</div>
           </div>
-          <p class="note">
-            Threshold {summary["threshold"]:.3f}, high-risk threshold {summary["high_threshold"]:.3f},
-            score mean {summary["mean_score"]:.3f}.
-          </p>
+          <div class="download-grid">{download_cards}</div>
         </section>
         <section class="panel">
-          <h2>Metrics Snapshot</h2>
-          <p class="note">
-            ROC AUC: {summary["roc_auc"]} | PR AUC: {summary["pr_auc"]}<br/>
-            Positive mean: {summary["pos_mean"]} | Negative mean: {summary["neg_mean"]}
-          </p>
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">Assessment</div>
+              <h2>研判摘要</h2>
+            </div>
+            <div class="note">这一栏汇总阈值、评估指标和当前页面的可编辑能力。</div>
+          </div>
+          <div class="metric-lines">
+            <div class="metric-line">当前校园标签：<strong>{escape(summary["campus_label"])}</strong><br />自动阈值 {summary["threshold"]:.3f}，高风险阈值 {summary["high_threshold"]:.3f}，均值分数 {summary["mean_score"]:.3f}</div>
+            <div class="metric-line">ROC AUC：{summary["roc_auc"]} · PR AUC：{summary["pr_auc"]}<br />正样本均值：{summary["pos_mean"]} · 负样本均值：{summary["neg_mean"]}</div>
+            <div class="metric-line">本页支持查看“当前版 / 原始版”事件日志；保存后会同步更新 `events.current.*` 与 `report_bundle.zip`。</div>
+          </div>
         </section>
       </div>
     </div>
 
     <section class="panel">
-      <h2>Alert Events</h2>
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Review Table</div>
+          <h2>预警日志与人工复核</h2>
+        </div>
+        <div class="note">当前版可编辑，原始版只读。这里的字段和控制台保持一致。</div>
+      </div>
       <div class="toolbar">
-        <button id="save-events">保存日志修改</button>
-        <button id="reload-events" class="secondary">重新加载当前日志</button>
+        <div class="toggle">
+          <button id="version-current" class="active">当前版</button>
+          <button id="version-original">原始版</button>
+        </div>
+        <button id="save-events" class="primary">保存日志修改</button>
+        <button id="reload-events" class="secondary">重新加载日志</button>
         <span id="save-status" class="status">在线修改功能仅在 `python3 campus_demo/app.py serve` 启动后可用。</span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Event</th>
-            <th>Campus Label</th>
-            <th>Risk</th>
-            <th>Range</th>
-            <th>Peak</th>
-            <th>Mean</th>
-            <th>Reason</th>
-            <th>Clip</th>
-          </tr>
-        </thead>
-        <tbody id="event-table-body"></tbody>
-      </table>
+      <div class="table-shell">
+        <table>
+          <thead>
+            <tr>
+              <th>时间</th>
+              <th>行为</th>
+              <th>风险</th>
+              <th>复核</th>
+              <th>Track</th>
+              <th>备注</th>
+              <th>原因说明</th>
+              <th>切片</th>
+            </tr>
+          </thead>
+          <tbody id="event-table-body"></tbody>
+        </table>
+      </div>
     </section>
   </div>
   <script>
-    const clipLookup = {json.dumps(sanitize_for_json({item["event_id"]: item for item in clip_manifest}), ensure_ascii=False)};
-    const fallbackEvents = {json.dumps(sanitize_for_json(events), ensure_ascii=False)};
+    const clipLookup = {clip_lookup_json};
+    const fallbackEvents = {fallback_events_json};
     const reportId = document.body.dataset.reportId;
     const eventTableBody = document.getElementById('event-table-body');
     const saveStatus = document.getElementById('save-status');
+    const state = {{
+      version: 'current',
+      currentEvents: fallbackEvents,
+      originalEvents: fallbackEvents,
+    }};
 
     function escapeHtml(value) {{
       return String(value ?? '')
@@ -671,6 +877,33 @@ def build_report_html(
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#39;');
+    }}
+
+    function formatSeconds(value) {{
+      return `${{Number(value || 0).toFixed(2)}}s`;
+    }}
+
+    function normalizeTrackIds(value) {{
+      if (Array.isArray(value)) {{
+        return value.map((item) => String(item || '').trim()).filter(Boolean);
+      }}
+      return String(value || '').split(',').map((item) => item.trim()).filter(Boolean);
+    }}
+
+    function normalizeRisk(value) {{
+      return ['low', 'review', 'medium', 'high'].includes(String(value || '').trim()) ? String(value).trim() : 'review';
+    }}
+
+    function normalizeReview(value) {{
+      return ['pending', 'confirmed', 'false_positive'].includes(String(value || '').trim()) ? String(value).trim() : 'pending';
+    }}
+
+    function riskClass(level) {{
+      return `risk-${{normalizeRisk(level)}}`;
+    }}
+
+    function reviewClass(level) {{
+      return `review-${{normalizeReview(level)}}`;
     }}
 
     function clipCell(eventId) {{
@@ -685,27 +918,58 @@ def build_report_html(
       return '-';
     }}
 
+    function updateSummary(events) {{
+      const highCount = events.filter((event) => normalizeRisk(event.risk_level) === 'high').length;
+      const pendingCount = events.filter((event) => normalizeReview(event.review_status) === 'pending').length;
+      document.getElementById('summary-current-events').textContent = String(events.length);
+      document.getElementById('summary-high-events').textContent = String(highCount);
+      document.getElementById('summary-review-events').textContent = String(pendingCount);
+    }}
+
     function renderEvents(events) {{
+      updateSummary(events);
       if (!events.length) {{
-        eventTableBody.innerHTML = '<tr><td colspan="8">No alert segment was generated for this video.</td></tr>';
+        eventTableBody.innerHTML = '<tr><td colspan="8">当前视频没有可展示的事件片段。</td></tr>';
         return;
       }}
+      const editable = state.version === 'current';
       eventTableBody.innerHTML = events.map((event) => `
         <tr data-event-id="${{escapeHtml(event.event_id)}}">
-          <td><button class="jump" data-start="${{event.start_sec}}">${{escapeHtml(event.event_id)}}</button></td>
-          <td><input type="text" name="campus_label" value="${{escapeHtml(event.campus_label)}}" /></td>
           <td>
-            <select name="risk_level">
-              <option value="low" ${{event.risk_level === 'low' ? 'selected' : ''}}>low</option>
-              <option value="review" ${{event.risk_level === 'review' ? 'selected' : ''}}>review</option>
-              <option value="medium" ${{event.risk_level === 'medium' ? 'selected' : ''}}>medium</option>
-              <option value="high" ${{event.risk_level === 'high' ? 'selected' : ''}}>high</option>
-            </select>
+            <button class="jump" data-start="${{event.start_sec}}">
+              ${{formatSeconds(event.start_sec)}}<br />${{formatSeconds(event.end_sec)}}
+            </button>
           </td>
-          <td>${{event.start_sec.toFixed(2)}}s - ${{event.end_sec.toFixed(2)}}s</td>
-          <td>${{Number(event.peak_score).toFixed(3)}}</td>
-          <td>${{Number(event.mean_score).toFixed(3)}}</td>
-          <td><textarea name="reason_text">${{escapeHtml(event.reason_text)}}</textarea></td>
+          <td>
+            <div class="event-title">${{escapeHtml(event.behavior_type || event.campus_label || event.source_class || '待确认')}}</div>
+            <div class="event-tags">
+              <span class="event-tag">ID ${{escapeHtml(event.event_id)}}</span>
+              ${{event.last_edited_at ? '<span class="event-tag edited">已编辑</span>' : ''}}
+            </div>
+            <div style="margin-top:10px;">
+              <input type="text" name="behavior_type" value="${{escapeHtml(event.behavior_type || event.campus_label || event.source_class || '')}}" ${{editable ? '' : 'disabled'}} />
+            </div>
+          </td>
+          <td>
+            <select name="risk_level" ${{editable ? '' : 'disabled'}}>
+              <option value="low" ${{normalizeRisk(event.risk_level) === 'low' ? 'selected' : ''}}>low</option>
+              <option value="review" ${{normalizeRisk(event.risk_level) === 'review' ? 'selected' : ''}}>review</option>
+              <option value="medium" ${{normalizeRisk(event.risk_level) === 'medium' ? 'selected' : ''}}>medium</option>
+              <option value="high" ${{normalizeRisk(event.risk_level) === 'high' ? 'selected' : ''}}>high</option>
+            </select>
+            <div class="${{riskClass(event.risk_level)}}" style="margin-top:8px;">${{escapeHtml(normalizeRisk(event.risk_level))}}</div>
+          </td>
+          <td>
+            <select name="review_status" ${{editable ? '' : 'disabled'}}>
+              <option value="pending" ${{normalizeReview(event.review_status) === 'pending' ? 'selected' : ''}}>pending</option>
+              <option value="confirmed" ${{normalizeReview(event.review_status) === 'confirmed' ? 'selected' : ''}}>confirmed</option>
+              <option value="false_positive" ${{normalizeReview(event.review_status) === 'false_positive' ? 'selected' : ''}}>false_positive</option>
+            </select>
+            <div class="${{reviewClass(event.review_status)}}" style="margin-top:8px;">${{escapeHtml(normalizeReview(event.review_status))}}</div>
+          </td>
+          <td><input type="text" name="track_ids" value="${{escapeHtml(normalizeTrackIds(event.track_ids).join(', '))}}" ${{editable ? '' : 'disabled'}} /></td>
+          <td><textarea name="note" ${{editable ? '' : 'disabled'}}>${{escapeHtml(event.note || '')}}</textarea></td>
+          <td><textarea name="reason_text" ${{editable ? '' : 'disabled'}}>${{escapeHtml(event.reason_text || '')}}</textarea></td>
           <td>${{clipCell(event.event_id)}}</td>
         </tr>
       `).join('');
@@ -720,32 +984,60 @@ def build_report_html(
       }});
     }}
 
-    async function loadEvents() {{
+    async function reloadEventVersions() {{
       try {{
-        const response = await fetch(`events.current.json?ts=${{Date.now()}}`);
-        if (!response.ok) throw new Error('failed');
-        renderEvents(await response.json());
-        saveStatus.textContent = '当前展示的是最新已保存的日志。';
+        const [currentResponse, originalResponse] = await Promise.all([
+          fetch(`events.current.json?ts=${{Date.now()}}`),
+          fetch(`events.json?ts=${{Date.now()}}`),
+        ]);
+        if (currentResponse.ok) {{
+          state.currentEvents = await currentResponse.json();
+        }}
+        if (originalResponse.ok) {{
+          state.originalEvents = await originalResponse.json();
+        }}
       }} catch (_error) {{
-        renderEvents(fallbackEvents);
+        state.currentEvents = fallbackEvents;
+        state.originalEvents = fallbackEvents;
       }}
+    }}
+
+    function updateVersionUI() {{
+      document.getElementById('version-current').classList.toggle('active', state.version === 'current');
+      document.getElementById('version-original').classList.toggle('active', state.version === 'original');
+      saveStatus.textContent = state.version === 'current'
+        ? '当前展示的是可编辑的复核版日志。'
+        : '当前展示的是只读的原始版日志。';
+    }}
+
+    async function loadEvents() {{
+      await reloadEventVersions();
+      updateVersionUI();
+      renderEvents(state.version === 'original' ? state.originalEvents : state.currentEvents);
     }}
 
     function collectEditedEvents() {{
       return Array.from(document.querySelectorAll('#event-table-body tr[data-event-id]')).map((row) => {{
         const eventId = row.dataset.eventId;
-        const original = fallbackEvents.find((item) => item.event_id === eventId) || {{}};
+        const original = state.currentEvents.find((item) => item.event_id === eventId) || {{}};
         return {{
           ...original,
           event_id: eventId,
-          campus_label: row.querySelector('[name="campus_label"]').value.trim(),
+          behavior_type: row.querySelector('[name="behavior_type"]').value.trim(),
           risk_level: row.querySelector('[name="risk_level"]').value,
+          review_status: row.querySelector('[name="review_status"]').value,
+          track_ids: row.querySelector('[name="track_ids"]').value.trim(),
+          note: row.querySelector('[name="note"]').value.trim(),
           reason_text: row.querySelector('[name="reason_text"]').value.trim(),
         }};
       }});
     }}
 
     async function saveEvents() {{
+      if (state.version !== 'current') {{
+        saveStatus.textContent = '原始版日志不可编辑，请切回“当前版”。';
+        return;
+      }}
       const payload = {{
         report_id: reportId,
         events: collectEditedEvents(),
@@ -768,6 +1060,14 @@ def build_report_html(
       }}
     }}
 
+    document.getElementById('version-current').addEventListener('click', async () => {{
+      state.version = 'current';
+      await loadEvents();
+    }});
+    document.getElementById('version-original').addEventListener('click', async () => {{
+      state.version = 'original';
+      await loadEvents();
+    }});
     document.getElementById('save-events').addEventListener('click', saveEvents);
     document.getElementById('reload-events').addEventListener('click', loadEvents);
     loadEvents();
@@ -801,87 +1101,190 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
             "</tr>"
         )
     if not rows:
-        rows.append('<tr><td colspan="7">No report has been generated yet.</td></tr>')
+        rows.append('<tr><td colspan="7">当前还没有生成任何报告。</td></tr>')
+
+    dataset_count = len({record.get("dataset_display_name") for record in ordered_records if record.get("dataset_display_name")})
+    latest_time = ordered_records[0].get("generated_at") if ordered_records else "暂无"
 
     html = f"""<!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Campus Demo Reports</title>
   <style>
+    :root {{
+      --bg-top: #f0e8d8;
+      --bg-bottom: #e0d3be;
+      --panel: rgba(255, 252, 246, 0.9);
+      --line: rgba(65, 53, 40, 0.14);
+      --ink: #172521;
+      --muted: #697169;
+      --accent: #1d5a4a;
+      --shadow: 0 24px 60px rgba(73, 53, 29, 0.11);
+      --shadow-soft: 0 12px 30px rgba(73, 53, 29, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+    }}
+    * {{
+      box-sizing: border-box;
+    }}
     body {{
       margin: 0;
-      background: #f5f5f4;
-      color: #1c1917;
-      font-family: "Georgia", serif;
+      color: var(--ink);
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(29, 90, 74, 0.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(199, 134, 38, 0.14), transparent 22%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
     }}
     .page {{
-      max-width: 1080px;
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 24px;
+      padding: 24px 20px 40px;
     }}
     .hero, .panel {{
-      background: #fffbeb;
-      border: 1px solid #d6d3d1;
-      border-radius: 18px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
-      padding: 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 24px;
       margin-bottom: 18px;
+    }}
+    .eyebrow {{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }}
+    .eyebrow::before {{
+      content: "";
+      width: 28px;
+      height: 1px;
+      background: currentColor;
+    }}
+    .hero h1 {{
+      margin: 16px 0 10px;
+      font-family: "STZhongsong", "Source Han Serif SC", "Songti SC", serif;
+      font-size: clamp(32px, 4vw, 46px);
+      line-height: 1.08;
+    }}
+    .hero p {{
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+    }}
+    .stats {{
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }}
+    .stat {{
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+    }}
+    .stat span {{
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }}
+    .stat strong {{
+      display: block;
+      margin-top: 10px;
+      font-size: 28px;
     }}
     table {{
       width: 100%;
       border-collapse: collapse;
+      min-width: 760px;
     }}
     th, td {{
-      border-top: 1px solid #d6d3d1;
-      padding: 10px 8px;
+      border-top: 1px solid rgba(65, 53, 40, 0.1);
+      padding: 14px 12px;
       text-align: left;
     }}
     th {{
-      color: #57534e;
+      color: var(--muted);
       font-size: 12px;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
     }}
     a {{
-      color: #14532d;
+      color: var(--accent);
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 700;
     }}
     .links a {{
-      display: inline-block;
-      margin-right: 14px;
-      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 42px;
+      margin-right: 12px;
+      margin-top: 10px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--line);
+    }}
+    .table-shell {{
+      overflow: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+    }}
+    @media (max-width: 900px) {{
+      .stats {{
+        grid-template-columns: 1fr;
+      }}
     }}
   </style>
 </head>
 <body>
   <div class="page">
     <section class="hero">
-      <h1 style="margin-top:0">Campus Security Demo Reports</h1>
-      <p>Static offline reports generated from cached VADTree anomaly results.</p>
+      <div class="eyebrow">Campus Demo Reports</div>
+      <h1>校园安防历史报告索引</h1>
+      <p>这里汇总了基于缓存结果或运行时任务生成的离线报告，适合在控制台之外做统一回看和跳转。</p>
+      <div class="stats">
+        <div class="stat"><span>报告数量</span><strong>{len(ordered_records)}</strong></div>
+        <div class="stat"><span>覆盖数据集</span><strong>{dataset_count}</strong></div>
+        <div class="stat"><span>最近生成</span><strong style="font-size:18px">{escape(latest_time)}</strong></div>
+      </div>
       <div class="links">
-        <a href="/campus_demo/console">Open web console</a>
+        <a href="/campus_demo/console">打开控制台</a>
+        <a href="/campus_demo_outputs/">打开输出目录</a>
       </div>
     </section>
     <section class="panel">
-      <table>
-        <thead>
-          <tr>
-            <th>Video</th>
-            <th>Dataset</th>
-            <th>Source Class</th>
-            <th>Campus Label</th>
-            <th>Events</th>
-            <th>Peak Score</th>
-            <th>Generated</th>
-          </tr>
-        </thead>
-        <tbody>
-          {''.join(rows)}
-        </tbody>
-      </table>
+      <div class="table-shell">
+        <table>
+          <thead>
+            <tr>
+              <th>视频</th>
+              <th>数据集</th>
+              <th>原始类别</th>
+              <th>校园标签</th>
+              <th>事件数</th>
+              <th>峰值分数</th>
+              <th>生成时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            {''.join(rows)}
+          </tbody>
+        </table>
+      </div>
     </section>
   </div>
 </body>

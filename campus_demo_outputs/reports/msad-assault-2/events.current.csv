@@ -1,0 +1,2 @@
+event_id,behavior_type,campus_label,risk_level,review_status,note,track_ids,start_sec,end_sec,confidence,peak_score,mean_score,reason_text,caption_interval,reason_interval
+evt_0001,单向攻击/疑似欺凌,单向攻击/疑似欺凌,high,pending,,evt_0001,0.0,5.32,0.5259,0.5259,0.4999,"单向攻击/疑似欺凌：The video captures a sequence of events on a city street, viewed from an elevated perspective. It begins with a man in a dark shirt and jeans walking briskly across the street, passing by a yellow line that marks the pedestrian crossing.","27, 134","27, 134"

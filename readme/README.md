@@ -28,6 +28,8 @@ EfficientGEBD/GEBD_split100.py
   -> correlation_eval.py
 ```
 
+在当前工作区中，这条研究流水线之外还额外叠加了一层演示系统：`campus_demo/`。它基于 `result/` 中已有的帧级分数、caption 和 reasoning 缓存，提供报告页生成、历史记录、上传视频分析、控制台页面和导出能力。因此，这个仓库现在既是论文复现工程，也是一套可直接运行的 demo 工作区。
+
 ## 2. 顶层目录结构
 
 ```text
@@ -38,6 +40,8 @@ VADTree/
 ├── refinement_eval.py
 ├── correlation_eval.py
 ├── assets/
+├── campus_demo/
+├── campus_demo_outputs/
 ├── dataset_info/
 ├── result/
 ├── src/
@@ -62,6 +66,10 @@ VADTree/
   将 coarse/fine 两种粒度的结果做最终融合与评估。
 - `assets/`
   论文可视化素材，目前主要是框架图。
+- `campus_demo/`
+  面向演示和比赛场景的轻量应用层，封装了报告构建、HTTP 服务、上传分析、静态页面和事件编辑导出能力。
+- `campus_demo_outputs/`
+  `campus_demo/` 的输出目录，保存报告页面、事件导出、剪辑片段、上传文件和历史记录。
 - `dataset_info/`
   自带的测试集标注与时间区间注释文件。
 - `result/`
@@ -75,7 +83,43 @@ VADTree/
 - `ImageBind/`
   上游多模态特征子项目，负责计算视频节点与文本节点之间的相似度。
 - `DeepSeek-R1/`
-  轻量封装目录，用于调用 DeepSeek-R1-Distill-Qwen-14B 对节点描述进行异常推理。
+  轻量封装目录，用于调用 DeepSeek-R1-Distill-Qwen 系列模型对节点描述进行异常推理。
+
+### 2.1 本地大文件准备
+
+为了让新仓库保持轻量，下面这 3 个目录应继续作为“本地准备、Git 不跟踪”的大文件目录：
+
+- `DeepSeek-R1/DeepSeek-R1-Distill-Qwen-7B/`
+- `LLaVA-NeXT/LLaVA-Video-7B-Qwen2/`
+- `EfficientGEBD/output/`
+
+其中前两个是模型目录，建议直接下载到仓库当前默认使用的本地路径：
+
+```bash
+python -m pip install -U huggingface_hub
+
+huggingface-cli download deepseek-ai/DeepSeek-R1-Distill-Qwen-7B \
+  --local-dir DeepSeek-R1/DeepSeek-R1-Distill-Qwen-7B
+
+huggingface-cli download lmms-lab/LLaVA-Video-7B-Qwen2 \
+  --local-dir LLaVA-NeXT/LLaVA-Video-7B-Qwen2
+```
+
+`EfficientGEBD/output/` 在这个仓库里也按“下载项/本地缓存目录”处理，不放进 Git。可参考上游 `EfficientGEBD/README.md` 中给出的 checkpoint bundle 下载链接：
+
+- Google Drive:
+  `https://drive.google.com/file/d/1S4M-xnKpjWFGBimcRYzlEDFhDsWQWF_-/view?usp=drive_link`
+
+一个可直接使用的示例流程是：
+
+```bash
+python -m pip install -U gdown
+gdown --fuzzy "https://drive.google.com/file/d/1S4M-xnKpjWFGBimcRYzlEDFhDsWQWF_-/view?usp=drive_link"
+mkdir -p EfficientGEBD/output
+unzip /path/to/downloaded_checkpoint_bundle.zip -d EfficientGEBD/output
+```
+
+如果压缩包内部已经自带 `output/...` 或 `Kinetics-GEBD/...` 顶层目录，解压时保持原有目录层级即可，不要手动改平。
 
 ## 3. 根目录脚本的职责
 
@@ -264,6 +308,56 @@ result/
 
 - 它既是输出目录，也是实验缓存目录。
 - 仓库作者已经放入一部分中间结果，便于用户跳过前面的重型步骤，直接从 HGTree、refinement 或 ensemble 阶段开始实验。
+- 当前 `campus_demo/` 也直接依赖其中的 UCF-Crime 和 MSAD 缓存结果来构建报告和演示页面。
+
+## 6.1 `campus_demo/` 与 `campus_demo_outputs/` 演示链路
+
+这一部分不是论文主流程必需项，但它已经是当前仓库中的重要入口。
+
+`campus_demo/` 的主要文件包括：
+
+- `app.py`
+  演示系统主入口，提供以下命令：
+  - `list`
+  - `build-report`
+  - `build-samples`
+  - `serve`
+- `config.py`
+  维护 demo 使用的数据集配置、结果 JSON 路径、默认样例和输出根目录。
+- `runtime_pipeline.py`
+  定义上传视频/预留 RTSP 输入时的运行时分析流程，负责窗口聚合、事件生成、进度回调和报告落盘。
+- `vadtree_backend.py`
+  作为 VADTree 结果与 demo 运行时之间的适配层。
+- `exporter.py`
+  负责生成报告 HTML、事件导出文件、剪辑片段和打包产物。
+- `console.html`、`console.js`、`console.css`
+  浏览器控制台页面与前端资源。
+
+`campus_demo_outputs/` 主要存放：
+
+- `reports/`
+  每个分析任务对应的报告目录，里面有 `index.html`、`events.json`、`analysis.json`、`clips_manifest.json` 等文件。
+- `history/`
+  演示任务和报告的历史记录。
+- `uploads/`
+  用户上传的视频源文件。
+
+当前 CLI 入口是：
+
+```bash
+python campus_demo/app.py list --dataset ucf
+python campus_demo/app.py build-report --dataset ucf --video Fighting047_x264.mp4
+python campus_demo/app.py build-samples --dataset ucf
+python campus_demo/app.py serve --host 127.0.0.1 --port 8000
+```
+
+启动服务后，浏览器入口为：
+
+```text
+http://127.0.0.1:8000/campus_demo/console
+```
+
+结合代码现状，可以把这一层理解为“把研究型输出封装成可展示、可导出、可回放的比赛演示界面”。
 
 ## 7. `assets/` 素材目录
 
@@ -422,8 +516,15 @@ LLaVA-NeXT/
 
 - 读取 LLaVA 生成的节点描述 JSON。
 - 组织上下文提示词。
-- 调用 `DeepSeek-R1-Distill-Qwen-14B` 模型。
+- 调用兼容的 `DeepSeek-R1-Distill-Qwen` 系列模型。
 - 为每个节点输出异常分数或推理结果。
+
+结合当前仓库状态，这里还有两个需要注意的现实细节：
+
+- 现有 released result 和 `campus_demo/config.py` 中引用的目录命名主要基于 `DeepSeek-R1-Distill-Qwen-14B`。
+- 但 `deepseek_batch_infer.py` 里示例默认的 `--ckpt_dir` 已经指向 `DeepSeek-R1-Distill-Qwen-7B` 风格路径。
+
+也就是说，这一层实际是“脚本兼容多种 checkpoint，但缓存结果目录名和默认示例路径目前并不完全统一”。
 
 这个目录的工程意义是：
 
@@ -503,7 +604,7 @@ ImageBind 在这里不是做分类，而是做“结构约束”：
 
 ## 13. 总结
 
-如果从职责划分上看，这个仓库可以理解为 5 个层次：
+如果从职责划分上看，这个仓库现在更适合理解为 6 个层次：
 
 1. `EfficientGEBD/`
    负责事件边界检测，给出候选节点。
@@ -515,8 +616,9 @@ ImageBind 在这里不是做分类，而是做“结构约束”：
    负责根据跨模态相似性细化分数。
 5. `correlation_eval.py`
    负责 coarse/fine 融合，输出最终结果。
+6. `campus_demo/`
+   负责把缓存结果和运行时分析能力包装成可直接演示的控制台、报告页和导出系统。
 
 因此，仓库虽然目录较多，但本质上围绕的是一条清晰的研究流水线：
 
 **边界发现 -> 树结构构建 -> 节点描述 -> 节点推理 -> 相似度细化 -> 跨粒度融合。**
-

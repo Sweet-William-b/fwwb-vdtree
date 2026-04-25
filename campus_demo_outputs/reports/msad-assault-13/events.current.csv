@@ -1,0 +1,2 @@
+event_id,behavior_type,campus_label,risk_level,review_status,note,track_ids,start_sec,end_sec,confidence,peak_score,mean_score,reason_text,caption_interval,reason_interval
+evt_0001,单向攻击/疑似欺凌,单向攻击/疑似欺凌,high,pending,,evt_0001,0.0,5.12,0.5578,0.5578,0.52,"单向攻击/疑似欺凌：The video captures a sequence of events on a residential street, viewed from an elevated perspective. It begins with three individuals standing near a white car parked on the side of the road.","2, 110","2, 110"

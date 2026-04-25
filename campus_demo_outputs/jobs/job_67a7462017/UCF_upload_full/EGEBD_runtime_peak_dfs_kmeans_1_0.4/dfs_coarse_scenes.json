@@ -1,0 +1,23 @@
+{
+  "Vandalism019_x264.mp4": {
+    "scenes": [
+      [
+        0,
+        725
+      ],
+      [
+        725,
+        1118
+      ],
+      [
+        1118,
+        2046
+      ]
+    ],
+    "fps": 30.0,
+    "frames": 2047,
+    "threshold": "kmeans",
+    "min_length": 1,
+    "gamma": 0.4
+  }
+}

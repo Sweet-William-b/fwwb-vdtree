@@ -1,2 +1,2 @@
-event_id,campus_label,risk_level,start_sec,end_sec,peak_score,mean_score,reason_text,caption_interval,reason_interval
-evt_0001,打架斗殴,high,30.1,52.53,0.4049,0.3906,"打架斗殴：The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads '2016/05/23 08:30:00'.","798, 4458","798, 4458"
+event_id,behavior_type,campus_label,risk_level,review_status,note,track_ids,start_sec,end_sec,confidence,peak_score,mean_score,reason_text,caption_interval,reason_interval
+evt_0001,打架斗殴,打架斗殴,high,pending,,evt_0001,30.1,52.53,0.4049,0.4049,0.3906,"打架斗殴：The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads '2016/05/23 08:30:00'.","798, 4458","798, 4458"

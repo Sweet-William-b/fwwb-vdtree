@@ -88,15 +88,17 @@ class DatasetStore:
             return False
         return (self.config.video_root / Path(video_name).name).exists()
 
-    def list_videos(self) -> list[dict[str, Any]]:
+    def list_videos(self, video_names: list[str] | None = None) -> list[dict[str, Any]]:
         default_samples = set(self.default_samples())
+        names = video_names if video_names is not None else self.available_videos()
         return [
             {
                 "name": name,
+                "source_class": infer_source_class(self.config, name),
                 "has_local_video": self.has_local_video(name),
                 "is_default_sample": name in default_samples,
             }
-            for name in self.available_videos()
+            for name in names
         ]
 
     def default_samples(self) -> list[str]:
@@ -105,6 +107,17 @@ class DatasetStore:
         if samples:
             return samples
         return self.available_videos()[:5]
+
+    def website_sample_names(self) -> list[str]:
+        available = set(self.available_videos())
+        if self.config.website_samples:
+            samples = [name for name in self.config.website_samples if name in available]
+            if samples:
+                return samples
+        return self.default_samples()
+
+    def website_videos(self) -> list[dict[str, Any]]:
+        return self.list_videos(self.website_sample_names())
 
     def load_video(self, video_name: str) -> LoadedVideo:
         normalized_name = self._normalize_video_name(video_name)

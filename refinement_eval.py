@@ -1,5 +1,6 @@
 import argparse, glob
 import os, pickle
+from typing import Any
 from src.data.video_record import VideoRecord
 from src.utils.vis_utils import visualize_video
 from src.utils.eval_utils import *
@@ -60,6 +61,7 @@ def parse_args():
 
     # auto set args according to dataset
     vadtree_path = os.path.dirname(__file__)
+    args.vadtree_path = vadtree_path
     if args.video_root is None:
         if 'UCF' in args.scores_json:
             args.normal_label = 7
@@ -76,8 +78,8 @@ def parse_args():
         elif 'MSAD' in args.scores_json:
             args.normal_label = 0
             args.video_fps = 'auto' # MSAD数据集视频帧率不统一，自动获取
-            args.annotationfile_path=f'{vadtree_path}/dataset_info/msad/annotations/anomaly_test.txt'
-            args.temporal_annotation_file=f'{vadtree_path}/dataset_info/msad/annotations/Temporal_Anomaly_Annotation_for_Testing_Videos.txt'
+            args.annotationfile_path=f'{vadtree_path}/dataset_info/MSAD/annotations/anomaly_test.txt'
+            args.temporal_annotation_file=f'{vadtree_path}/dataset_info/MSAD/annotations/Temporal_Anomaly_Annotation_for_Testing_Videos.txt'
             if args.video_root is None: args.video_root = "/root/autodl-fs/lwl/data/MSAD_test/test_videos/"
 
     args.output_dir = os.path.dirname(args.scores_json)
@@ -142,14 +144,36 @@ def main(
     # similarity_pkl = similarity_pkl
 
 
+    def _score_key(mapping, video_name):
+        if video_name in mapping:
+            return video_name
+        mp4_name = video_name + '.mp4'
+        if mp4_name in mapping:
+            return mp4_name
+        raise KeyError(video_name)
+
+    def _infer_num_frames(video_scores_dict):
+        if isinstance(video_scores_dict, list):
+            return len(video_scores_dict)
+        max_frame = -1
+        for clip in video_scores_dict.keys():
+            start, end = map(lambda x: int(float(x)), clip.split(', '))
+            max_frame = max(max_frame, end)
+        return max_frame + 1
+
+    def _load_msad_video_info(scores_json_path: Path) -> dict[str, Any]:
+        for parent in [scores_json_path.parent, *scores_json_path.parents]:
+            candidate = parent / "dfs_coarse_scenes.json"
+            if candidate.exists():
+                with open(candidate, encoding="utf-8") as f:
+                    return json.load(f)
+        fallback = REPO_ROOT / "result" / "MSAD_test" / "EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.3" / "dfs_coarse_scenes.json"
+        with open(fallback, encoding="utf-8") as f:
+            return json.load(f)
+
     # Load the temporal annotations
     if not without_labels:
         annotations = temporal_testing_annotations(temporal_annotation_file)
-
-    # Load video records from the annotation file
-    video_list = [VideoRecord(x.strip().split(), '' if args.video_root is None else args.video_root) for x in open(
-        args.annotationfile_path)]
-
 
     flat_scores, flat_labels = initialize_score_dicts(
         scores_json=args.scores_json
@@ -163,6 +187,22 @@ def main(
         all_video_scores_dict = json.load(f)
     out_all_video_scores_dict = copy.deepcopy(all_video_scores_dict)
 
+    # Load video records
+    if without_labels:
+        video_list = []
+        for runtime_video_key, runtime_video_scores in all_video_scores_dict.get('vid_score', {}).items():
+            num_frames = _infer_num_frames(runtime_video_scores)
+            runtime_video_name = Path(runtime_video_key).stem
+            video_list.append(
+                VideoRecord(
+                    [runtime_video_name, "0", str(max(num_frames - 1, 0)), str(normal_label)],
+                    '' if args.video_root is None else args.video_root,
+                )
+            )
+    else:
+        video_list = [VideoRecord(x.strip().split(), '' if args.video_root is None else args.video_root) for x in open(
+            args.annotationfile_path)]
+
     if args.similarity_pkl!=False:
         with open(similarity_pkl, "rb") as f:
             similarity_dict = pickle.load(f)
@@ -173,9 +213,7 @@ def main(
                 all_video_split_pred = json.load(f)
 
     if 'MSAD' in args.scores_json: # load video info for fps
-            with open(f'{args.vadtree_path}/MSAD_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.4'
-                      '/dfs_coarse_sences.json') as f:
-                msad_video_info = json.load(f)
+        msad_video_info = _load_msad_video_info(scores_json)
 
     for k, video in enumerate(video_list):
         # if 'Bad.Boys.1995__#01-11-55_01-12-40_label_G-B2-B6' not in video.path:
@@ -190,24 +228,25 @@ def main(
 
 
         # Load the scores and similarity
-        video_scores_dict = all_video_scores_dict['vid_score'][video_name + '.mp4']
+        score_key = _score_key(all_video_scores_dict['vid_score'], video_name)
+        video_scores_dict = all_video_scores_dict['vid_score'][score_key]
         video_scores = [0.0] * len(video_labels)
 
         video_captions = None
 
         if args.similarity_pkl!=False:  # socore refine
-            vodeo_similarity_dict = similarity_dict['vid_sim'][video_name + '.mp4']
+            similarity_key = _score_key(similarity_dict['vid_sim'], video_name)
+            vodeo_similarity_dict = similarity_dict['vid_sim'][similarity_key]
             video_scores_dict = calculate_refine_scores(
                 video_scores_dict, vodeo_similarity_dict, args.similarity_type, args.topK,
                 args.num_neighbors, args.dyn_ratio,  args.tao, args
             )
             for m, n in video_scores_dict.items(): # 记录refine后分数
-                if type(out_all_video_scores_dict['vid_score'][video_name + '.mp4'][m]) is list:
-                    out_all_video_scores_dict['vid_score'][video_name + '.mp4'][m].insert(0, round(n,4))
+                if type(out_all_video_scores_dict['vid_score'][score_key][m]) is list:
+                    out_all_video_scores_dict['vid_score'][score_key][m].insert(0, round(n,4))
                 else:
-                    out_all_video_scores_dict['vid_score'][video_name + '.mp4'][m] = [out_all_video_scores_dict[
-                        'vid_score'][video_name +
-                                     '.mp4'][m], round(n,4)]
+                    out_all_video_scores_dict['vid_score'][score_key][m] = [out_all_video_scores_dict[
+                        'vid_score'][score_key][m], round(n,4)]
 
         if type(video_scores_dict) is list:
             video_scores = video_scores_dict
@@ -317,6 +356,13 @@ def main(
                 json.dump(out_all_video_scores_dict, json_file, ensure_ascii=False, indent=4)
             # print(f'\nout_all_video_scores_dict save path:{args.refine_score_output_json}')
             print(f'\nout_all_video_scores_dict:{os.path.abspath(args.refine_score_output_json)}')
+    elif args.similarity_pkl != False:
+        os.makedirs(args.output_dir, exist_ok=True)
+        out_all_video_scores_dict['args_dict'] = args_dict
+        out_all_video_scores_dict['dataset_metric'] = {}
+        with open(args.refine_score_output_json, 'w', encoding='utf-8') as json_file:
+            json.dump(out_all_video_scores_dict, json_file, ensure_ascii=False, indent=4)
+        print(f'\nout_all_video_scores_dict:{os.path.abspath(args.refine_score_output_json)}')
 
 
 if __name__ == "__main__":

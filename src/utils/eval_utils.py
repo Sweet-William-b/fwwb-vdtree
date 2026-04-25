@@ -20,10 +20,13 @@ MSAD_classes = ['Normal', 'Assault', 'Explosion', 'Fighting', 'Fire', 'Object Fa
     'Shooting', 'Traffic Accident', 'Vandalism', 'Water Incident']
 
 def update_flat_scores_labels(flat_scores, flat_labels, video_scores, video_labels, without_labels, scores_json, video_name):
-    class_text = get_video_category(scores_json, video_name)
     flat_scores['all'].extend(video_scores)
     if not without_labels:
         flat_labels['all'].extend(video_labels)
+    else:
+        return flat_scores, flat_labels
+
+    class_text = get_video_category(scores_json, video_name)
     if len(class_text) == 1:  # xd数据集中跳过多类的视频
         flat_scores[class_text[0]].extend(video_scores)
         if not without_labels:
@@ -395,4 +398,3 @@ def get_video_category(scores_json, video_name):
     except Exception as e:
         print(f"Error processing {scores_json} video: {str(e)}")
         return ""
-

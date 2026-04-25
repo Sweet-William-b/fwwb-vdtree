@@ -1,5 +1,6 @@
 import argparse, glob, hashlib
 import numpy as np, re
+from typing import Any
 
 from src.data.video_record import VideoRecord
 from src.utils.vis_utils import visualize_video
@@ -80,8 +81,8 @@ def parse_args():
     elif 'MSAD' in args.coarse_scores_json:
         args.normal_label = 0
         args.video_fps = 'auto'
-        args.annotationfile_path=f'{vadtree_path}/dataset_info/MSAD_test/anomaly_test.txt'
-        args.temporal_annotation_file=f'{vadtree_path}/dataset_info/MSAD_test/Temporal_Anomaly_Annotation_for_Testing_Videos.txt'
+        args.annotationfile_path=f'{vadtree_path}/dataset_info/MSAD/annotations/anomaly_test.txt'
+        args.temporal_annotation_file=f'{vadtree_path}/dataset_info/MSAD/annotations/Temporal_Anomaly_Annotation_for_Testing_Videos.txt'
         if args.video_root is None: args.video_root = "/root/autodl-fs/lwl/data/MSAD_test/test_videos/"
     
     args.output_dir = os.path.dirname(args.coarse_scores_json)
@@ -120,14 +121,37 @@ def parse_args():
 def main(
         args
 ):
+    def _score_key(mapping, video_name):
+        if video_name in mapping:
+            return video_name
+        mp4_name = video_name + '.mp4'
+        if mp4_name in mapping:
+            return mp4_name
+        raise KeyError(video_name)
+
+    def _infer_num_frames(video_scores_dict):
+        if isinstance(video_scores_dict, list):
+            return len(video_scores_dict)
+        max_frame = -1
+        for clip in video_scores_dict.keys():
+            start, end = map(lambda x: int(float(x)), clip.split(', '))
+            max_frame = max(max_frame, end)
+        return max_frame + 1
+
+    def _load_msad_video_info(scores_json_path: Path) -> dict[str, Any]:
+        for parent in [scores_json_path.parent, *scores_json_path.parents]:
+            candidate = parent / "dfs_coarse_scenes.json"
+            if candidate.exists():
+                with open(candidate, 'r', encoding='utf-8-sig') as f:
+                    return json.load(f)
+        fallback = REPO_ROOT / "result" / "MSAD_test" / "EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.3" / "dfs_coarse_scenes.json"
+        with open(fallback, 'r', encoding='utf-8-sig') as f:
+            return json.load(f)
+
 
     # Load the temporal annotations
     if not args.without_labels:
         annotations = temporal_testing_annotations(args.temporal_annotation_file)
-
-    # Load video records from the annotation file
-    video_list = [VideoRecord(x.strip().split(), '' if args.video_root is None else args.video_root) for x in open(
-        args.annotationfile_path, 'r', encoding='utf-8-sig')]
 
     flat_scores, flat_labels = initialize_score_dicts(
         scores_json=args.coarse_scores_json
@@ -146,14 +170,28 @@ def main(
     with open(args.fine_scores_json, 'r', encoding='utf-8-sig') as f:
         all_ense_scores_dict = json.load(f)
 
+    # Load video records
+    if args.without_labels:
+        video_list = []
+        for runtime_video_key, runtime_video_scores in all_video_scores_dict.get('vid_score', {}).items():
+            num_frames = _infer_num_frames(runtime_video_scores)
+            runtime_video_name = Path(runtime_video_key).stem
+            video_list.append(
+                VideoRecord(
+                    [runtime_video_name, "0", str(max(num_frames - 1, 0)), str(args.normal_label)],
+                    '' if args.video_root is None else args.video_root,
+                )
+            )
+    else:
+        video_list = [VideoRecord(x.strip().split(), '' if args.video_root is None else args.video_root) for x in open(
+            args.annotationfile_path, 'r', encoding='utf-8-sig')]
+
     if args.split_pred is not None:
         with open(args.split_pred, 'r', encoding='utf-8-sig') as f:
             all_video_split_pred = json.load(f)
 
     if 'MSAD' in args.coarse_scores_json: # load video info for fps
-        with open(f'{args.vadtree_path}/MSAD_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.4'
-                  '/dfs_coarse_sences.json', 'r', encoding='utf-8-sig') as f:
-            msad_video_info = json.load(f)
+        msad_video_info = _load_msad_video_info(Path(args.coarse_scores_json))
 
     ab_pro_mean = []
     ab_pro_sum = []
@@ -177,10 +215,13 @@ def main(
         if args.video_fps=='auto':
             video_fps = msad_video_info[video_name+'.mp4']['fps']
         # Load the scores
-        video_scores_dict = all_video_scores_dict['vid_score'][video_name + '.mp4']
-        ense_video_scores_dict = all_ense_scores_dict['vid_score'][video_name + '.mp4']
-        video_scores = [0.0] * len(video_labels)
-        video_scores_ = [0.0] * len(video_labels)
+        coarse_key = _score_key(all_video_scores_dict['vid_score'], video_name)
+        fine_key = _score_key(all_ense_scores_dict['vid_score'], video_name)
+        video_scores_dict = all_video_scores_dict['vid_score'][coarse_key]
+        ense_video_scores_dict = all_ense_scores_dict['vid_score'][fine_key]
+        frame_count = video.num_frames
+        video_scores = [0.0] * frame_count
+        video_scores_ = [0.0] * frame_count
         # video_captions = all_video_caption_dict['vid_captions'][video_name + '.mp4']
         video_captions = [video_scores_dict, ense_video_scores_dict]
 
@@ -190,7 +231,7 @@ def main(
             # 'softmax'
         )
         # weight = [0.5, 0.5]
-        weight_list = [0.5] * len(video_labels) #原始分数的权重。
+        weight_list = [0.5] * frame_count #原始分数的权重。
         scenes = []
         vid_ab_pro = []
         for idx, (clip, score) in enumerate(video_scores_dict.items()):
@@ -206,10 +247,10 @@ def main(
             video_scores[start:end+1] = [score] * (end - start+1)
             # video_scores_org[start:end+1] = [score_] * (end - start+1)
             video_scores_[start:end+1] = [score_] * (end - start+1)
-            vid_ab_pro.append(((end-start)/len(video_labels))* score_)
+            vid_ab_pro.append(((end-start)/frame_count)* score_)
             # fine_w = 0
 
-        all_ab_s.append(sum(video_scores)/len(video_labels))
+        all_ab_s.append(sum(video_scores)/frame_count)
         for idx, (clip, score) in enumerate(video_scores_dict.items()):
             start, end = map(lambda x: int(float(x)), clip.split(', '))
             fine_w = video_variances[clip]['norm_score']*args.beta
@@ -219,19 +260,20 @@ def main(
             np.array(vid_ab_pro).max(),vid_ab_pro)
         # if args.normal_label not in video_labels:
 
-        all_ab_f_pro.append(np.array(np.array(video_labels)!= args.normal_label).sum()/len(video_labels)) # 计算异常片段的比例
-        all_ab_pro_mean.append(np.array(vid_ab_pro).mean())
+        if not args.without_labels:
+            all_ab_f_pro.append(np.array(np.array(video_labels)!= args.normal_label).sum()/len(video_labels)) # 计算异常片段的比例
+            all_ab_pro_mean.append(np.array(vid_ab_pro).mean())
 
-        if len(set(video_labels))==1 and  args.normal_label in set(video_labels): #不含有异常片段
-        # if 0: #不含有异常片段
-            print()
-        else:
-            ab_s.append(sum(video_scores_)/len(video_labels))
-            ab_pro_mean.append(np.array(vid_ab_pro).mean())
-            ab_pro_sum.append(np.array(vid_ab_pro).sum())
-            ab_pro_var.append(np.array(vid_ab_pro).var())
-            ab_pro_max.append(np.array(vid_ab_pro).max())
-            ab_max.append(np.array(vid_ab_pro).max()*len(video_labels))
+            if len(set(video_labels))==1 and  args.normal_label in set(video_labels): #不含有异常片段
+            # if 0: #不含有异常片段
+                print()
+            else:
+                ab_s.append(sum(video_scores_)/len(video_labels))
+                ab_pro_mean.append(np.array(vid_ab_pro).mean())
+                ab_pro_sum.append(np.array(vid_ab_pro).sum())
+                ab_pro_var.append(np.array(vid_ab_pro).var())
+                ab_pro_max.append(np.array(vid_ab_pro).max())
+                ab_max.append(np.array(vid_ab_pro).max()*len(video_labels))
         # 待集成的分数
         ense_scores = get_video_flat_scores(ense_video_scores_dict) # 待集成的分数
 
@@ -247,7 +289,7 @@ def main(
 
         assert len(ense_video_scores) == video.num_frames
 
-        out_all_video_scores_dict['vid_score'][video_name + '.mp4'] = ense_video_scores
+        out_all_video_scores_dict['vid_score'][coarse_key] = ense_video_scores
 
         # Extend scores and labels
         flat_scores, flat_labels = update_flat_scores_labels(
@@ -255,20 +297,21 @@ def main(
         )
 
         # 计算单个视频的指标
-        vid_binary_labels = np.array(video_labels) != args.normal_label
+        if not args.without_labels:
+            vid_binary_labels = np.array(video_labels) != args.normal_label
 
-        fpr, tpr, threshold = roc_curve(vid_binary_labels, np.array(ense_video_scores))
-        roc_auc = auc(fpr, tpr)
+            fpr, tpr, threshold = roc_curve(vid_binary_labels, np.array(ense_video_scores))
+            roc_auc = auc(fpr, tpr)
 
-        # Compute precision-recall curve
-        precision, recall, th = precision_recall_curve(vid_binary_labels, np.array(ense_video_scores))
-        pr_auc = auc(recall, precision)
+            # Compute precision-recall curve
+            precision, recall, th = precision_recall_curve(vid_binary_labels, np.array(ense_video_scores))
+            pr_auc = auc(recall, precision)
 
-        pos_mean = round(np.array(ense_video_scores)[vid_binary_labels].mean(),4)
-        neg_mean = round(np.array(ense_video_scores)[~vid_binary_labels].mean(),4)
-        vid_metric[video_name] = {'roc_auc':round(roc_auc,4), 'pr_auc':round(pr_auc,4), '1_mean':pos_mean,
-            '0_mean':neg_mean}
-        print(str(k).zfill(4), video_name, f' {vid_metric[video_name]} ')
+            pos_mean = round(np.array(ense_video_scores)[vid_binary_labels].mean(),4)
+            neg_mean = round(np.array(ense_video_scores)[~vid_binary_labels].mean(),4)
+            vid_metric[video_name] = {'roc_auc':round(roc_auc,4), 'pr_auc':round(pr_auc,4), '1_mean':pos_mean,
+                '0_mean':neg_mean}
+            print(str(k).zfill(4), video_name, f' {vid_metric[video_name]} ')
 
         # if pr_auc>0.8:
         #     print('sdadadaedwawd',pr_auc, roc_auc)
@@ -340,6 +383,13 @@ def main(
         # refine后得分存储
         del out_all_video_scores_dict['config']
         out_all_video_scores_dict['dataset_metric'] = dataset_metric
+        out_all_video_scores_dict['args_dict'] = args_dict
+        with open(args.ense_score_output_json, 'w', encoding='utf-8') as json_file:
+            json.dump(out_all_video_scores_dict, json_file, ensure_ascii=False, indent=4)
+        print(f'\nout_all_video_scores_dict save path:{args.ense_score_output_json}')
+    else:
+        os.makedirs(args.output_dir, exist_ok=True)
+        out_all_video_scores_dict['dataset_metric'] = {}
         out_all_video_scores_dict['args_dict'] = args_dict
         with open(args.ense_score_output_json, 'w', encoding='utf-8') as json_file:
             json.dump(out_all_video_scores_dict, json_file, ensure_ascii=False, indent=4)

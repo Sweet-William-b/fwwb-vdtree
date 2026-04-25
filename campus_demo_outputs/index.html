@@ -1,82 +1,182 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Campus Demo Reports</title>
   <style>
+    :root {
+      --bg-top: #f0e8d8;
+      --bg-bottom: #e0d3be;
+      --panel: rgba(255, 252, 246, 0.9);
+      --line: rgba(65, 53, 40, 0.14);
+      --ink: #172521;
+      --muted: #697169;
+      --accent: #1d5a4a;
+      --shadow: 0 24px 60px rgba(73, 53, 29, 0.11);
+      --shadow-soft: 0 12px 30px rgba(73, 53, 29, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+    }
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
-      background: #f5f5f4;
-      color: #1c1917;
-      font-family: "Georgia", serif;
+      color: var(--ink);
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(29, 90, 74, 0.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(199, 134, 38, 0.14), transparent 22%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
     }
     .page {
-      max-width: 1080px;
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 24px;
+      padding: 24px 20px 40px;
     }
     .hero, .panel {
-      background: #fffbeb;
-      border: 1px solid #d6d3d1;
-      border-radius: 18px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
-      padding: 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 24px;
       margin-bottom: 18px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 1px;
+      background: currentColor;
+    }
+    .hero h1 {
+      margin: 16px 0 10px;
+      font-family: "STZhongsong", "Source Han Serif SC", "Songti SC", serif;
+      font-size: clamp(32px, 4vw, 46px);
+      line-height: 1.08;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .stat {
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+    }
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .stat strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 28px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 760px;
     }
     th, td {
-      border-top: 1px solid #d6d3d1;
-      padding: 10px 8px;
+      border-top: 1px solid rgba(65, 53, 40, 0.1);
+      padding: 14px 12px;
       text-align: left;
     }
     th {
-      color: #57534e;
+      color: var(--muted);
       font-size: 12px;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
     }
     a {
-      color: #14532d;
+      color: var(--accent);
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 700;
     }
     .links a {
-      display: inline-block;
-      margin-right: 14px;
-      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 42px;
+      margin-right: 12px;
+      margin-top: 10px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--line);
+    }
+    .table-shell {
+      overflow: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+    }
+    @media (max-width: 900px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <div class="page">
     <section class="hero">
-      <h1 style="margin-top:0">Campus Security Demo Reports</h1>
-      <p>Static offline reports generated from cached VADTree anomaly results.</p>
+      <div class="eyebrow">Campus Demo Reports</div>
+      <h1>校园安防历史报告索引</h1>
+      <p>这里汇总了基于缓存结果或运行时任务生成的离线报告，适合在控制台之外做统一回看和跳转。</p>
+      <div class="stats">
+        <div class="stat"><span>报告数量</span><strong>16</strong></div>
+        <div class="stat"><span>覆盖数据集</span><strong>2</strong></div>
+        <div class="stat"><span>最近生成</span><strong style="font-size:18px">2026-04-22T15:16:20</strong></div>
+      </div>
       <div class="links">
-        <a href="/campus_demo/console">Open web console</a>
+        <a href="/campus_demo/console">打开控制台</a>
+        <a href="/campus_demo_outputs/">打开输出目录</a>
       </div>
     </section>
     <section class="panel">
-      <table>
-        <thead>
-          <tr>
-            <th>Video</th>
-            <th>Dataset</th>
-            <th>Source Class</th>
-            <th>Campus Label</th>
-            <th>Events</th>
-            <th>Peak Score</th>
-            <th>Generated</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><a href="reports/ucf-rtsp-job-94a5f21bfd-rtsp-job-94a5f21bfd/index.html">rtsp-job_94a5f21bfd.mp4</a></td><td>UCF-Crime</td><td>RuntimeMotion</td><td>异常行为</td><td>2</td><td>0.746</td><td>2026-04-21T20:36:45</td></tr><tr><td><a href="reports/ucf-upload-job-1900926ec1-fight-demo/index.html">fight_demo.mp4</a></td><td>UCF-Crime</td><td>打架斗殴</td><td>打架斗殴</td><td>2</td><td>0.746</td><td>2026-04-21T20:36:44</td></tr><tr><td><a href="reports/ucf-rtsp-job-0ff3736030-rtsp-job-0ff3736030/index.html">rtsp-job_0ff3736030.mp4</a></td><td>UCF-Crime</td><td>RuntimeMotion</td><td>异常行为</td><td>2</td><td>0.746</td><td>2026-04-21T20:32:30</td></tr><tr><td><a href="reports/ucf-upload-job-31f7d9c9b8-fight-demo/index.html">fight_demo.mp4</a></td><td>UCF-Crime</td><td>打架斗殴</td><td>打架斗殴</td><td>2</td><td>0.746</td><td>2026-04-21T20:32:19</td></tr><tr><td><a href="reports/ucf-runtime-test-report/index.html">fight_demo.mp4</a></td><td>UCF-Crime</td><td>打架斗殴</td><td>打架斗殴</td><td>2</td><td>0.746</td><td>2026-04-21T20:32:05</td></tr><tr><td><a href="reports/ucf-fighting047-x264/index.html">Fighting047_x264.mp4</a></td><td>UCF-Crime</td><td>Fighting</td><td>打架斗殴</td><td>1</td><td>0.405</td><td>2026-04-21T16:39:19</td></tr><tr><td><a href="reports/ucf-assault006-x264/index.html">Assault006_x264.mp4</a></td><td>UCF-Crime</td><td>Assault</td><td>单向攻击/疑似霸凌</td><td>2</td><td>0.587</td><td>2026-04-21T14:39:23</td></tr><tr><td><a href="reports/ucf-normal-videos-189-x264/index.html">Normal_Videos_189_x264.mp4</a></td><td>UCF-Crime</td><td>Normal</td><td>正常行为</td><td>0</td><td>0.000</td><td>2026-04-21T14:39:23</td></tr><tr><td><a href="reports/ucf-robbery048-x264/index.html">Robbery048_x264.mp4</a></td><td>UCF-Crime</td><td>Robbery</td><td>可疑闯入/财物风险</td><td>1</td><td>0.300</td><td>2026-04-21T14:39:23</td></tr><tr><td><a href="reports/ucf-burglary018-x264/index.html">Burglary018_x264.mp4</a></td><td>UCF-Crime</td><td>Burglary</td><td>可疑闯入/财物风险</td><td>1</td><td>0.349</td><td>2026-04-21T14:39:23</td></tr>
-        </tbody>
-      </table>
+      <div class="table-shell">
+        <table>
+          <thead>
+            <tr>
+              <th>视频</th>
+              <th>数据集</th>
+              <th>原始类别</th>
+              <th>校园标签</th>
+              <th>事件数</th>
+              <th>峰值分数</th>
+              <th>生成时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="reports/ucf-fighting047-x264/index.html">Fighting047_x264.mp4</a></td><td>UCF-Crime</td><td>Fighting</td><td>打架斗殴</td><td>1</td><td>0.405</td><td>2026-04-22T15:16:20</td></tr><tr><td><a href="reports/msad-assault-2/index.html">Assault_2.mp4</a></td><td>MSAD</td><td>Assault</td><td>单向攻击/疑似欺凌</td><td>1</td><td>0.526</td><td>2026-04-22T15:15:53</td></tr><tr><td><a href="reports/ucf-assault006-x264/index.html">Assault006_x264.mp4</a></td><td>UCF-Crime</td><td>Assault</td><td>单向攻击/疑似欺凌</td><td>2</td><td>0.587</td><td>2026-04-22T15:02:13</td></tr><tr><td><a href="reports/ucf-upload-job-67a7462017-vandalism019-x264/index.html">Vandalism019_x264.mp4</a></td><td>UCF-Crime</td><td>Vandalism</td><td>破坏公共设施</td><td>0</td><td>-1.000</td><td>2026-04-22T15:00:38</td></tr><tr><td><a href="reports/ucf-upload-job-1113abbef2-vandalism050-x264/index.html">Vandalism050_x264.mp4</a></td><td>UCF-Crime</td><td>Vandalism</td><td>破坏公共设施</td><td>0</td><td>-1.000</td><td>2026-04-22T14:55:26</td></tr><tr><td><a href="reports/msad-assault-13/index.html">Assault_13.mp4</a></td><td>MSAD</td><td>Assault</td><td>单向攻击/疑似欺凌</td><td>1</td><td>0.621</td><td>2026-04-22T14:14:18</td></tr><tr><td><a href="reports/msad-assault-11/index.html">Assault_11.mp4</a></td><td>MSAD</td><td>Assault</td><td>单向攻击/疑似欺凌</td><td>1</td><td>0.542</td><td>2026-04-22T13:36:09</td></tr><tr><td><a href="reports/ucf-upload-job-aa076d5408-test-runtime-input/index.html">test_runtime_input.mp4</a></td><td>UCF-Crime</td><td>test_runtime_input</td><td>正常行为</td><td>0</td><td>0.000</td><td>2026-04-22T13:33:49</td></tr><tr><td><a href="reports/ucf-rtsp-job-94a5f21bfd-rtsp-job-94a5f21bfd/index.html">rtsp-job_94a5f21bfd.mp4</a></td><td>UCF-Crime</td><td>RuntimeMotion</td><td>异常行为</td><td>2</td><td>0.746</td><td>2026-04-21T20:36:45</td></tr><tr><td><a href="reports/ucf-upload-job-1900926ec1-fight-demo/index.html">fight_demo.mp4</a></td><td>UCF-Crime</td><td>打架斗殴</td><td>打架斗殴</td><td>2</td><td>0.746</td><td>2026-04-21T20:36:44</td></tr><tr><td><a href="reports/ucf-rtsp-job-0ff3736030-rtsp-job-0ff3736030/index.html">rtsp-job_0ff3736030.mp4</a></td><td>UCF-Crime</td><td>RuntimeMotion</td><td>异常行为</td><td>2</td><td>0.746</td><td>2026-04-21T20:32:30</td></tr><tr><td><a href="reports/ucf-upload-job-31f7d9c9b8-fight-demo/index.html">fight_demo.mp4</a></td><td>UCF-Crime</td><td>打架斗殴</td><td>打架斗殴</td><td>2</td><td>0.746</td><td>2026-04-21T20:32:19</td></tr><tr><td><a href="reports/ucf-runtime-test-report/index.html">fight_demo.mp4</a></td><td>UCF-Crime</td><td>打架斗殴</td><td>打架斗殴</td><td>2</td><td>0.746</td><td>2026-04-21T20:32:05</td></tr><tr><td><a href="reports/ucf-normal-videos-189-x264/index.html">Normal_Videos_189_x264.mp4</a></td><td>UCF-Crime</td><td>Normal</td><td>正常行为</td><td>0</td><td>0.000</td><td>2026-04-21T14:39:23</td></tr><tr><td><a href="reports/ucf-robbery048-x264/index.html">Robbery048_x264.mp4</a></td><td>UCF-Crime</td><td>Robbery</td><td>可疑闯入/财物风险</td><td>1</td><td>0.300</td><td>2026-04-21T14:39:23</td></tr><tr><td><a href="reports/ucf-burglary018-x264/index.html">Burglary018_x264.mp4</a></td><td>UCF-Crime</td><td>Burglary</td><td>可疑闯入/财物风险</td><td>1</td><td>0.349</td><td>2026-04-21T14:39:23</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   </div>
 </body>

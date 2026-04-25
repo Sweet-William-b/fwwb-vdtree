@@ -2,5 +2,8 @@
   "report_id": "ucf-fighting047-x264",
   "dataset_name": "ucf",
   "video_name": "Fighting047_x264.mp4",
-  "generated_at": "2026-04-21T16:39:19"
+  "generated_at": "2026-04-22T15:16:20",
+  "job_id": "job_3539524878",
+  "source_type": "sample",
+  "source_label": "Fighting047_x264.mp4"
 }

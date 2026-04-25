@@ -1,0 +1,9 @@
+{
+  "report_id": "ucf-upload-job-eb5f3e8831-test-runtime-input",
+  "dataset_name": "ucf",
+  "video_name": "test_runtime_input.mp4",
+  "generated_at": "2026-04-22T13:28:05",
+  "job_id": "job_eb5f3e8831",
+  "source_type": "upload",
+  "source_label": "test_runtime_input.mp4"
+}

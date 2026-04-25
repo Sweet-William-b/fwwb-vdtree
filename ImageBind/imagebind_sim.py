@@ -154,7 +154,7 @@ if __name__ == "__main__":
         batch_size=1,
         shuffle=False,  # 是否打乱数据
         # num_workers=num_workers,  # 使用多进程加载数据
-        num_workers=1,  # 使用多进程加载数据
+        num_workers=0,
         pin_memory=False,  # 如果使用 GPU，建议启用 pin_memory 加速数据传输
         # pin_memory=False  # 如果使用 GPU，建议启用 pin_memory 加速数据传输
     )
@@ -255,4 +255,3 @@ if __name__ == "__main__":
     cache_files = glob.glob("./*.cache.pt")
     for cache_file in cache_files:
         os.remove(cache_file)
-

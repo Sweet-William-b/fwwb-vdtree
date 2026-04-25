@@ -1,0 +1,37 @@
+{
+  "video_name": "test_runtime_input.mp4",
+  "pred_json": "/home/zh-star/rspace/fwwb-vdtree/result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff__job_d4360ef575_split_out_th0.5/pred_scenes_th0.5.json",
+  "scenes_json": "/home/zh-star/rspace/fwwb-vdtree/result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff__job_d4360ef575_split_out_th0.5/scenes_th0.5.json",
+  "pred_entry": {
+    "pred": [
+      0.52,
+      0.73,
+      0.75,
+      0.72,
+      0.63,
+      0.51,
+      0.45,
+      0.45,
+      0.55,
+      0.61,
+      0.61,
+      0.44
+    ],
+    "scenes": [
+      [
+        0,
+        7
+      ],
+      [
+        7,
+        31
+      ],
+      [
+        31,
+        39
+      ]
+    ],
+    "fps": 10.0,
+    "frames": 40
+  }
+}

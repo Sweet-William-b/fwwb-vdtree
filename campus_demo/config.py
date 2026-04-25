@@ -17,6 +17,7 @@ class DatasetConfig:
     normal_classes: tuple[str, ...]
     compound_prefixes: tuple[str, ...] = ()
     default_samples: tuple[str, ...] = ()
+    website_samples: tuple[str, ...] = ()
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -86,6 +87,15 @@ DATASETS: dict[str, DatasetConfig] = {
             "Assault006_x264.mp4",
             "Robbery048_x264.mp4",
             "Burglary018_x264.mp4",
+            "Arson009_x264.mp4",
+        ),
+        website_samples=(
+            "Normal_Videos_189_x264.mp4",
+            "Fighting047_x264.mp4",
+            "Assault006_x264.mp4",
+            "Robbery048_x264.mp4",
+            "Burglary018_x264.mp4",
+            "Arson009_x264.mp4",
         ),
     ),
     "msad": DatasetConfig(

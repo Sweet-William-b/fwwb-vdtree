@@ -1,0 +1,32 @@
+[
+  {
+    "event_id": "evt_0001",
+    "start_frame": 0,
+    "end_frame": 128,
+    "start_sec": 0.0,
+    "end_sec": 5.12,
+    "duration_sec": 5.16,
+    "peak_frame": 0,
+    "peak_score": 0.5578,
+    "mean_score": 0.52,
+    "risk_level": "high",
+    "source_class": "Assault",
+    "campus_label": "单向攻击/疑似欺凌",
+    "behavior_type": "单向攻击/疑似欺凌",
+    "mapping_summary": "疑似存在持续攻击、压制或校园欺凌场景，需要立即复核。",
+    "caption_interval": "2, 110",
+    "caption_summary": "The video captures a sequence of events on a residential street, viewed from an elevated perspective. It begins with three individuals standing near a white car parked on the side of the road.",
+    "reason_interval": "2, 110",
+    "reasoning_score": 0.7,
+    "reason_excerpt": "Okay, so I need to figure out how to rate this scene on a scale from 0 to 1.",
+    "reason_text": "单向攻击/疑似欺凌：The video captures a sequence of events on a residential street, viewed from an elevated perspective. It begins with three individuals standing near a white car parked on the side of the road.",
+    "review_status": "pending",
+    "note": "",
+    "track_ids": [
+      "evt_0001"
+    ],
+    "confidence": 0.5578,
+    "clip_href": null,
+    "html_reason_text": "单向攻击/疑似欺凌：The video captures a sequence of events on a residential street, viewed from an elevated perspective. It begins with three individuals standing near a white car parked on the side of the road."
+  }
+]

@@ -1,0 +1,9 @@
+[
+  {
+    "event_id": "evt_0001",
+    "start_sec": 0.0,
+    "end_sec": 4.96,
+    "status": "source_video_missing",
+    "clip_path": null
+  }
+]

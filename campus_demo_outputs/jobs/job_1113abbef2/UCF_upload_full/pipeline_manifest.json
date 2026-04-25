@@ -1,0 +1,16 @@
+{
+  "source_video": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/uploads/src_a5b6d3df70_Vandalism050_x264.mp4",
+  "input_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/pred_scenes_input.json",
+  "pred_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/pred.json",
+  "coarse_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/dfs_coarse_scenes.json",
+  "fine_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/dfs_fine_scenes.json",
+  "coarse_caption_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/maxf1_ucf_prior_q_Here is a _runtime.json",
+  "fine_caption_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_fine/maxf1_ucf_prior_q_Here is a _runtime.json",
+  "coarse_reason_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/DeepSeek-R1-Distill-Qwen-7B/maxf1_ucf_prior_q_Here is a _runtime.json",
+  "fine_reason_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_fine/DeepSeek-R1-Distill-Qwen-7B/maxf1_ucf_prior_q_Here is a _runtime.json",
+  "coarse_similarity_pkl": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/sim_maxf1_ucf_prior_q_Here is a _runtime.pkl",
+  "fine_similarity_pkl": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_fine/sim_maxf1_ucf_prior_q_Here is a _runtime.pkl",
+  "coarse_refine_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/DeepSeek-R1-Distill-Qwen-7B_VxV10_nn10_tao0.1/refine_maxf1_ucf_prior_q_Here is a _runtime.json",
+  "fine_refine_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_fine/DeepSeek-R1-Distill-Qwen-7B_VxV10_nn10_tao0.1/refine_maxf1_ucf_prior_q_Here is a _runtime.json",
+  "final_scores_json": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/jobs/job_1113abbef2/UCF_upload_full/EGEBD_runtime_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_coarse/DeepSeek-R1-Distill-Qwen-7B_VxV10_nn10_tao0.1_ENSE_EGEBD_runtime_peak_dfs_kmeans_1_0.4_LV7Q_ucf_prior_q_fine_DeepSeek-R1-Distill-Qwen-7B_VxV10_nn10_tao0.1_beat0.2/ense_refine_maxf1_ucf_prior_q_Here is a _runtime.json"
+}

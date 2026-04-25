@@ -1,0 +1,120 @@
+flowchart TD
+    user[User / Browser / CLI]
+    app[campus_demo/app.py]
+    cfg[campus_demo/config.py]
+    history[campus_demo/history.py]
+
+    user --> app
+    cfg --> app
+    app --> history
+
+    subgraph api["API and Entry Layer"]
+        api0["GET /campus_demo/api/health"]
+        api1["GET /campus_demo/api/datasets"]
+        api2["GET /campus_demo/api/videos"]
+        api3["POST /campus_demo/api/build-report"]
+        api4["POST /campus_demo/api/build-samples"]
+        api5["POST /campus_demo/api/sources/upload"]
+        api6["POST /campus_demo/api/jobs"]
+        api7["GET /campus_demo/api/jobs/{job_id}"]
+        api8["GET /campus_demo/api/jobs/{job_id}/stream"]
+        api9["POST /campus_demo/api/jobs/{job_id}/export"]
+        api10["GET /campus_demo/api/report-state"]
+        api11["POST /campus_demo/api/save-events"]
+        api12["POST /campus_demo/api/train (stub)"]
+        api13["POST /campus_demo/api/eval (stub)"]
+    end
+
+    app --> api0
+    app --> api1
+    app --> api2
+    app --> api3
+    app --> api4
+    app --> api5
+    app --> api6
+    app --> api7
+    app --> api8
+    app --> api9
+    app --> api10
+    app --> api11
+    app --> api12
+    app --> api13
+
+    subgraph offline["Offline Sample Report Path"]
+        cache["result/ cached scores + captions + reasoning"]
+        loader[campus_demo/result_loader.py]
+        event_builder[campus_demo/event_builder.py]
+        mapper[campus_demo/mapper.py]
+        exporter[campus_demo/exporter.py]
+        report["analysis.json / events.json / events.csv / score.svg / clips / zip"]
+    end
+
+    api3 --> loader
+    api4 --> loader
+    cache --> loader
+    loader --> event_builder
+    event_builder --> mapper
+    mapper --> exporter
+    exporter --> report
+    report --> api10
+    report --> api11
+    report --> api9
+
+    subgraph runtime["Runtime Analysis Path for Upload and RTSP"]
+        upload["uploaded video or RTSP source"]
+        runtime_pipeline[campus_demo/runtime_pipeline.py]
+        backend[campus_demo/vadtree_backend.py]
+        depcfg["env + model config\nVADTREE_GEBD_WEIGHTS\nVADTREE_VLM_MODEL_DIR\nVADTREE_LLM_MODEL_DIR"]
+        agg["window aggregation + event merge + runtime summary"]
+        runtime_report["runtime report bundle"]
+    end
+
+    api5 --> upload
+    api6 --> runtime_pipeline
+    upload --> runtime_pipeline
+    depcfg --> backend
+    runtime_pipeline --> backend
+    backend --> agg
+    agg --> exporter
+    exporter --> runtime_report
+    runtime_report --> api7
+    runtime_report --> api8
+    runtime_report --> api9
+    runtime_report --> api10
+
+    subgraph pipeline["VADTree Core Inference Pipeline"]
+        video["input video"]
+        gebd["EfficientGEBD/GEBD_split100.py\nGeneric Event Boundary Detection"]
+        hgtree["HGTree generation\npred.json / dfs_coarse_scenes.json / dfs_fine_scenes.json"]
+        vlm["LLaVA-NeXT/infer_VAD.py\nnode-wise captioning"]
+        llm["DeepSeek-R1/deepseek_batch_infer.py\nnode-wise reasoning + scores"]
+        imagebind["ImageBind/imagebind_sim.py\ncross-modal similarity"]
+        refine["refinement_eval.py\nintra-cluster refinement"]
+        corr["correlation_eval.py\ncoarse/fine correlation fusion"]
+        frame_scores["final frame-level anomaly scores"]
+    end
+
+    backend --> video
+    video --> gebd
+    gebd --> hgtree
+    hgtree --> vlm
+    vlm --> llm
+    vlm --> imagebind
+    llm --> refine
+    imagebind --> refine
+    refine --> corr
+    corr --> frame_scores
+    frame_scores --> agg
+
+    subgraph artifacts["Outputs"]
+        reports_dir["campus_demo_outputs/reports/"]
+        exports_dir["clips + csv + json + html + zip"]
+        history_dir["campus_demo_outputs/history/"]
+    end
+
+    report --> reports_dir
+    runtime_report --> reports_dir
+    reports_dir --> exports_dir
+    history --> history_dir
+    api12 --> history_dir
+    api13 --> history_dir

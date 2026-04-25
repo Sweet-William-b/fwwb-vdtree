@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>A28 校园安防控制台</title>
+  <link rel="stylesheet" href="/campus_demo/console.css" />
   <style>
     :root {
       --bg: #efe7d6;
@@ -842,7 +843,9 @@
     </div>
   </div>
 
+  <script src="/campus_demo/console.js"></script>
   <script>
+    if (!window.__newConsoleApp) {
     const state = {
       mode: "upload",
       datasets: [],
@@ -1467,6 +1470,7 @@
     init().catch((error) => {
       setStatus(sourceStatus, `初始化失败：${error.message}`);
     });
+    }
   </script>
 </body>
 </html>
