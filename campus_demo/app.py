@@ -78,6 +78,7 @@ else:
 
 
 CONSOLE_HTML_PATH = Path(__file__).with_name("console.html")
+LANDING_HTML_PATH = Path(__file__).with_name("landing.html")
 RISK_LEVELS = {"low", "review", "medium", "high"}
 REVIEW_STATUSES = {"pending", "confirmed", "false_positive"}
 TERMINAL_JOB_STATUSES = {"failed", "completed", "cancelled"}
@@ -845,6 +846,10 @@ def _console_html() -> str:
     return CONSOLE_HTML_PATH.read_text(encoding="utf-8")
 
 
+def _landing_html() -> str:
+    return LANDING_HTML_PATH.read_text(encoding="utf-8")
+
+
 def _create_job(payload: dict[str, Any]) -> dict[str, Any]:
     _seed_runtime_from_history()
 
@@ -1423,6 +1428,9 @@ class CampusDemoHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path in {"/", "/campus_demo", "/campus_demo/"}:
+            self._send_text(_landing_html())
+            return
         if parsed.path == "/campus_demo/console":
             self._send_text(_console_html())
             return

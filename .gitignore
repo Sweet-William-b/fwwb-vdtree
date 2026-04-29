@@ -1,6 +1,7 @@
 # IDEs
 .vscode/
 .idea/
+.venv/
 
 # Model weights / checkpoints / large binaries
 .checkpoints/
