@@ -1,34 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
-  <title id="title">AI Vision Network Logo - Thin Eye</title>
-  <desc id="desc">A clean vector AI vision logo with thin eye contours, segmented technology rings, and a neural network core.</desc>
+  <title id="title">AI Vision Network Logo - Green Transparent</title>
+  <desc id="desc">The original thin-eye AI vision network logo recolored in soft green and white with a transparent background.</desc>
 
   <defs>
     <linearGradient id="navyGradient" x1="130" y1="720" x2="890" y2="280" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#071C55"/>
-      <stop offset="0.52" stop-color="#123B9A"/>
-      <stop offset="1" stop-color="#2D74FF"/>
+      <stop offset="0" stop-color="#1F6F65"/>
+      <stop offset="0.52" stop-color="#A8D5BA"/>
+      <stop offset="1" stop-color="#F7FBF6"/>
     </linearGradient>
 
     <linearGradient id="coreGradient" x1="335" y1="660" x2="700" y2="330" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#071747"/>
-      <stop offset="0.5" stop-color="#123A99"/>
-      <stop offset="1" stop-color="#3E87FF"/>
+      <stop offset="0" stop-color="#15544D"/>
+      <stop offset="0.52" stop-color="#1F6F65"/>
+      <stop offset="1" stop-color="#A8D5BA"/>
     </linearGradient>
 
     <linearGradient id="ringGradient" x1="240" y1="220" x2="790" y2="800" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#173580"/>
-      <stop offset="0.45" stop-color="#2F7EF6"/>
-      <stop offset="1" stop-color="#59D0E9"/>
+      <stop offset="0" stop-color="#1F6F65"/>
+      <stop offset="0.5" stop-color="#A8D5BA"/>
+      <stop offset="1" stop-color="#F7FBF6"/>
     </linearGradient>
-
-    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0B2F75" flood-opacity="0.13"/>
-    </filter>
   </defs>
 
-  <rect width="1024" height="1024" fill="#FFFFFF"/>
-
-  <g id="thin-eye-contour" filter="url(#softShadow)" fill="none" stroke-linecap="round">
+  <g id="thin-eye-contour" fill="none" stroke-linecap="round">
     <path
       d="M42 512 C132 414 246 350 382 318"
       stroke="url(#navyGradient)"
@@ -48,52 +42,52 @@
 
     <path
       d="M86 512 C154 452 245 413 342 395"
-      stroke="#071C55"
+      stroke="#F7FBF6"
       stroke-width="7"
-      opacity="0.5"/>
+      opacity="0.62"/>
     <path
       d="M86 512 C154 572 245 611 342 629"
-      stroke="#071C55"
+      stroke="#A8D5BA"
       stroke-width="7"
-      opacity="0.5"/>
+      opacity="0.58"/>
     <path
       d="M938 512 C870 452 779 413 682 395"
-      stroke="#2D74FF"
+      stroke="#F7FBF6"
       stroke-width="7"
-      opacity="0.45"/>
+      opacity="0.58"/>
     <path
       d="M938 512 C870 572 779 611 682 629"
-      stroke="#2D74FF"
+      stroke="#A8D5BA"
       stroke-width="7"
-      opacity="0.45"/>
+      opacity="0.58"/>
   </g>
 
   <g id="outer-orbit-rings" fill="none" stroke-linecap="round">
-    <path d="M224 415 A320 320 0 0 1 495 116" stroke="#153985" stroke-width="12"/>
-    <path d="M568 124 A320 320 0 0 1 790 415" stroke="#53C7E9" stroke-width="8"/>
-    <path d="M790 609 A320 320 0 0 1 568 900" stroke="#4AC4E4" stroke-width="8"/>
-    <path d="M495 908 A320 320 0 0 1 224 609" stroke="#153985" stroke-width="8"/>
-    <circle cx="216" cy="326" r="13" fill="#173580"/>
-    <circle cx="500" cy="114" r="8" fill="#173580"/>
-    <circle cx="790" cy="326" r="13" fill="#55C6E8"/>
-    <circle cx="790" cy="698" r="13" fill="#3E85F5"/>
-    <circle cx="500" cy="910" r="8" fill="#173580"/>
-    <circle cx="216" cy="698" r="13" fill="#2E78EC"/>
+    <path d="M224 415 A320 320 0 0 1 495 116" stroke="#1F6F65" stroke-width="12"/>
+    <path d="M568 124 A320 320 0 0 1 790 415" stroke="#A8D5BA" stroke-width="8"/>
+    <path d="M790 609 A320 320 0 0 1 568 900" stroke="#A8D5BA" stroke-width="8"/>
+    <path d="M495 908 A320 320 0 0 1 224 609" stroke="#1F6F65" stroke-width="8"/>
+    <circle cx="216" cy="326" r="13" fill="#1F6F65"/>
+    <circle cx="500" cy="114" r="8" fill="#1F6F65"/>
+    <circle cx="790" cy="326" r="13" fill="#A8D5BA"/>
+    <circle cx="790" cy="698" r="13" fill="#A8D5BA"/>
+    <circle cx="500" cy="910" r="8" fill="#1F6F65"/>
+    <circle cx="216" cy="698" r="13" fill="#A8D5BA"/>
   </g>
 
   <g id="segmented-technology-rings" fill="none" stroke-linecap="round">
-    <path d="M327 258 A270 270 0 0 1 621 251" stroke="#2F7EF6" stroke-width="42"/>
-    <path d="M673 276 A270 270 0 0 1 713 306" stroke="#2459C8" stroke-width="42"/>
-    <path d="M738 409 A270 270 0 0 1 756 470" stroke="#57CFE8" stroke-width="34"/>
-    <path d="M711 718 A270 270 0 0 1 675 748" stroke="#2459C8" stroke-width="42"/>
-    <path d="M621 773 A270 270 0 0 1 327 766" stroke="#2F8BFF" stroke-width="42"/>
-    <path d="M263 444 A255 255 0 0 1 496 224" stroke="#173580" stroke-width="12"/>
-    <path d="M540 236 A255 255 0 0 1 724 392" stroke="#2E8CFF" stroke-width="10"/>
-    <path d="M724 632 A255 255 0 0 1 540 788" stroke="#173580" stroke-width="10"/>
-    <path d="M496 800 A255 255 0 0 1 263 580" stroke="#173580" stroke-width="12"/>
-    <circle cx="512" cy="114" r="19" fill="#327DF2"/>
-    <circle cx="512" cy="910" r="19" fill="#327DF2"/>
-    <circle cx="248" cy="515" r="16" fill="#2E78EC"/>
+    <path d="M327 258 A270 270 0 0 1 621 251" stroke="#A8D5BA" stroke-width="42"/>
+    <path d="M673 276 A270 270 0 0 1 713 306" stroke="#1F6F65" stroke-width="42"/>
+    <path d="M738 409 A270 270 0 0 1 756 470" stroke="#F7FBF6" stroke-width="34"/>
+    <path d="M711 718 A270 270 0 0 1 675 748" stroke="#1F6F65" stroke-width="42"/>
+    <path d="M621 773 A270 270 0 0 1 327 766" stroke="#A8D5BA" stroke-width="42"/>
+    <path d="M263 444 A255 255 0 0 1 496 224" stroke="#1F6F65" stroke-width="12"/>
+    <path d="M540 236 A255 255 0 0 1 724 392" stroke="#A8D5BA" stroke-width="10"/>
+    <path d="M724 632 A255 255 0 0 1 540 788" stroke="#1F6F65" stroke-width="10"/>
+    <path d="M496 800 A255 255 0 0 1 263 580" stroke="#1F6F65" stroke-width="12"/>
+    <circle cx="512" cy="114" r="19" fill="#A8D5BA"/>
+    <circle cx="512" cy="910" r="19" fill="#A8D5BA"/>
+    <circle cx="248" cy="515" r="16" fill="#A8D5BA"/>
   </g>
 
   <g id="central-core">
@@ -101,18 +95,18 @@
     <path
       d="M356 514 C388 610 472 664 573 648 C653 636 708 586 728 514"
       fill="none"
-      stroke="#5BD0E7"
+      stroke="#F7FBF6"
       stroke-width="5"
       opacity="0.8"/>
     <path
       d="M369 369 C422 327 520 318 603 355 C663 382 707 431 727 488"
       fill="none"
-      stroke="#55CBE8"
+      stroke="#A8D5BA"
       stroke-width="4"
-      opacity="0.55"/>
+      opacity="0.65"/>
   </g>
 
-  <g id="neural-network" stroke="#DDEBFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+  <g id="neural-network" stroke="#EAF5EE" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M384 420 L458 420 L488 348 L542 421 L621 421 L619 512 L556 601 L461 668 L437 513 L384 420Z" fill="none"/>
     <path d="M458 420 L437 513 L542 421 L619 512 L719 512" fill="none"/>
     <path d="M488 348 L621 421 L700 421 L700 512 L712 668 L556 601" fill="none"/>
@@ -122,7 +116,7 @@
     <path d="M461 668 L556 601 L700 512 L752 512" fill="none"/>
   </g>
 
-  <g id="network-nodes" fill="#FFFFFF">
+  <g id="network-nodes" fill="#F7FBF6">
     <circle cx="488" cy="348" r="17"/>
     <circle cx="384" cy="420" r="12"/>
     <circle cx="458" cy="420" r="12"/>
@@ -139,7 +133,7 @@
   </g>
 
   <g id="inner-highlight" fill="none">
-    <circle cx="512" cy="512" r="202" stroke="#FFFFFF" stroke-width="10" opacity="0.9"/>
-    <circle cx="512" cy="512" r="246" stroke="#FFFFFF" stroke-width="18" opacity="0.95"/>
+    <circle cx="512" cy="512" r="202" stroke="#F7FBF6" stroke-width="10" opacity="0.9"/>
+    <circle cx="512" cy="512" r="246" stroke="#F7FBF6" stroke-width="18" opacity="0.95"/>
   </g>
 </svg>

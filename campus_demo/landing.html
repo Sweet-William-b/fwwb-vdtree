@@ -22,8 +22,8 @@
       <a href="#positioning">定位</a>
       <a href="#capability">能力</a>
       <a href="#workflow">流程</a>
-      <a href="#access">登录</a>
-      <a href="/campus_demo/console">控制台</a>
+      <a href="/campus_demo/login?next=/campus_demo/console">登录</a>
+      <a href="/campus_demo/login?next=/campus_demo/console">控制台</a>
     </div>
   </nav>
 
@@ -49,7 +49,7 @@
           面向校园安防监控的智能预警系统。以视频流为入口，统一完成实时预警、异常行为分析、人工复核与报告留档，让风险处置更早、更准、更可追溯。
         </p>
         <div class="hero-actions" aria-label="主要操作">
-          <a class="primary-action" href="/campus_demo/console">进入管理控制台</a>
+          <a class="primary-action" href="/campus_demo/login?next=/campus_demo/console">进入管理控制台</a>
           <a class="secondary-action" href="#capability">查看系统能力</a>
         </div>
       </div>
@@ -58,6 +58,39 @@
         <span>值守模式</span>
         <strong>实时监测</strong>
         <em>预警 · 复核 · 归档</em>
+      </div>
+    </section>
+
+    <section id="moments" class="editorial-section reveal-section" aria-labelledby="moments-title">
+      <div class="section-inner editorial-inner">
+        <div class="editorial-copy">
+          <p class="section-kicker">Campus Moments</p>
+          <h2 id="moments-title">看见校园运行的每一个关键时刻</h2>
+          <p>实时感知 · 智能预警 · 协同处置</p>
+        </div>
+
+        <div class="editorial-layout" aria-label="校园安防场景图片">
+          <figure class="editorial-photo editorial-photo-main">
+            <img src="/campus_demo/assets/editorial-campus-entry.jpg" alt="清晨校园主入口远景" />
+            <figcaption><span>01</span> 主入口秩序</figcaption>
+          </figure>
+          <figure class="editorial-photo editorial-photo-tall">
+            <img src="/campus_demo/assets/editorial-monitor-center.jpg" alt="校园监控中心工作人员背影" />
+            <figcaption><span>02</span> 值守中心</figcaption>
+          </figure>
+          <figure class="editorial-photo editorial-photo-square">
+            <img src="/campus_demo/assets/editorial-camera-walkway.jpg" alt="校园道路与摄像头视角" />
+            <figcaption><span>03</span> 道路感知</figcaption>
+          </figure>
+          <figure class="editorial-photo editorial-photo-small">
+            <img src="/campus_demo/assets/editorial-data-map.jpg" alt="浅色校园安防数据点位图" />
+            <figcaption><span>04</span> 点位协同</figcaption>
+          </figure>
+          <figure class="editorial-photo editorial-photo-quiet">
+            <img src="/campus_demo/assets/editorial-campus-daily.jpg" alt="校园操场与教学楼日常远景" />
+            <figcaption><span>05</span> 日常守护</figcaption>
+          </figure>
+        </div>
       </div>
     </section>
 
@@ -73,6 +106,9 @@
         <p>
           鼎新智眼把视频监控、算法分析、人工确认和报告归档放在同一条链路里。首页负责建立可信的系统形象，后台控制台负责完成真实任务流：接入、分析、复核、导出。
         </p>
+        <figure class="identity-photo">
+          <img src="/campus_demo/assets/editorial-camera-walkway.jpg" alt="校园道路与摄像头视角" />
+        </figure>
       </div>
     </section>
 
@@ -102,9 +138,12 @@
 
     <section id="workflow" class="workflow-section reveal-section" aria-labelledby="workflow-title">
       <div class="section-inner workflow-grid">
-        <div>
+        <div class="workflow-intro">
           <p class="section-kicker">Response Workflow</p>
           <h2 id="workflow-title">把安防处置拆成可追踪的四步。</h2>
+          <figure class="workflow-photo">
+            <img src="/campus_demo/assets/editorial-monitor-center.jpg" alt="校园监控中心值守画面" />
+          </figure>
         </div>
         <ol class="workflow-list">
           <li>
@@ -137,6 +176,9 @@
           <p class="section-kicker">Campus Scenes</p>
           <h2 id="scene-title">覆盖校园高频安防区域，先服务演示，再逐步接入真实摄像头。</h2>
         </div>
+        <figure class="scene-photo">
+          <img src="/campus_demo/assets/editorial-campus-daily.jpg" alt="校园操场与教学楼日常远景" />
+        </figure>
         <div class="scene-strip">
           <article>
             <span>校门与围栏</span>
@@ -172,7 +214,7 @@
             <strong>鼎新智眼控制台</strong>
             <p>当前版本保持轻量入口，后续可在这里接入管理员账号、角色权限和审计记录。</p>
           </div>
-          <a class="panel-action" href="/campus_demo/console">进入控制台</a>
+          <a class="panel-action" href="/campus_demo/login?next=/campus_demo/console">进入控制台</a>
         </div>
       </div>
     </section>

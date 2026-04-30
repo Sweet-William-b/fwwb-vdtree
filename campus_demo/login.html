@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>登录 · 鼎新智眼</title>
+  <meta
+    name="description"
+    content="鼎新智眼校园安防监控预警系统管理员登录入口。"
+  />
+  <link rel="stylesheet" href="/campus_demo/login.css" />
+</head>
+<body>
+  <main class="login-shell">
+    <a class="login-brand" href="/campus_demo" aria-label="返回鼎新智眼官网">
+      <span class="brand-mark" aria-hidden="true">
+        <img src="/campus_demo/assets/dingxin-vision-logo.svg" alt="" />
+      </span>
+      <span>鼎新智眼</span>
+    </a>
+
+    <section class="login-layout" aria-labelledby="login-title">
+      <div class="login-story">
+        <p class="eyebrow">Admin Access</p>
+        <h1 id="login-title">进入校园安防监控预警控制台</h1>
+        <p>
+          面向值守人员的演示级入口。登录后可进入任务创建、实时预警、人工复核与报告留档工作台。
+        </p>
+        <div class="access-visual" aria-label="校园安防态势概览">
+          <div class="visual-canvas" aria-hidden="true">
+            <div class="particle-logo" id="particle-logo"></div>
+            <span class="particle-orbit particle-orbit-a"></span>
+            <span class="particle-orbit particle-orbit-b"></span>
+            <span class="particle-orbit particle-orbit-c"></span>
+            <span class="network-trace trace-a"></span>
+            <span class="network-trace trace-b"></span>
+            <span class="network-trace trace-c"></span>
+            <div class="logo-chips">
+              <span>识别中</span>
+              <span>重点区域</span>
+              <span>实时感知</span>
+            </div>
+          </div>
+
+          <div class="visual-panel visual-panel-primary">
+            <span>Guard Vision</span>
+            <strong>视觉守护中</strong>
+            <em>眼睛识别 · 盾牌防护</em>
+          </div>
+
+          <div class="visual-panel visual-panel-status">
+            <span>Live Status</span>
+            <strong>值守中</strong>
+            <em>实时感知 · 协同处置</em>
+          </div>
+
+          <div class="visual-feed" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+
+      <form class="login-panel" id="login-form" novalidate>
+        <div class="panel-head">
+          <p class="section-kicker">Verified Demo</p>
+          <h2>管理员登录</h2>
+          <p>使用演示账号进入控制台。</p>
+        </div>
+
+        <div class="field">
+          <label for="username">管理员账号</label>
+          <input id="username" name="username" type="text" value="admin" autocomplete="username" />
+        </div>
+
+        <div class="field">
+          <label for="password">登录密码</label>
+          <input id="password" name="password" type="password" value="dingxin2026" autocomplete="current-password" />
+          <p class="helper">演示账号：admin / dingxin2026</p>
+        </div>
+
+        <label class="check-row">
+          <input id="remember" name="remember" type="checkbox" checked />
+          <span>保留本次演示登录状态</span>
+        </label>
+
+        <p id="login-error" class="login-error" role="alert" aria-live="polite"></p>
+
+        <button class="login-button" type="submit">进入控制台</button>
+
+        <div class="panel-foot">
+          <a href="/campus_demo">返回官网</a>
+          <span>演示级门禁</span>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="/campus_demo/login.js"></script>
+</body>
+</html>

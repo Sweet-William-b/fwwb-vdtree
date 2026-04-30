@@ -3,219 +3,831 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Burglary018_x264.mp4 - Campus Demo</title>
+  <title>Burglary018_x264.mp4 - 校园安防报告</title>
   <style>
     :root {
-      --bg: #f3efe6;
-      --panel: #fffdf8;
-      --ink: #1f2937;
-      --muted: #6b7280;
-      --line: #d6d3d1;
-      --accent: #14532d;
-      --warn: #92400e;
-      --danger: #991b1b;
+      --bg: #f5f8f7;
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-soft: #f8fbfa;
+      --line: rgba(22, 41, 37, 0.12);
+      --line-strong: rgba(31, 117, 107, 0.28);
+      --ink: #17211e;
+      --muted: #66736f;
+      --subtle: #8b9893;
+      --accent: #1f756b;
+      --accent-deep: #15584f;
+      --review: #3c6094;
+      --warn: #a56c0d;
+      --danger: #b24034;
+      --low: #2b7a54;
+      --shadow: 0 18px 42px rgba(28, 50, 45, 0.055);
+      --radius: 8px;
     }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Georgia", "Noto Serif SC", serif;
+      font-family: "Geist", "Satoshi", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at top left, rgba(20,83,45,0.10), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(153,27,27,0.08), transparent 25%),
-        var(--bg);
+        linear-gradient(90deg, rgba(31, 117, 107, 0.04) 0 1px, transparent 1px 100%) 0 0 / 56px 56px,
+        linear-gradient(180deg, rgba(22, 41, 37, 0.03) 0 1px, transparent 1px 100%) 0 0 / 56px 56px,
+        linear-gradient(180deg, #fbfcfb 0%, var(--bg) 100%);
     }
-    .page {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 24px;
+    a { color: var(--accent); text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 2px solid rgba(31, 117, 107, 0.34);
+      outline-offset: 2px;
+    }
+    .page { max-width: 1480px; margin: 0 auto; padding: 16px 18px 40px; }
+    .topbar {
+      position: sticky;
+      top: 14px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding: 10px;
+      border: 1px solid rgba(22, 41, 37, 0.08);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 8px;
+      color: var(--ink);
+      font-weight: 820;
+    }
+    .brand-mark {
+      display: inline-grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--accent);
+      background: rgba(31, 117, 107, 0.06);
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .brand-mark img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+    .top-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .top-actions a, .download-card, .jump, .toggle button, .toolbar button {
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+    .top-actions a {
+      display: inline-flex;
+      min-height: 36px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.72);
+      font-size: 13px;
+      font-weight: 760;
+    }
+    .top-actions a:hover,
+    .download-card:hover,
+    .jump:hover,
+    .toolbar button:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
     }
     .hero, .panel {
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
     }
-    .hero {
-      padding: 24px;
-      margin-bottom: 18px;
+    .hero { padding: 16px; margin-bottom: 14px; }
+    .hero-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: end;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 1px;
+      background: currentColor;
     }
     .hero h1 {
-      margin: 0 0 8px;
-      font-size: 32px;
+      margin: 10px 0 8px;
+      font-size: clamp(26px, 3vw, 38px);
+      line-height: 1.12;
+      letter-spacing: 0;
     }
-    .hero p {
-      margin: 0;
+    .lead, .note, .status {
       color: var(--muted);
-      line-height: 1.6;
+      line-height: 1.8;
+      font-size: 14px;
     }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
+    .hero-chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
       margin-top: 18px;
     }
-    .stat {
-      padding: 14px;
-      border-radius: 14px;
-      background: #faf7ef;
-      border: 1px solid var(--line);
-    }
-    .stat .label {
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .stat .value {
-      font-size: 24px;
-      margin-top: 8px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 18px;
-    }
-    .panel {
-      padding: 18px;
-      margin-bottom: 18px;
-    }
-    .panel h2 {
-      margin-top: 0;
-      font-size: 22px;
-    }
-    .downloads a {
-      display: inline-block;
-      margin-right: 10px;
-      margin-bottom: 8px;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    th, td {
-      border-top: 1px solid var(--line);
-      padding: 10px 8px;
-      vertical-align: top;
-      text-align: left;
-    }
-    th {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-    }
-    .jump {
-      border: none;
-      background: #ecfccb;
-      color: #365314;
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 11px;
       border-radius: 999px;
-      padding: 6px 10px;
-      cursor: pointer;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid var(--line);
+      font-size: 13px;
       font-weight: 700;
     }
-    .note {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.6;
+    .summary-stack {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(118px, 1fr));
+      gap: 8px;
     }
-    .risk-high { color: var(--danger); font-weight: 700; }
+    .summary-card, .stat, .download-card, .metric-line {
+      padding: 13px;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--line);
+    }
+    .summary-card span, .stat .label, .download-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .summary-card strong, .stat .value {
+      display: block;
+      margin-top: 8px;
+      font-size: 24px;
+      font-weight: 800;
+    }
+    .summary-card p { margin: 6px 0 0; color: var(--muted); line-height: 1.55; font-size: 12px; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .report-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(330px, 0.55fr);
+      gap: 14px;
+      align-items: start;
+    }
+    .side-stack {
+      display: grid;
+      gap: 14px;
+    }
+    .panel { padding: 16px; margin-bottom: 14px; }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: start;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .panel h2 {
+      margin: 7px 0 0;
+      font-size: 24px;
+      line-height: 1.14;
+    }
+    .video-shell video {
+      width: 100%;
+      border-radius: var(--radius);
+      background: #111;
+    }
+    .placeholder {
+      min-height: 480px;
+      display: grid;
+      place-items: center;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      border-radius: var(--radius);
+      color: var(--muted);
+      line-height: 1.8;
+      background:
+        linear-gradient(90deg, rgba(31, 117, 107, 0.045) 0 1px, transparent 1px 100%) 0 0 / 44px 44px,
+        linear-gradient(180deg, rgba(22, 41, 37, 0.04) 0 1px, transparent 1px 100%) 0 0 / 44px 44px,
+        #fbfdfc;
+      border: 1px dashed rgba(31, 117, 107, 0.18);
+    }
+    .placeholder::before {
+      content: "";
+      display: block;
+      width: min(46vw, 420px);
+      height: min(28vw, 260px);
+      border: 1px solid rgba(31, 117, 107, 0.16);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, transparent 49%, rgba(31, 117, 107, 0.14) 50%, transparent 51%),
+        linear-gradient(180deg, transparent 49%, rgba(31, 117, 107, 0.14) 50%, transparent 51%);
+      opacity: 0.42;
+      margin-bottom: 18px;
+    }
+    .side-stack .panel {
+      margin-bottom: 0;
+    }
+    .response-list {
+      display: grid;
+      gap: 8px;
+    }
+    .response-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 0;
+      border-top: 1px solid rgba(22, 41, 37, 0.1);
+    }
+    .response-item:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+    .response-item span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .response-item strong {
+      font-size: 22px;
+      line-height: 1;
+    }
+    .download-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .download-card strong {
+      display: block;
+      margin-top: 6px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+    .download-card em {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      font-style: normal;
+      word-break: break-all;
+    }
+    .metric-lines {
+      display: grid;
+      gap: 10px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .toggle {
+      display: inline-flex;
+      gap: 8px;
+      padding: 5px;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--line);
+    }
+    .toggle button,
+    .toolbar button {
+      border: 1px solid transparent;
+      border-radius: 8px;
+      min-height: 38px;
+      padding: 0 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .toggle button {
+      background: transparent;
+      color: var(--muted);
+      min-width: 92px;
+    }
+    .toggle button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+    .toolbar .primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+    .toolbar .secondary {
+      border-color: rgba(31, 117, 107, 0.28);
+      background: rgba(31, 117, 107, 0.08);
+      color: var(--accent);
+    }
+    .table-shell {
+      overflow: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+    }
+    .review-list {
+      display: grid;
+      gap: 10px;
+    }
+    .review-event {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.78);
+    }
+    .event-time {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .event-fields {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.9fr) minmax(140px, 0.55fr) minmax(140px, 0.55fr) minmax(140px, 0.55fr);
+      gap: 10px;
+      align-items: start;
+    }
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .wide-field {
+      grid-column: span 2;
+    }
+    .reason-field {
+      grid-column: 1 / -1;
+    }
+    .event-meta-line {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .clip-link {
+      display: inline-flex;
+      min-height: 34px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      color: var(--accent);
+      background: rgba(31, 117, 107, 0.06);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+    th, td {
+      padding: 14px 12px;
+      border-top: 1px solid rgba(65, 53, 40, 0.1);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .jump {
+      border: 1px solid rgba(31, 117, 107, 0.22);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: rgba(29, 90, 74, 0.12);
+      color: var(--accent);
+      font-weight: 800;
+      cursor: pointer;
+    }
+    input[type="text"], textarea, select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid rgba(22, 41, 37, 0.14);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 12px 14px;
+    }
+    textarea { min-height: 88px; resize: vertical; }
+    .event-title { font-weight: 700; }
+    .event-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .event-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .event-tag.edited {
+      color: var(--accent);
+      border-color: rgba(29, 90, 74, 0.22);
+      background: rgba(29, 90, 74, 0.08);
+    }
+    .risk-high, .review-false_positive { color: var(--danger); font-weight: 700; }
     .risk-medium { color: var(--warn); font-weight: 700; }
-    .risk-review { color: #1d4ed8; font-weight: 700; }
-    .risk-low { color: var(--accent); font-weight: 700; }
+    .risk-review, .review-pending { color: var(--review); font-weight: 700; }
+    .risk-low, .review-confirmed { color: var(--low); font-weight: 700; }
     @media (max-width: 960px) {
-      .grid { grid-template-columns: 1fr; }
+      .topbar { position: static; display: grid; }
+      .hero-top, .report-layout { grid-template-columns: 1fr; }
+      .stats, .download-grid, .summary-stack { grid-template-columns: 1fr; }
+      .placeholder { min-height: 320px; }
+      .review-event, .event-fields { grid-template-columns: 1fr; }
+      .wide-field, .reason-field { grid-column: auto; }
     }
   </style>
 </head>
-<body>
+<body data-report-id="ucf-burglary018-x264">
   <div class="page">
+    <header class="topbar">
+      <a class="brand" href="/campus_demo/console?view=history">
+        <span class="brand-mark"><img src="/campus_demo/assets/dingxin-vision-logo.svg" alt="" /></span>
+        <span>鼎新智眼</span>
+      </a>
+      <nav class="top-actions" aria-label="报告操作">
+        <a href="/campus_demo/console?view=history">历史回看</a>
+        <a href="/campus_demo/console?view=events">事件中心</a>
+        <a href="report_bundle.zip" target="_blank">下载归档包</a>
+      </nav>
+    </header>
     <section class="hero">
-      <h1>Burglary018_x264.mp4</h1>
-      <p>存在非常规闯入或异常靠近敏感区域行为。</p>
-      <div class="stats">
-        <div class="stat"><div class="label">Dataset</div><div class="value">UCF-Crime</div></div>
-        <div class="stat"><div class="label">Source Class</div><div class="value">Burglary</div></div>
-        <div class="stat"><div class="label">Campus Label</div><div class="value">可疑闯入/财物风险</div></div>
-        <div class="stat"><div class="label">Events</div><div class="value">1</div></div>
-        <div class="stat"><div class="label">Peak Score</div><div class="value">0.349</div></div>
-        <div class="stat"><div class="label">Generated</div><div class="value" style="font-size:18px">2026-04-21 14:39:23</div></div>
+      <div class="hero-top">
+        <div>
+          <div class="eyebrow">Campus Security Report</div>
+          <h1>Burglary018_x264.mp4</h1>
+          <p class="lead">存在非常规闯入或异常靠近敏感区域行为。</p>
+          <div class="hero-chips">
+            <span class="hero-chip">UCF-Crime</span>
+            <span class="hero-chip">Burglary</span>
+            <span class="hero-chip">可疑闯入/财物风险</span>
+            <span class="hero-chip">报告生成 2026-05-01 00:37:47</span>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="label">当前事件</div><div class="value" id="summary-current-events">1</div></div>
+          <div class="stat"><div class="label">高风险</div><div class="value" id="summary-high-events">1</div></div>
+          <div class="stat"><div class="label">待复核</div><div class="value" id="summary-review-events">1</div></div>
+          <div class="stat"><div class="label">最高分数</div><div class="value">0.349</div></div>
+        </div>
       </div>
     </section>
 
-    <div class="grid">
+    <div class="report-layout">
       <div>
         <section class="panel">
-          <h2>Video Playback</h2>
-          <video id="main-video" controls preload="metadata" src="../../../UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4" width="100%"></video><p class="note">Click any event row to jump to its start time.</p>
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">Playback</div>
+              <h2>视频核验</h2>
+            </div>
+            <div class="note">点击事件时间可跳到对应片段，用于人工复核。</div>
+          </div>
+          <div class="video-shell"><video id="main-video" controls preload="metadata" src="../../../UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4" width="100%"></video><p class="note">点击日志中的时间按钮可跳转对应起点；没有切片时也可使用 jump 链接打开原视频时间段。</p></div>
         </section>
         <section class="panel">
-          <h2>Timeline</h2>
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">Timeline</div>
+              <h2>异常分数</h2>
+            </div>
+            <div class="note">高亮区域是系统识别出的异常片段。</div>
+          </div>
           <img src="score.svg" alt="score timeline" style="width:100%;height:auto" />
-          <p class="note">
-            Clip export mode: <strong>fragment_only</strong>. If direct mp4 slices are unavailable,
-            use the jump links to open the source video at the alert segment.
-          </p>
+          <p class="note">切片导出模式：<strong>fragment_only</strong>。若没有直接 mp4 切片，可使用 jump 链接打开原视频时间段。</p>
         </section>
       </div>
-      <div>
+      <div class="side-stack">
         <section class="panel">
-          <h2>Downloads</h2>
-          <div class="downloads">
-            <a href="analysis.json">analysis.json</a>
-            <a href="events.json">events.json</a>
-            <a href="events.csv">events.csv</a>
-            <a href="clips_manifest.json">clips_manifest.json</a>
-            <a href="../../index.html">history index</a>
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">First Response</div>
+              <h2>处置摘要</h2>
+            </div>
           </div>
-          <p class="note">
-            Threshold 0.321, high-risk threshold 0.349,
-            score mean 0.328.
-          </p>
+          <div class="response-list">
+            <div class="response-item"><span>数据集</span><strong>UCF-Crime</strong></div>
+            <div class="response-item"><span>校园标签</span><strong>可疑闯入/财物风险</strong></div>
+            <div class="response-item"><span>平均分数</span><strong>0.328</strong></div>
+            <div class="response-item"><span>视频 FPS</span><strong>30.00</strong></div>
+          </div>
         </section>
         <section class="panel">
-          <h2>Metrics Snapshot</h2>
-          <p class="note">
-            ROC AUC: 0.9889 | PR AUC: 0.9811<br/>
-            Positive mean: 0.3478 | Negative mean: 0.3194
-          </p>
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">Archive</div>
+              <h2>报告归档</h2>
+            </div>
+            <div class="note">下载归档包、事件表和结构化数据。</div>
+          </div>
+          <div class="download-grid"><a class="download-card" href="report_bundle.zip" target="_blank"><span>下载归档包</span><strong>打开 / 下载</strong><em>report_bundle.zip</em></a><a class="download-card" href="events.current.csv"><span>下载事件表</span><strong>打开 / 下载</strong><em>events.current.csv</em></a><a class="download-card" href="events.current.json"><span>下载结构化数据</span><strong>打开 / 下载</strong><em>events.current.json</em></a><a class="download-card" href="clips_manifest.json"><span>查看片段清单</span><strong>打开 / 下载</strong><em>clips_manifest.json</em></a><a class="download-card" href="analysis.current.json"><span>当前分析结果</span><strong>打开 / 下载</strong><em>analysis.current.json</em></a><a class="download-card" href="events.json"><span>原始事件日志</span><strong>打开 / 下载</strong><em>events.json</em></a><a class="download-card" href="/campus_demo/console?view=history" target="_blank"><span>返回历史回看</span><strong>打开 / 下载</strong><em>console?view=history</em></a><a class="download-card" href="/campus_demo/console?view=events" target="_blank"><span>返回事件中心</span><strong>打开 / 下载</strong><em>console?view=events</em></a></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">Assessment</div>
+              <h2>研判摘要</h2>
+            </div>
+            <div class="note">用于判断当前结果是否需要继续复核。</div>
+          </div>
+          <div class="metric-lines">
+            <div class="metric-line">当前校园标签：<strong>可疑闯入/财物风险</strong><br />自动阈值 0.321，高风险阈值 0.349，均值分数 0.328</div>
+            <div class="metric-line">ROC AUC：0.9889 · PR AUC：0.9811<br />正样本均值：0.3478 · 负样本均值：0.3194</div>
+            <div class="metric-line">当前版可继续保存修订，归档包会同步更新当前事件表与报告数据。</div>
+          </div>
         </section>
       </div>
     </div>
 
     <section class="panel">
-      <h2>Alert Events</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Event</th>
-            <th>Campus Label</th>
-            <th>Risk</th>
-            <th>Range</th>
-            <th>Peak</th>
-            <th>Mean</th>
-            <th>Reason</th>
-            <th>Clip</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><button class="jump" data-start="6.93">evt_0001</button></td><td>可疑闯入/财物风险</td><td>high</td><td>6.93s - 37.47s</td><td>0.349</td><td>0.340</td><td>可疑闯入/财物风险：The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background.</td><td><a href="../../../UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4#t=6.93,37.47">jump</a></td></tr>
-        </tbody>
-      </table>
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Review Table</div>
+          <h2>事件复核</h2>
+        </div>
+        <div class="note">当前版可编辑，原始版只读。复杂处理建议返回事件中心。</div>
+      </div>
+      <div class="toolbar">
+        <div class="toggle">
+          <button id="version-current" class="active">当前版</button>
+          <button id="version-original">原始版</button>
+        </div>
+        <button id="save-events" class="primary">保存复核结果</button>
+        <button id="reload-events" class="secondary">重新加载</button>
+        <span id="save-status" class="status">在线修改功能仅在 `python3 campus_demo/app.py serve` 启动后可用。</span>
+      </div>
+      <div class="review-list" id="event-review-list"></div>
     </section>
   </div>
   <script>
-    document.querySelectorAll('.jump').forEach((button) => {
-      button.addEventListener('click', () => {
-        const video = document.getElementById('main-video');
-        if (!video) return;
-        video.currentTime = Number(button.dataset.start || 0);
-        video.play();
+    const clipLookup = {"evt_0001": {"event_id": "evt_0001", "start_sec": 6.93, "end_sec": 37.47, "status": "fragment_only", "clip_path": null, "source_video": "/home/zh-star/rspace/VADTree/UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4", "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4#t=6.93,37.47"}};
+    const fallbackEvents = [{"event_id": "evt_0001", "start_frame": 208, "end_frame": 1124, "start_sec": 6.93, "end_sec": 37.47, "duration_sec": 30.57, "peak_frame": 725, "peak_score": 0.3488, "mean_score": 0.3396, "risk_level": "high", "source_class": "Burglary", "campus_label": "可疑闯入/财物风险", "mapping_summary": "存在非常规闯入或异常靠近敏感区域行为。", "caption_interval": "177, 715", "caption_summary": "The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background.", "reason_interval": "177, 715", "reasoning_score": 0.2, "reason_excerpt": "Okay, so I need to figure out how to rate this scene on a scale from 0 to 1.", "reason_text": "可疑闯入/财物风险：The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background.", "html_reason_text": "可疑闯入/财物风险：The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background."}];
+    const reportId = document.body.dataset.reportId;
+    const eventReviewList = document.getElementById('event-review-list');
+    const saveStatus = document.getElementById('save-status');
+    const state = {
+      version: 'current',
+      currentEvents: fallbackEvents,
+      originalEvents: fallbackEvents,
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function formatSeconds(value) {
+      return `${Number(value || 0).toFixed(2)}s`;
+    }
+
+    function normalizeTrackIds(value) {
+      if (Array.isArray(value)) {
+        return value.map((item) => String(item || '').trim()).filter(Boolean);
+      }
+      return String(value || '').split(',').map((item) => item.trim()).filter(Boolean);
+    }
+
+    function normalizeRisk(value) {
+      return ['low', 'review', 'medium', 'high'].includes(String(value || '').trim()) ? String(value).trim() : 'review';
+    }
+
+    function normalizeReview(value) {
+      return ['pending', 'confirmed', 'false_positive'].includes(String(value || '').trim()) ? String(value).trim() : 'pending';
+    }
+
+    function riskClass(level) {
+      return `risk-${normalizeRisk(level)}`;
+    }
+
+    function reviewClass(level) {
+      return `review-${normalizeReview(level)}`;
+    }
+
+    function clipCell(eventId) {
+      const clipEntry = clipLookup[eventId] || {};
+      if (clipEntry.clip_path) {
+        const fileName = String(clipEntry.clip_path).split('/').pop();
+        return `<a class="clip-link" href="clips/${escapeHtml(fileName)}">查看切片</a>`;
+      }
+      if (clipEntry.fragment_href) {
+        return `<a class="clip-link" href="${escapeHtml(clipEntry.fragment_href)}">跳转原视频</a>`;
+      }
+      return '-';
+    }
+
+    function updateSummary(events) {
+      const highCount = events.filter((event) => normalizeRisk(event.risk_level) === 'high').length;
+      const pendingCount = events.filter((event) => normalizeReview(event.review_status) === 'pending').length;
+      document.getElementById('summary-current-events').textContent = String(events.length);
+      document.getElementById('summary-high-events').textContent = String(highCount);
+      document.getElementById('summary-review-events').textContent = String(pendingCount);
+    }
+
+    function renderEvents(events) {
+      updateSummary(events);
+      if (!events.length) {
+        eventReviewList.innerHTML = '<div class="placeholder" style="min-height:220px;">当前视频没有可展示的事件片段。</div>';
+        return;
+      }
+      const editable = state.version === 'current';
+      eventReviewList.innerHTML = events.map((event, index) => `
+        <article class="review-event" data-event-id="${escapeHtml(event.event_id)}">
+          <div class="event-time">
+            <button class="jump" data-start="${event.start_sec}">
+              ${formatSeconds(event.start_sec)} - ${formatSeconds(event.end_sec)}
+            </button>
+            <div class="event-meta-line">
+              <span class="event-tag">事件 ${String(index + 1).padStart(2, '0')}</span>
+              <span class="event-tag">ID ${escapeHtml(event.event_id)}</span>
+              ${event.last_edited_at ? '<span class="event-tag edited">已编辑</span>' : ''}
+            </div>
+            ${clipCell(event.event_id)}
+          </div>
+          <div class="event-fields">
+            <div class="field">
+              <label>行为标签</label>
+              <input type="text" name="behavior_type" value="${escapeHtml(event.behavior_type || event.campus_label || event.source_class || '')}" ${editable ? '' : 'disabled'} />
+            </div>
+            <div class="field">
+              <label>风险等级</label>
+              <select name="risk_level" ${editable ? '' : 'disabled'}>
+                <option value="low" ${normalizeRisk(event.risk_level) === 'low' ? 'selected' : ''}>low</option>
+                <option value="review" ${normalizeRisk(event.risk_level) === 'review' ? 'selected' : ''}>review</option>
+                <option value="medium" ${normalizeRisk(event.risk_level) === 'medium' ? 'selected' : ''}>medium</option>
+                <option value="high" ${normalizeRisk(event.risk_level) === 'high' ? 'selected' : ''}>high</option>
+              </select>
+              <div class="${riskClass(event.risk_level)}">${escapeHtml(normalizeRisk(event.risk_level))}</div>
+            </div>
+            <div class="field">
+              <label>复核状态</label>
+              <select name="review_status" ${editable ? '' : 'disabled'}>
+                <option value="pending" ${normalizeReview(event.review_status) === 'pending' ? 'selected' : ''}>pending</option>
+                <option value="confirmed" ${normalizeReview(event.review_status) === 'confirmed' ? 'selected' : ''}>confirmed</option>
+                <option value="false_positive" ${normalizeReview(event.review_status) === 'false_positive' ? 'selected' : ''}>false_positive</option>
+              </select>
+              <div class="${reviewClass(event.review_status)}">${escapeHtml(normalizeReview(event.review_status))}</div>
+            </div>
+            <div class="field">
+              <label>Track</label>
+              <input type="text" name="track_ids" value="${escapeHtml(normalizeTrackIds(event.track_ids).join(', '))}" ${editable ? '' : 'disabled'} />
+            </div>
+            <div class="field wide-field">
+              <label>复核备注</label>
+              <textarea name="note" ${editable ? '' : 'disabled'}>${escapeHtml(event.note || '')}</textarea>
+            </div>
+            <div class="field wide-field">
+              <label>系统原因</label>
+              <textarea name="reason_text" ${editable ? '' : 'disabled'}>${escapeHtml(event.reason_text || '')}</textarea>
+            </div>
+          </div>
+        </article>
+      `).join('');
+
+      document.querySelectorAll('.jump').forEach((button) => {
+        button.addEventListener('click', () => {
+          const video = document.getElementById('main-video');
+          if (!video) return;
+          video.currentTime = Number(button.dataset.start || 0);
+          video.play();
+        });
       });
+    }
+
+    async function reloadEventVersions() {
+      try {
+        const [currentResponse, originalResponse] = await Promise.all([
+          fetch(`events.current.json?ts=${Date.now()}`),
+          fetch(`events.json?ts=${Date.now()}`),
+        ]);
+        if (currentResponse.ok) {
+          state.currentEvents = await currentResponse.json();
+        }
+        if (originalResponse.ok) {
+          state.originalEvents = await originalResponse.json();
+        }
+      } catch (_error) {
+        state.currentEvents = fallbackEvents;
+        state.originalEvents = fallbackEvents;
+      }
+    }
+
+    function updateVersionUI() {
+      document.getElementById('version-current').classList.toggle('active', state.version === 'current');
+      document.getElementById('version-original').classList.toggle('active', state.version === 'original');
+      saveStatus.textContent = state.version === 'current'
+        ? '当前展示的是可编辑的复核版日志。'
+        : '当前展示的是只读的原始版日志。';
+    }
+
+    async function loadEvents() {
+      await reloadEventVersions();
+      updateVersionUI();
+      renderEvents(state.version === 'original' ? state.originalEvents : state.currentEvents);
+    }
+
+    function collectEditedEvents() {
+      return Array.from(document.querySelectorAll('#event-review-list [data-event-id]')).map((row) => {
+        const eventId = row.dataset.eventId;
+        const original = state.currentEvents.find((item) => item.event_id === eventId) || {};
+        return {
+          ...original,
+          event_id: eventId,
+          behavior_type: row.querySelector('[name="behavior_type"]').value.trim(),
+          risk_level: row.querySelector('[name="risk_level"]').value,
+          review_status: row.querySelector('[name="review_status"]').value,
+          track_ids: row.querySelector('[name="track_ids"]').value.trim(),
+          note: row.querySelector('[name="note"]').value.trim(),
+          reason_text: row.querySelector('[name="reason_text"]').value.trim(),
+        };
+      });
+    }
+
+    async function saveEvents() {
+      if (state.version !== 'current') {
+        saveStatus.textContent = '原始版日志不可编辑，请切回“当前版”。';
+        return;
+      }
+      const payload = {
+        report_id: reportId,
+        events: collectEditedEvents(),
+      };
+      saveStatus.textContent = '正在保存...';
+      try {
+        const response = await fetch('/campus_demo/api/save-events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.ok) {
+          throw new Error(result.error || 'save failed');
+        }
+        saveStatus.textContent = '日志修改已保存，并已更新 current 导出文件与 zip 包。';
+        await loadEvents();
+      } catch (error) {
+        saveStatus.textContent = `保存失败：${error.message}`;
+      }
+    }
+
+    document.getElementById('version-current').addEventListener('click', async () => {
+      state.version = 'current';
+      await loadEvents();
     });
+    document.getElementById('version-original').addEventListener('click', async () => {
+      state.version = 'original';
+      await loadEvents();
+    });
+    document.getElementById('save-events').addEventListener('click', saveEvents);
+    document.getElementById('reload-events').addEventListener('click', loadEvents);
+    loadEvents();
   </script>
 </body>
 </html>

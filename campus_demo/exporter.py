@@ -9,13 +9,13 @@ import subprocess
 import zipfile
 from datetime import datetime
 from html import escape
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 from urllib.parse import quote
 
 import cv2
 
-from .config import OUTPUT_ROOT, REPORTS_ROOT
+from .config import DATASETS, OUTPUT_ROOT, REPORTS_ROOT, UPLOADS_ROOT
 
 
 def sanitize_for_json(value: Any) -> Any:
@@ -272,6 +272,51 @@ def _quoted_relative_path(target: Path, start: Path) -> str:
     return quote(relative.replace(os.sep, "/"), safe="/#")
 
 
+def _portable_basename(value: Any) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return ""
+    return PureWindowsPath(raw).name if "\\" in raw else Path(raw).name
+
+
+def _resolve_report_video_path(summary: dict[str, Any]) -> Path | None:
+    raw_path = summary.get("video_path")
+    if raw_path:
+        candidate = Path(str(raw_path))
+        if candidate.exists():
+            return candidate
+
+    dataset_name = str(summary.get("dataset_name") or "")
+    candidate_names = [
+        summary.get("video_name"),
+        summary.get("source_label"),
+        _portable_basename(raw_path),
+    ]
+    dataset = DATASETS.get(dataset_name)
+    if dataset and dataset.video_root:
+        for name in candidate_names:
+            basename = _portable_basename(name)
+            if not basename:
+                continue
+            candidate = dataset.video_root / basename
+            if candidate.exists():
+                return candidate
+
+    if UPLOADS_ROOT.exists():
+        for name in candidate_names:
+            basename = _portable_basename(name)
+            if not basename:
+                continue
+            direct = UPLOADS_ROOT / basename
+            if direct.exists():
+                return direct
+            matches = sorted(UPLOADS_ROOT.glob(f"*{basename}"))
+            if matches:
+                return matches[0]
+
+    return None
+
+
 def _export_clip_with_opencv(video_path: Path, clip_path: Path, start_sec: float, end_sec: float) -> tuple[bool, str | None]:
     capture = cv2.VideoCapture(str(video_path))
     if not capture.isOpened():
@@ -392,7 +437,7 @@ def build_report_html(
     clip_manifest: list[dict[str, Any]],
     clip_mode: str,
 ) -> str:
-    video_path = summary.get("video_path")
+    video_path = _resolve_report_video_path(summary)
     report_id = report_dir.name
     report_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     clip_lookup_json = json.dumps(
@@ -401,16 +446,14 @@ def build_report_html(
     )
     fallback_events_json = json.dumps(sanitize_for_json(events), ensure_ascii=False)
     downloads = [
-        ("analysis.json", "原始分析结果"),
+        ("report_bundle.zip", "下载归档包"),
+        ("events.current.csv", "下载事件表"),
+        ("events.current.json", "下载结构化数据"),
+        ("clips_manifest.json", "查看片段清单"),
         ("analysis.current.json", "当前分析结果"),
         ("events.json", "原始事件日志"),
-        ("events.current.json", "当前事件日志"),
-        ("events.csv", "原始事件 CSV"),
-        ("events.current.csv", "当前事件 CSV"),
-        ("clips_manifest.json", "切片清单"),
-        ("report_bundle.zip", "报告 ZIP"),
-        ("../../index.html", "历史首页"),
-        ("/campus_demo/console", "控制台"),
+        ("/campus_demo/console?view=history", "返回历史回看"),
+        ("/campus_demo/console?view=events", "返回事件中心"),
     ]
     download_cards_parts = []
     for href, label in downloads:
@@ -418,12 +461,12 @@ def build_report_html(
         display_name = Path(href).name if not href.startswith("/") else href.split("/")[-1] or href
         download_cards_parts.append(
             f'<a class="download-card" href="{escape(href)}"{target_attr}>'
-            f"<span>{escape(label)}</span><strong>{escape(display_name)}</strong></a>"
+            f"<span>{escape(label)}</span><strong>打开 / 下载</strong><em>{escape(display_name)}</em></a>"
         )
     download_cards = "".join(download_cards_parts)
     video_html = '<div class="placeholder">当前数据集没有可直接回放的本地源视频，但日志、时间线、导出与复核仍可完整展示。</div>'
     if video_path:
-        rel_video = _quoted_relative_path(Path(video_path), report_dir)
+        rel_video = _quoted_relative_path(video_path, report_dir)
         video_html = (
             f'<video id="main-video" controls preload="metadata" src="{rel_video}" width="100%"></video>'
             '<p class="note">点击日志中的时间按钮可跳转对应起点；没有切片时也可使用 jump 链接打开原视频时间段。</p>'
@@ -431,57 +474,140 @@ def build_report_html(
 
     high_count = sum(1 for event in events if str(event.get("risk_level") or "") == "high")
     pending_count = sum(1 for event in events if str(event.get("review_status") or "pending") == "pending")
+    dataset_display = str(summary.get("dataset_display_name") or summary.get("dataset_name") or "未知数据集")
+    source_class = str(summary.get("source_class") or "未知来源")
+    campus_label = str(summary.get("campus_label") or "待研判")
+    headline = str(summary.get("headline") or "当前报告已生成，请结合视频片段和事件表进行人工复核。")
+    video_name = str(summary.get("video_name") or report_id)
+    event_count = int(summary.get("event_count") or len(events))
+    peak_score = float(summary.get("peak_score") or 0)
+    mean_score = float(summary.get("mean_score") or 0)
+    fps = float(summary.get("fps") or 0)
+    threshold = float(summary.get("threshold") or 0)
+    high_threshold = float(summary.get("high_threshold") or 0)
+    roc_auc = summary.get("roc_auc", "暂无")
+    pr_auc = summary.get("pr_auc", "暂无")
+    pos_mean = summary.get("pos_mean", "暂无")
+    neg_mean = summary.get("neg_mean", "暂无")
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{escape(summary["video_name"])} - 校园安防报告</title>
+  <title>{escape(video_name)} - 校园安防报告</title>
   <style>
     :root {{
-      --bg-top: #f0e8d8;
-      --bg-bottom: #e0d3be;
-      --panel: rgba(255, 252, 246, 0.9);
-      --line: rgba(65, 53, 40, 0.14);
-      --ink: #172521;
-      --muted: #697169;
-      --accent: #1d5a4a;
-      --accent-deep: #143f33;
+      --bg: #f5f8f7;
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-soft: #f8fbfa;
+      --line: rgba(22, 41, 37, 0.12);
+      --line-strong: rgba(31, 117, 107, 0.28);
+      --ink: #17211e;
+      --muted: #66736f;
+      --subtle: #8b9893;
+      --accent: #1f756b;
+      --accent-deep: #15584f;
       --review: #3c6094;
       --warn: #a56c0d;
       --danger: #b24034;
       --low: #2b7a54;
-      --shadow: 0 24px 60px rgba(73, 53, 29, 0.11);
-      --shadow-soft: 0 12px 30px rgba(73, 53, 29, 0.08);
-      --radius-lg: 28px;
-      --radius-md: 22px;
+      --shadow: 0 18px 42px rgba(28, 50, 45, 0.055);
+      --radius: 8px;
     }}
     * {{ box-sizing: border-box; }}
     body {{
       margin: 0;
-      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
+      font-family: "Geist", "Satoshi", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at top left, rgba(29, 90, 74, 0.16), transparent 28%),
-        radial-gradient(circle at top right, rgba(199, 134, 38, 0.14), transparent 22%),
-        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+        linear-gradient(90deg, rgba(31, 117, 107, 0.04) 0 1px, transparent 1px 100%) 0 0 / 56px 56px,
+        linear-gradient(180deg, rgba(22, 41, 37, 0.03) 0 1px, transparent 1px 100%) 0 0 / 56px 56px,
+        linear-gradient(180deg, #fbfcfb 0%, var(--bg) 100%);
     }}
     a {{ color: var(--accent); text-decoration: none; }}
     button, input, select, textarea {{ font: inherit; }}
-    .page {{ max-width: 1440px; margin: 0 auto; padding: 24px 20px 40px; }}
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {{
+      outline: 2px solid rgba(31, 117, 107, 0.34);
+      outline-offset: 2px;
+    }}
+    .page {{ max-width: 1480px; margin: 0 auto; padding: 16px 18px 40px; }}
+    .topbar {{
+      position: sticky;
+      top: 14px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding: 10px;
+      border: 1px solid rgba(22, 41, 37, 0.08);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }}
+    .brand {{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 8px;
+      color: var(--ink);
+      font-weight: 820;
+    }}
+    .brand-mark {{
+      display: inline-grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--accent);
+      background: rgba(31, 117, 107, 0.06);
+      font-size: 13px;
+      font-weight: 900;
+    }}
+    .brand-mark img {{
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }}
+    .top-actions {{ display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }}
+    .top-actions a, .download-card, .jump, .toggle button, .toolbar button {{
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }}
+    .top-actions a {{
+      display: inline-flex;
+      min-height: 36px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.72);
+      font-size: 13px;
+      font-weight: 760;
+    }}
+    .top-actions a:hover,
+    .download-card:hover,
+    .jump:hover,
+    .toolbar button:hover {{
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+    }}
     .hero, .panel {{
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
     }}
-    .hero {{ padding: 28px; margin-bottom: 18px; }}
+    .hero {{ padding: 16px; margin-bottom: 14px; }}
     .hero-top {{
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) 360px;
-      gap: 20px;
-      align-items: start;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: end;
     }}
     .eyebrow {{
       display: inline-flex;
@@ -500,10 +626,10 @@ def build_report_html(
       background: currentColor;
     }}
     .hero h1 {{
-      margin: 16px 0 10px;
-      font-family: "STZhongsong", "Source Han Serif SC", "Songti SC", serif;
-      font-size: clamp(34px, 4vw, 48px);
-      line-height: 1.08;
+      margin: 10px 0 8px;
+      font-size: clamp(26px, 3vw, 38px);
+      line-height: 1.12;
+      letter-spacing: 0;
     }}
     .lead, .note, .status {{
       color: var(--muted);
@@ -519,8 +645,8 @@ def build_report_html(
     .hero-chip {{
       display: inline-flex;
       align-items: center;
-      min-height: 36px;
-      padding: 0 14px;
+      min-height: 32px;
+      padding: 0 11px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.76);
       border: 1px solid var(--line);
@@ -529,14 +655,14 @@ def build_report_html(
     }}
     .summary-stack {{
       display: grid;
-      gap: 12px;
+      grid-template-columns: repeat(3, minmax(118px, 1fr));
+      gap: 8px;
     }}
     .summary-card, .stat, .download-card, .metric-line {{
-      padding: 16px;
-      border-radius: var(--radius-md);
+      padding: 13px;
+      border-radius: var(--radius);
       background: rgba(255, 255, 255, 0.8);
       border: 1px solid var(--line);
-      box-shadow: var(--shadow-soft);
     }}
     .summary-card span, .stat .label, .download-card span {{
       display: block;
@@ -548,23 +674,28 @@ def build_report_html(
     }}
     .summary-card strong, .stat .value {{
       display: block;
-      margin-top: 10px;
-      font-size: 28px;
+      margin-top: 8px;
+      font-size: 24px;
       font-weight: 800;
     }}
-    .summary-card p {{ margin: 8px 0 0; color: var(--muted); line-height: 1.7; }}
+    .summary-card p {{ margin: 6px 0 0; color: var(--muted); line-height: 1.55; font-size: 12px; }}
     .stats {{
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 18px;
+      gap: 8px;
+      margin-top: 14px;
     }}
-    .grid {{
+    .report-layout {{
       display: grid;
-      grid-template-columns: minmax(0, 1.3fr) 380px;
-      gap: 18px;
+      grid-template-columns: minmax(0, 1.55fr) minmax(330px, 0.55fr);
+      gap: 14px;
+      align-items: start;
     }}
-    .panel {{ padding: 22px; margin-bottom: 18px; }}
+    .side-stack {{
+      display: grid;
+      gap: 14px;
+    }}
+    .panel {{ padding: 16px; margin-bottom: 14px; }}
     .panel-head {{
       display: flex;
       justify-content: space-between;
@@ -574,41 +705,91 @@ def build_report_html(
       margin-bottom: 16px;
     }}
     .panel h2 {{
-      margin: 8px 0 0;
-      font-family: "STZhongsong", "Source Han Serif SC", "Songti SC", serif;
-      font-size: 28px;
+      margin: 7px 0 0;
+      font-size: 24px;
+      line-height: 1.14;
     }}
     .video-shell video {{
       width: 100%;
-      border-radius: 22px;
+      border-radius: var(--radius);
       background: #111;
-      box-shadow: var(--shadow-soft);
     }}
     .placeholder {{
-      min-height: 320px;
-      display: flex;
+      min-height: 480px;
+      display: grid;
+      place-items: center;
       align-items: center;
       justify-content: center;
       text-align: center;
       padding: 24px;
-      border-radius: 24px;
+      border-radius: var(--radius);
       color: var(--muted);
       line-height: 1.8;
       background:
-        radial-gradient(circle at top left, rgba(29, 90, 74, 0.08), transparent 40%),
-        linear-gradient(155deg, rgba(255, 255, 255, 0.9), rgba(244, 236, 223, 0.92));
-      border: 1px dashed rgba(29, 90, 74, 0.18);
+        linear-gradient(90deg, rgba(31, 117, 107, 0.045) 0 1px, transparent 1px 100%) 0 0 / 44px 44px,
+        linear-gradient(180deg, rgba(22, 41, 37, 0.04) 0 1px, transparent 1px 100%) 0 0 / 44px 44px,
+        #fbfdfc;
+      border: 1px dashed rgba(31, 117, 107, 0.18);
+    }}
+    .placeholder::before {{
+      content: "";
+      display: block;
+      width: min(46vw, 420px);
+      height: min(28vw, 260px);
+      border: 1px solid rgba(31, 117, 107, 0.16);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, transparent 49%, rgba(31, 117, 107, 0.14) 50%, transparent 51%),
+        linear-gradient(180deg, transparent 49%, rgba(31, 117, 107, 0.14) 50%, transparent 51%);
+      opacity: 0.42;
+      margin-bottom: 18px;
+    }}
+    .side-stack .panel {{
+      margin-bottom: 0;
+    }}
+    .response-list {{
+      display: grid;
+      gap: 8px;
+    }}
+    .response-item {{
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 0;
+      border-top: 1px solid rgba(22, 41, 37, 0.1);
+    }}
+    .response-item:first-child {{
+      border-top: 0;
+      padding-top: 0;
+    }}
+    .response-item span {{
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }}
+    .response-item strong {{
+      font-size: 22px;
+      line-height: 1;
     }}
     .download-grid {{
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      grid-template-columns: 1fr;
+      gap: 8px;
     }}
     .download-card strong {{
       display: block;
-      margin-top: 10px;
+      margin-top: 6px;
       color: var(--ink);
-      font-size: 16px;
+      font-size: 14px;
+    }}
+    .download-card em {{
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      font-style: normal;
+      word-break: break-all;
     }}
     .metric-lines {{
       display: grid;
@@ -624,16 +805,16 @@ def build_report_html(
     .toggle {{
       display: inline-flex;
       gap: 8px;
-      padding: 6px;
-      border-radius: 18px;
+      padding: 5px;
+      border-radius: var(--radius);
       background: rgba(255, 255, 255, 0.72);
       border: 1px solid var(--line);
     }}
     .toggle button,
     .toolbar button {{
-      border: none;
-      border-radius: 999px;
-      min-height: 44px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      min-height: 38px;
       padding: 0 16px;
       font-weight: 800;
       cursor: pointer;
@@ -644,22 +825,81 @@ def build_report_html(
       min-width: 92px;
     }}
     .toggle button.active {{
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+      background: var(--accent);
       color: #fff;
     }}
     .toolbar .primary {{
-      background: linear-gradient(135deg, var(--accent) 0%, #28705d 100%);
+      border-color: var(--accent);
+      background: var(--accent);
       color: #fff;
     }}
     .toolbar .secondary {{
-      background: linear-gradient(135deg, #d8a03d 0%, #b9741f 100%);
-      color: #fff;
+      border-color: rgba(31, 117, 107, 0.28);
+      background: rgba(31, 117, 107, 0.08);
+      color: var(--accent);
     }}
     .table-shell {{
       overflow: auto;
-      border-radius: 24px;
+      border-radius: var(--radius);
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.82);
+    }}
+    .review-list {{
+      display: grid;
+      gap: 10px;
+    }}
+    .review-event {{
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.78);
+    }}
+    .event-time {{
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }}
+    .event-fields {{
+      display: grid;
+      grid-template-columns: minmax(180px, 0.9fr) minmax(140px, 0.55fr) minmax(140px, 0.55fr) minmax(140px, 0.55fr);
+      gap: 10px;
+      align-items: start;
+    }}
+    .field {{
+      display: grid;
+      gap: 6px;
+    }}
+    .field label {{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }}
+    .wide-field {{
+      grid-column: span 2;
+    }}
+    .reason-field {{
+      grid-column: 1 / -1;
+    }}
+    .event-meta-line {{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }}
+    .clip-link {{
+      display: inline-flex;
+      min-height: 34px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      color: var(--accent);
+      background: rgba(31, 117, 107, 0.06);
+      font-size: 13px;
+      font-weight: 800;
     }}
     table {{ width: 100%; border-collapse: collapse; min-width: 1100px; }}
     th, td {{
@@ -676,8 +916,8 @@ def build_report_html(
       text-transform: uppercase;
     }}
     .jump {{
-      border: none;
-      border-radius: 16px;
+      border: 1px solid rgba(31, 117, 107, 0.22);
+      border-radius: 8px;
       padding: 10px 12px;
       background: rgba(29, 90, 74, 0.12);
       color: var(--accent);
@@ -687,8 +927,8 @@ def build_report_html(
     input[type="text"], textarea, select {{
       width: 100%;
       box-sizing: border-box;
-      border: 1px solid rgba(65, 53, 40, 0.16);
-      border-radius: 16px;
+      border: 1px solid rgba(22, 41, 37, 0.14);
+      border-radius: 8px;
       background: #fff;
       color: var(--ink);
       font: inherit;
@@ -724,61 +964,59 @@ def build_report_html(
     .risk-review, .review-pending {{ color: var(--review); font-weight: 700; }}
     .risk-low, .review-confirmed {{ color: var(--low); font-weight: 700; }}
     @media (max-width: 960px) {{
-      .hero-top, .grid {{ grid-template-columns: 1fr; }}
-      .stats, .download-grid {{ grid-template-columns: 1fr; }}
+      .topbar {{ position: static; display: grid; }}
+      .hero-top, .report-layout {{ grid-template-columns: 1fr; }}
+      .stats, .download-grid, .summary-stack {{ grid-template-columns: 1fr; }}
+      .placeholder {{ min-height: 320px; }}
+      .review-event, .event-fields {{ grid-template-columns: 1fr; }}
+      .wide-field, .reason-field {{ grid-column: auto; }}
     }}
   </style>
 </head>
 <body data-report-id="{escape(report_id)}">
   <div class="page">
+    <header class="topbar">
+      <a class="brand" href="/campus_demo/console?view=history">
+        <span class="brand-mark"><img src="/campus_demo/assets/dingxin-vision-logo.svg" alt="" /></span>
+        <span>鼎新智眼</span>
+      </a>
+      <nav class="top-actions" aria-label="报告操作">
+        <a href="/campus_demo/console?view=history">历史回看</a>
+        <a href="/campus_demo/console?view=events">事件中心</a>
+        <a href="report_bundle.zip" target="_blank">下载归档包</a>
+      </nav>
+    </header>
     <section class="hero">
       <div class="hero-top">
         <div>
-          <div class="eyebrow">VADTree Campus Report</div>
-          <h1>{escape(summary["video_name"])}</h1>
-          <p class="lead">{escape(summary["headline"])}</p>
+          <div class="eyebrow">Campus Security Report</div>
+          <h1>{escape(video_name)}</h1>
+          <p class="lead">{escape(headline)}</p>
           <div class="hero-chips">
-            <span class="hero-chip">{escape(summary["dataset_display_name"])}</span>
-            <span class="hero-chip">{escape(summary["source_class"])}</span>
-            <span class="hero-chip">{escape(summary["campus_label"])}</span>
-            <span class="hero-chip">生成于 {report_time}</span>
+            <span class="hero-chip">{escape(dataset_display)}</span>
+            <span class="hero-chip">{escape(source_class)}</span>
+            <span class="hero-chip">{escape(campus_label)}</span>
+            <span class="hero-chip">报告生成 {report_time}</span>
           </div>
         </div>
-        <div class="summary-stack">
-          <div class="summary-card">
-            <span>复核版事件数</span>
-            <strong id="summary-current-events">{summary["event_count"]}</strong>
-            <p>当前展示的是可随日志保存即时更新的复核版本。</p>
-          </div>
-          <div class="summary-card">
-            <span>高风险事件</span>
-            <strong id="summary-high-events">{high_count}</strong>
-            <p>高风险片段在时间线与日志表里保持最强视觉提示。</p>
-          </div>
-          <div class="summary-card">
-            <span>待复核事件</span>
-            <strong id="summary-review-events">{pending_count}</strong>
-            <p>支持直接修改行为标签、风险、track、备注和误报状态。</p>
-          </div>
+        <div class="stats">
+          <div class="stat"><div class="label">当前事件</div><div class="value" id="summary-current-events">{event_count}</div></div>
+          <div class="stat"><div class="label">高风险</div><div class="value" id="summary-high-events">{high_count}</div></div>
+          <div class="stat"><div class="label">待复核</div><div class="value" id="summary-review-events">{pending_count}</div></div>
+          <div class="stat"><div class="label">最高分数</div><div class="value">{peak_score:.3f}</div></div>
         </div>
-      </div>
-      <div class="stats">
-        <div class="stat"><div class="label">Dataset</div><div class="value">{escape(summary["dataset_display_name"])}</div></div>
-        <div class="stat"><div class="label">Peak Score</div><div class="value">{summary["peak_score"]:.3f}</div></div>
-        <div class="stat"><div class="label">Mean Score</div><div class="value">{summary["mean_score"]:.3f}</div></div>
-        <div class="stat"><div class="label">FPS</div><div class="value">{summary["fps"]:.2f}</div></div>
       </div>
     </section>
 
-    <div class="grid">
+    <div class="report-layout">
       <div>
         <section class="panel">
           <div class="panel-head">
             <div>
               <div class="eyebrow">Playback</div>
-              <h2>视频回放</h2>
+              <h2>视频核验</h2>
             </div>
-            <div class="note">点击日志时间按钮即可跳到对应片段，适合现场答辩快速回看。</div>
+            <div class="note">点击事件时间可跳到对应片段，用于人工复核。</div>
           </div>
           <div class="video-shell">{video_html}</div>
         </section>
@@ -786,22 +1024,36 @@ def build_report_html(
           <div class="panel-head">
             <div>
               <div class="eyebrow">Timeline</div>
-              <h2>异常分数时间线</h2>
+              <h2>异常分数</h2>
             </div>
-            <div class="note">高亮区域是自动生成的告警片段，阈值线对应事件切分逻辑。</div>
+            <div class="note">高亮区域是系统识别出的异常片段。</div>
           </div>
           <img src="score.svg" alt="score timeline" style="width:100%;height:auto" />
           <p class="note">切片导出模式：<strong>{escape(clip_mode)}</strong>。若没有直接 mp4 切片，可使用 jump 链接打开原视频时间段。</p>
         </section>
       </div>
-      <div>
+      <div class="side-stack">
         <section class="panel">
           <div class="panel-head">
             <div>
-              <div class="eyebrow">Downloads</div>
-              <h2>导出与跳转</h2>
+              <div class="eyebrow">First Response</div>
+              <h2>处置摘要</h2>
             </div>
-            <div class="note">支持直接打开原始分析文件、当前复核文件、切片清单和整包 ZIP。</div>
+          </div>
+          <div class="response-list">
+            <div class="response-item"><span>数据集</span><strong>{escape(dataset_display)}</strong></div>
+            <div class="response-item"><span>校园标签</span><strong>{escape(campus_label)}</strong></div>
+            <div class="response-item"><span>平均分数</span><strong>{mean_score:.3f}</strong></div>
+            <div class="response-item"><span>视频 FPS</span><strong>{fps:.2f}</strong></div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">Archive</div>
+              <h2>报告归档</h2>
+            </div>
+            <div class="note">下载归档包、事件表和结构化数据。</div>
           </div>
           <div class="download-grid">{download_cards}</div>
         </section>
@@ -811,12 +1063,12 @@ def build_report_html(
               <div class="eyebrow">Assessment</div>
               <h2>研判摘要</h2>
             </div>
-            <div class="note">这一栏汇总阈值、评估指标和当前页面的可编辑能力。</div>
+            <div class="note">用于判断当前结果是否需要继续复核。</div>
           </div>
           <div class="metric-lines">
-            <div class="metric-line">当前校园标签：<strong>{escape(summary["campus_label"])}</strong><br />自动阈值 {summary["threshold"]:.3f}，高风险阈值 {summary["high_threshold"]:.3f}，均值分数 {summary["mean_score"]:.3f}</div>
-            <div class="metric-line">ROC AUC：{summary["roc_auc"]} · PR AUC：{summary["pr_auc"]}<br />正样本均值：{summary["pos_mean"]} · 负样本均值：{summary["neg_mean"]}</div>
-            <div class="metric-line">本页支持查看“当前版 / 原始版”事件日志；保存后会同步更新 `events.current.*` 与 `report_bundle.zip`。</div>
+            <div class="metric-line">当前校园标签：<strong>{escape(campus_label)}</strong><br />自动阈值 {threshold:.3f}，高风险阈值 {high_threshold:.3f}，均值分数 {mean_score:.3f}</div>
+            <div class="metric-line">ROC AUC：{roc_auc} · PR AUC：{pr_auc}<br />正样本均值：{pos_mean} · 负样本均值：{neg_mean}</div>
+            <div class="metric-line">当前版可继续保存修订，归档包会同步更新当前事件表与报告数据。</div>
           </div>
         </section>
       </div>
@@ -826,43 +1078,27 @@ def build_report_html(
       <div class="panel-head">
         <div>
           <div class="eyebrow">Review Table</div>
-          <h2>预警日志与人工复核</h2>
+          <h2>事件复核</h2>
         </div>
-        <div class="note">当前版可编辑，原始版只读。这里的字段和控制台保持一致。</div>
+        <div class="note">当前版可编辑，原始版只读。复杂处理建议返回事件中心。</div>
       </div>
       <div class="toolbar">
         <div class="toggle">
           <button id="version-current" class="active">当前版</button>
           <button id="version-original">原始版</button>
         </div>
-        <button id="save-events" class="primary">保存日志修改</button>
-        <button id="reload-events" class="secondary">重新加载日志</button>
+        <button id="save-events" class="primary">保存复核结果</button>
+        <button id="reload-events" class="secondary">重新加载</button>
         <span id="save-status" class="status">在线修改功能仅在 `python3 campus_demo/app.py serve` 启动后可用。</span>
       </div>
-      <div class="table-shell">
-        <table>
-          <thead>
-            <tr>
-              <th>时间</th>
-              <th>行为</th>
-              <th>风险</th>
-              <th>复核</th>
-              <th>Track</th>
-              <th>备注</th>
-              <th>原因说明</th>
-              <th>切片</th>
-            </tr>
-          </thead>
-          <tbody id="event-table-body"></tbody>
-        </table>
-      </div>
+      <div class="review-list" id="event-review-list"></div>
     </section>
   </div>
   <script>
     const clipLookup = {clip_lookup_json};
     const fallbackEvents = {fallback_events_json};
     const reportId = document.body.dataset.reportId;
-    const eventTableBody = document.getElementById('event-table-body');
+    const eventReviewList = document.getElementById('event-review-list');
     const saveStatus = document.getElementById('save-status');
     const state = {{
       version: 'current',
@@ -910,10 +1146,10 @@ def build_report_html(
       const clipEntry = clipLookup[eventId] || {{}};
       if (clipEntry.clip_path) {{
         const fileName = String(clipEntry.clip_path).split('/').pop();
-        return `<a href="clips/${{escapeHtml(fileName)}}">mp4</a>`;
+        return `<a class="clip-link" href="clips/${{escapeHtml(fileName)}}">查看切片</a>`;
       }}
       if (clipEntry.fragment_href) {{
-        return `<a href="${{escapeHtml(clipEntry.fragment_href)}}">jump</a>`;
+        return `<a class="clip-link" href="${{escapeHtml(clipEntry.fragment_href)}}">跳转原视频</a>`;
       }}
       return '-';
     }}
@@ -929,49 +1165,61 @@ def build_report_html(
     function renderEvents(events) {{
       updateSummary(events);
       if (!events.length) {{
-        eventTableBody.innerHTML = '<tr><td colspan="8">当前视频没有可展示的事件片段。</td></tr>';
+        eventReviewList.innerHTML = '<div class="placeholder" style="min-height:220px;">当前视频没有可展示的事件片段。</div>';
         return;
       }}
       const editable = state.version === 'current';
-      eventTableBody.innerHTML = events.map((event) => `
-        <tr data-event-id="${{escapeHtml(event.event_id)}}">
-          <td>
+      eventReviewList.innerHTML = events.map((event, index) => `
+        <article class="review-event" data-event-id="${{escapeHtml(event.event_id)}}">
+          <div class="event-time">
             <button class="jump" data-start="${{event.start_sec}}">
-              ${{formatSeconds(event.start_sec)}}<br />${{formatSeconds(event.end_sec)}}
+              ${{formatSeconds(event.start_sec)}} - ${{formatSeconds(event.end_sec)}}
             </button>
-          </td>
-          <td>
-            <div class="event-title">${{escapeHtml(event.behavior_type || event.campus_label || event.source_class || '待确认')}}</div>
-            <div class="event-tags">
+            <div class="event-meta-line">
+              <span class="event-tag">事件 ${{String(index + 1).padStart(2, '0')}}</span>
               <span class="event-tag">ID ${{escapeHtml(event.event_id)}}</span>
               ${{event.last_edited_at ? '<span class="event-tag edited">已编辑</span>' : ''}}
             </div>
-            <div style="margin-top:10px;">
+            ${{clipCell(event.event_id)}}
+          </div>
+          <div class="event-fields">
+            <div class="field">
+              <label>行为标签</label>
               <input type="text" name="behavior_type" value="${{escapeHtml(event.behavior_type || event.campus_label || event.source_class || '')}}" ${{editable ? '' : 'disabled'}} />
             </div>
-          </td>
-          <td>
-            <select name="risk_level" ${{editable ? '' : 'disabled'}}>
-              <option value="low" ${{normalizeRisk(event.risk_level) === 'low' ? 'selected' : ''}}>low</option>
-              <option value="review" ${{normalizeRisk(event.risk_level) === 'review' ? 'selected' : ''}}>review</option>
-              <option value="medium" ${{normalizeRisk(event.risk_level) === 'medium' ? 'selected' : ''}}>medium</option>
-              <option value="high" ${{normalizeRisk(event.risk_level) === 'high' ? 'selected' : ''}}>high</option>
-            </select>
-            <div class="${{riskClass(event.risk_level)}}" style="margin-top:8px;">${{escapeHtml(normalizeRisk(event.risk_level))}}</div>
-          </td>
-          <td>
-            <select name="review_status" ${{editable ? '' : 'disabled'}}>
-              <option value="pending" ${{normalizeReview(event.review_status) === 'pending' ? 'selected' : ''}}>pending</option>
-              <option value="confirmed" ${{normalizeReview(event.review_status) === 'confirmed' ? 'selected' : ''}}>confirmed</option>
-              <option value="false_positive" ${{normalizeReview(event.review_status) === 'false_positive' ? 'selected' : ''}}>false_positive</option>
-            </select>
-            <div class="${{reviewClass(event.review_status)}}" style="margin-top:8px;">${{escapeHtml(normalizeReview(event.review_status))}}</div>
-          </td>
-          <td><input type="text" name="track_ids" value="${{escapeHtml(normalizeTrackIds(event.track_ids).join(', '))}}" ${{editable ? '' : 'disabled'}} /></td>
-          <td><textarea name="note" ${{editable ? '' : 'disabled'}}>${{escapeHtml(event.note || '')}}</textarea></td>
-          <td><textarea name="reason_text" ${{editable ? '' : 'disabled'}}>${{escapeHtml(event.reason_text || '')}}</textarea></td>
-          <td>${{clipCell(event.event_id)}}</td>
-        </tr>
+            <div class="field">
+              <label>风险等级</label>
+              <select name="risk_level" ${{editable ? '' : 'disabled'}}>
+                <option value="low" ${{normalizeRisk(event.risk_level) === 'low' ? 'selected' : ''}}>low</option>
+                <option value="review" ${{normalizeRisk(event.risk_level) === 'review' ? 'selected' : ''}}>review</option>
+                <option value="medium" ${{normalizeRisk(event.risk_level) === 'medium' ? 'selected' : ''}}>medium</option>
+                <option value="high" ${{normalizeRisk(event.risk_level) === 'high' ? 'selected' : ''}}>high</option>
+              </select>
+              <div class="${{riskClass(event.risk_level)}}">${{escapeHtml(normalizeRisk(event.risk_level))}}</div>
+            </div>
+            <div class="field">
+              <label>复核状态</label>
+              <select name="review_status" ${{editable ? '' : 'disabled'}}>
+                <option value="pending" ${{normalizeReview(event.review_status) === 'pending' ? 'selected' : ''}}>pending</option>
+                <option value="confirmed" ${{normalizeReview(event.review_status) === 'confirmed' ? 'selected' : ''}}>confirmed</option>
+                <option value="false_positive" ${{normalizeReview(event.review_status) === 'false_positive' ? 'selected' : ''}}>false_positive</option>
+              </select>
+              <div class="${{reviewClass(event.review_status)}}">${{escapeHtml(normalizeReview(event.review_status))}}</div>
+            </div>
+            <div class="field">
+              <label>Track</label>
+              <input type="text" name="track_ids" value="${{escapeHtml(normalizeTrackIds(event.track_ids).join(', '))}}" ${{editable ? '' : 'disabled'}} />
+            </div>
+            <div class="field wide-field">
+              <label>复核备注</label>
+              <textarea name="note" ${{editable ? '' : 'disabled'}}>${{escapeHtml(event.note || '')}}</textarea>
+            </div>
+            <div class="field wide-field">
+              <label>系统原因</label>
+              <textarea name="reason_text" ${{editable ? '' : 'disabled'}}>${{escapeHtml(event.reason_text || '')}}</textarea>
+            </div>
+          </div>
+        </article>
       `).join('');
 
       document.querySelectorAll('.jump').forEach((button) => {{
@@ -1017,7 +1265,7 @@ def build_report_html(
     }}
 
     function collectEditedEvents() {{
-      return Array.from(document.querySelectorAll('#event-table-body tr[data-event-id]')).map((row) => {{
+      return Array.from(document.querySelectorAll('#event-review-list [data-event-id]')).map((row) => {{
         const eventId = row.dataset.eventId;
         const original = state.currentEvents.find((item) => item.event_id === eventId) || {{}};
         return {{
@@ -1114,17 +1362,14 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
   <title>Campus Demo Reports</title>
   <style>
     :root {{
-      --bg-top: #f0e8d8;
-      --bg-bottom: #e0d3be;
-      --panel: rgba(255, 252, 246, 0.9);
-      --line: rgba(65, 53, 40, 0.14);
-      --ink: #172521;
-      --muted: #697169;
-      --accent: #1d5a4a;
-      --shadow: 0 24px 60px rgba(73, 53, 29, 0.11);
-      --shadow-soft: 0 12px 30px rgba(73, 53, 29, 0.08);
-      --radius-lg: 28px;
-      --radius-md: 22px;
+      --bg: #f5f8f7;
+      --panel: rgba(255, 255, 255, 0.88);
+      --line: rgba(22, 41, 37, 0.12);
+      --ink: #17211e;
+      --muted: #66736f;
+      --accent: #1f756b;
+      --shadow: 0 18px 42px rgba(28, 50, 45, 0.055);
+      --radius: 8px;
     }}
     * {{
       box-sizing: border-box;
@@ -1132,24 +1377,58 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
     body {{
       margin: 0;
       color: var(--ink);
-      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
+      font-family: "Geist", "Satoshi", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(29, 90, 74, 0.16), transparent 28%),
-        radial-gradient(circle at top right, rgba(199, 134, 38, 0.14), transparent 22%),
-        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+        linear-gradient(90deg, rgba(31, 117, 107, 0.04) 0 1px, transparent 1px 100%) 0 0 / 56px 56px,
+        linear-gradient(180deg, rgba(22, 41, 37, 0.03) 0 1px, transparent 1px 100%) 0 0 / 56px 56px,
+        linear-gradient(180deg, #fbfcfb 0%, var(--bg) 100%);
     }}
     .page {{
-      max-width: 1280px;
+      max-width: 1480px;
       margin: 0 auto;
-      padding: 24px 20px 40px;
+      padding: 16px 18px 40px;
+    }}
+    .topbar {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding: 10px;
+      border: 1px solid rgba(22, 41, 37, 0.08);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }}
+    .brand {{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 8px;
+      color: var(--ink);
+      font-weight: 820;
+    }}
+    .brand-mark {{
+      display: inline-grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--accent);
+      background: rgba(31, 117, 107, 0.06);
+      font-size: 13px;
+      font-weight: 900;
     }}
     .hero, .panel {{
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 24px;
-      margin-bottom: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(12px);
     }}
     .eyebrow {{
       display: inline-flex;
@@ -1168,10 +1447,9 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
       background: currentColor;
     }}
     .hero h1 {{
-      margin: 16px 0 10px;
-      font-family: "STZhongsong", "Source Han Serif SC", "Songti SC", serif;
-      font-size: clamp(32px, 4vw, 46px);
-      line-height: 1.08;
+      margin: 10px 0 8px;
+      font-size: clamp(26px, 3vw, 38px);
+      line-height: 1.12;
     }}
     .hero p {{
       margin: 0;
@@ -1186,10 +1464,9 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
     }}
     .stat {{
       padding: 16px;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius);
       background: rgba(255, 255, 255, 0.8);
       border: 1px solid var(--line);
-      box-shadow: var(--shadow-soft);
     }}
     .stat span {{
       display: block;
@@ -1233,13 +1510,13 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
       margin-right: 12px;
       margin-top: 10px;
       padding: 0 14px;
-      border-radius: 999px;
+      border-radius: 8px;
       background: rgba(255, 255, 255, 0.82);
       border: 1px solid var(--line);
     }}
     .table-shell {{
       overflow: auto;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius);
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.82);
     }}
@@ -1252,18 +1529,24 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
 </head>
 <body>
   <div class="page">
+    <header class="topbar">
+      <a class="brand" href="/campus_demo/console?view=history">
+        <span class="brand-mark">DX</span>
+        <span>鼎新智眼</span>
+      </a>
+      <div class="links">
+        <a href="/campus_demo/console?view=history">历史回看</a>
+        <a href="/campus_demo/console?view=events">事件中心</a>
+      </div>
+    </header>
     <section class="hero">
-      <div class="eyebrow">Campus Demo Reports</div>
-      <h1>校园安防历史报告索引</h1>
-      <p>这里汇总了基于缓存结果或运行时任务生成的离线报告，适合在控制台之外做统一回看和跳转。</p>
+      <div class="eyebrow">Report Archive</div>
+      <h1>校园安防报告归档</h1>
+      <p>按任务保留可回看的视频核验、事件复核和归档下载入口。</p>
       <div class="stats">
         <div class="stat"><span>报告数量</span><strong>{len(ordered_records)}</strong></div>
         <div class="stat"><span>覆盖数据集</span><strong>{dataset_count}</strong></div>
         <div class="stat"><span>最近生成</span><strong style="font-size:18px">{escape(latest_time)}</strong></div>
-      </div>
-      <div class="links">
-        <a href="/campus_demo/console">打开控制台</a>
-        <a href="/campus_demo_outputs/">打开输出目录</a>
       </div>
     </section>
     <section class="panel">

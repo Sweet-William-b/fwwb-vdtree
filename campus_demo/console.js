@@ -1,107 +1,218 @@
 window.__newConsoleApp = true;
 
+const AUTH_KEY = "dingxin_auth";
+const AUTH_VALUE = "demo-admin";
+const loginPath = "/campus_demo/login";
+const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+if (localStorage.getItem(AUTH_KEY) !== AUTH_VALUE && sessionStorage.getItem(AUTH_KEY) !== AUTH_VALUE) {
+  window.location.replace(`${loginPath}?next=${encodeURIComponent(currentPath)}`);
+  throw new Error("Login required.");
+}
+
 const CONSOLE_TEMPLATE = `
   <div class="console-shell">
-    <header class="panel masthead">
-      <div class="masthead-main">
-        <div class="eyebrow">A28 Campus Security Command Center</div>
-        <h1>校园安防视频行为预警控制台</h1>
-        <p class="lead">
-          面向比赛演示的统一前端入口，串联“样例回放 / 本地上传 / RTSP 接入、任务分析、实时预警、人工复核、导出留档、历史回看、训练测评占位”整条闭环。
-        </p>
-        <div class="story-rail">
-          <article class="story-card">
-            <span>01</span>
-            <strong>源接入</strong>
-            <p>选择缓存样例、导入本地视频，或预留 RTSP 流。</p>
-          </article>
-          <article class="story-card">
-            <span>02</span>
-            <strong>任务分析</strong>
-            <p>创建任务后立即进入排队、运行、复核或完成态。</p>
-          </article>
-          <article class="story-card">
-            <span>03</span>
-            <strong>风险预警</strong>
-            <p>实时显示事件数量、风险等级、性能指标和最近告警。</p>
-          </article>
-          <article class="story-card">
-            <span>04</span>
-            <strong>人工复核</strong>
-            <p>在线编辑行为标签、风险等级、track、备注和误报状态。</p>
-          </article>
-          <article class="story-card">
-            <span>05</span>
-            <strong>导出归档</strong>
-            <p>一键导出 JSON、CSV、异常切片与报告整包。</p>
-          </article>
-        </div>
-      </div>
-
-      <div class="masthead-side">
-        <div class="status-pod">
-          <div class="pod-label">服务健康</div>
-          <div id="health-value" class="pod-value">检查中...</div>
-          <div id="health-meta" class="pod-meta">等待后端返回状态</div>
-        </div>
-
-        <div class="hero-grid">
-          <div class="hero-stat">
-            <span>数据集</span>
-            <strong id="overview-datasets">0</strong>
-          </div>
-          <div class="hero-stat">
-            <span>历史任务</span>
-            <strong id="overview-history">0</strong>
-          </div>
-          <div class="hero-stat">
-            <span>当前模式</span>
-            <strong id="overview-mode">样例回放</strong>
-          </div>
-          <div class="hero-stat">
-            <span>活跃预警</span>
-            <strong id="overview-alerts">0</strong>
-          </div>
-        </div>
-
-        <div class="mission-card">
-          <div class="mission-title">当前输入策略</div>
-          <div id="mode-summary" class="mission-copy">
-            直接使用仓库现有缓存结果，最快完成比赛演示闭环。
-          </div>
-          <div class="hero-links">
-            <a class="ghost-link" href="/campus_demo_outputs/index.html" target="_blank">打开静态历史页</a>
-            <a class="ghost-link" href="#events-panel">跳到复核日志</a>
-          </div>
-        </div>
-      </div>
+    <header class="console-topbar">
+      <a class="console-brand" href="/campus_demo" aria-label="返回鼎新智眼官网">
+        <img src="/campus_demo/assets/dingxin-vision-logo.svg" alt="" />
+        <span>鼎新智眼</span>
+      </a>
+      <nav class="section-nav" aria-label="后台导航">
+        <a href="?view=monitor" data-view-link="monitor" class="active">监控首页</a>
+        <a href="?view=source" data-view-link="source">任务接入</a>
+        <a href="?view=events" data-view-link="events">事件中心</a>
+        <a href="?view=export" data-view-link="export">报告归档</a>
+        <a href="?view=history" data-view-link="history">历史回看</a>
+      </nav>
+      <button id="logout-btn" class="logout-link" type="button">退出登录</button>
     </header>
 
-    <nav class="panel section-nav">
-      <a href="#source-panel">源接入</a>
-      <a href="#runtime-panel">运行态</a>
-      <a href="#events-panel">复核日志</a>
-      <a href="#export-panel">导出中心</a>
-      <a href="#history-panel">历史回看</a>
-      <a href="#ops-panel">训练测评</a>
-    </nav>
-
-    <main class="workspace">
-      <aside class="workspace-side">
-        <section id="source-panel" class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-kicker">Source Deck</div>
-              <h2>输入源与任务创建</h2>
-            </div>
-            <div class="panel-note">三种模式共用一套任务、日志、报告和导出闭环。</div>
+    <div class="console-main">
+      <section class="command-header">
+        <div>
+          <div id="page-eyebrow" class="eyebrow">Campus Security Desk</div>
+          <h1 id="page-title">校园安防值守首页</h1>
+          <p id="page-subtitle" class="page-subtitle">第一屏只保留视频、告警和当前处置判断。</p>
+        </div>
+        <div class="top-status">
+          <div class="status-pod">
+            <div class="pod-label">服务健康</div>
+            <div id="health-value" class="pod-value">检查中...</div>
+            <div id="health-meta" class="pod-meta">等待后端返回状态</div>
           </div>
+        </div>
+      </section>
+
+      <main class="monitor-dashboard">
+        <section id="runtime-panel" class="monitor-stage">
+          <div class="stage-head">
+            <div>
+              <div class="panel-kicker">Live Monitoring</div>
+              <h2>实时视频监控墙</h2>
+              <p id="current-job-label" class="stage-copy">当前没有激活任务。</p>
+            </div>
+            <div class="stage-actions">
+              <div id="job-badge" class="badge status-queued">未启动</div>
+              <a class="ghost-btn" href="?view=source" data-view-link="source">接入视频源</a>
+            </div>
+          </div>
+
+          <div class="video-wall">
+            <article class="video-feed video-feed-main">
+              <div class="feed-bar">
+                <div>
+                  <strong>主画面 · 校园入口</strong>
+                  <span>AI 预警核验通道</span>
+                </div>
+                <div class="feed-state online">在线</div>
+              </div>
+              <div id="preview-wrap" class="placeholder">
+                选择样例、上传视频或接入 RTSP 后开始分析。<br />
+                缓存样例可在没有原始视频的情况下仍完整展示报告与日志闭环。
+              </div>
+            </article>
+
+            <article class="video-feed camera-tile">
+              <div class="feed-bar">
+                <div><strong>教学楼东侧</strong><span>Cam-02</span></div>
+                <div class="feed-state online">在线</div>
+              </div>
+              <div class="camera-visual camera-visual-a"><span>教学楼通道</span></div>
+            </article>
+            <article class="video-feed camera-tile">
+              <div class="feed-bar">
+                <div><strong>操场北门</strong><span>Cam-07</span></div>
+                <div class="feed-state online">在线</div>
+              </div>
+              <div class="camera-visual camera-visual-b"><span>操场入口</span></div>
+            </article>
+            <article class="video-feed camera-tile">
+              <div class="feed-bar">
+                <div><strong>图书馆前广场</strong><span>Cam-11</span></div>
+                <div class="feed-state warning">复核</div>
+              </div>
+              <div class="camera-visual camera-visual-c"><span>广场区域</span></div>
+            </article>
+            <article class="video-feed camera-tile">
+              <div class="feed-bar">
+                <div><strong>宿舍区连廊</strong><span>Cam-15</span></div>
+                <div class="feed-state online">在线</div>
+              </div>
+              <div class="camera-visual camera-visual-d"><span>连廊视角</span></div>
+            </article>
+          </div>
+        </section>
+
+        <aside class="alert-summary">
+          <div class="summary-head">
+            <div>
+              <div class="panel-kicker">First Response</div>
+              <h2>告警摘要</h2>
+            </div>
+            <a href="?view=events" data-view-link="events" class="inline-link">查看全部</a>
+          </div>
+          <div class="priority-card">
+            <span>最高优先级事件</span>
+            <strong id="priority-event">暂无高优先级</strong>
+            <p>只显示当前需要先判断的处置信息。</p>
+          </div>
+          <div class="summary-metrics">
+            <article>
+              <span>当前告警</span>
+              <strong id="metric-events">0</strong>
+            </article>
+            <article>
+              <span>设备在线率</span>
+              <strong id="device-online-rate">97.6%</strong>
+            </article>
+            <article>
+              <span>今日待处理</span>
+              <strong id="overview-alerts">0</strong>
+            </article>
+            <article>
+              <span>异常设备</span>
+              <strong id="abnormal-devices">1</strong>
+            </article>
+          </div>
+          <div class="alert-rail">
+            <div class="alert-rail-head">
+              <strong>最近事件</strong>
+              <span>最多 5 条</span>
+            </div>
+            <div id="latest-alerts" class="alert-list">
+              <article class="alert-card muted-card">
+                <strong>暂无预警</strong>
+                <p>任务开始运行后，最近告警会出现在这里。</p>
+              </article>
+            </div>
+          </div>
+          <div class="quick-entry">
+            <a href="?view=events" data-view-link="events">事件中心</a>
+            <a href="?view=source" data-view-link="source">设备接入</a>
+            <a href="?view=export" data-view-link="export">报告归档</a>
+            <a href="?view=history" data-view-link="history">人员核查</a>
+          </div>
+        </aside>
+
+        <section class="ops-strip">
+          <article class="hero-stat">
+            <span>任务状态</span>
+            <strong id="metric-status">待机</strong>
+          </article>
+          <article class="hero-stat">
+            <span>当前 FPS</span>
+            <strong id="metric-fps">0.00</strong>
+          </article>
+          <article class="hero-stat">
+            <span>当前延迟</span>
+            <strong id="metric-latency">0 ms</strong>
+          </article>
+          <article class="hero-stat compact-stat">
+            <span>当前模式</span>
+            <strong id="overview-mode">样例回放</strong>
+            <em id="mode-summary">使用预置校园视频快速演示完整流程。</em>
+          </article>
+        </section>
+
+        <section class="runtime-detail">
+          <article class="progress-card">
+            <div class="progress-meta">
+              <span>分析进度</span>
+              <span id="progress-value">0%</span>
+            </div>
+            <div class="progress-bar"><span id="progress-bar"></span></div>
+            <div class="chip-list">
+              <div class="chip" id="summary-source">输入源：未选择</div>
+              <div class="chip" id="summary-video">视频：未选择</div>
+              <div class="chip" id="summary-time">时间点：0.00s</div>
+              <div class="chip" id="summary-runtime">窗口：5 帧段 / 10 帧窗</div>
+              <div class="chip" id="summary-stream">运行态：待机</div>
+            </div>
+          </article>
+        </section>
+
+      <section id="source-panel" class="panel source-panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-kicker">Task Intake</div>
+            <h2>创建值守任务</h2>
+          </div>
+          <div class="panel-note">选择输入源后开始分析，结果会进入当前处置与复核队列。</div>
+        </div>
 
           <div class="mode-switch">
             <button data-mode="sample" class="active">样例回放</button>
             <button data-mode="upload">本地上传</button>
             <button data-mode="rtsp">RTSP 在线流</button>
           </div>
+
+          <div class="action-row">
+            <button id="create-job-btn" class="primary-btn">开始分析</button>
+            <button id="cancel-job-btn" class="danger-btn">取消任务</button>
+            <a id="report-link" class="ghost-btn hidden" href="#" target="_blank">打开报告页</a>
+          </div>
+
+          <div id="source-status" class="status-bar">等待创建任务。</div>
 
           <div class="field">
             <label for="dataset-select">数据集</label>
@@ -139,177 +250,15 @@ const CONSOLE_TEMPLATE = `
             </div>
           </div>
 
-          <div class="action-row">
-            <button id="create-job-btn" class="primary-btn">开始分析</button>
-            <button id="cancel-job-btn" class="danger-btn">取消任务</button>
-            <a id="report-link" class="ghost-btn hidden" href="#" target="_blank">打开报告页</a>
-          </div>
+      </section>
 
-          <div id="source-status" class="status-bar">等待创建任务。</div>
-        </section>
-
-        <section id="export-panel" class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-kicker">Export Hub</div>
-              <h2>导出中心</h2>
-            </div>
-            <div class="panel-note">输出的都是当前复核版本，可直接用于展示和留档。</div>
-          </div>
-
-          <div class="export-grid">
-            <button class="secondary-btn export-btn" data-kind="json">导出 JSON</button>
-            <button class="secondary-btn export-btn" data-kind="csv">导出 CSV</button>
-            <button class="secondary-btn export-btn" data-kind="clips">导出异常切片</button>
-            <button class="primary-btn export-btn" data-kind="zip">导出 ZIP</button>
-          </div>
-
-          <div id="export-status" class="status-bar">暂无导出记录。</div>
-          <div id="artifact-list" class="artifact-grid">
-            <article class="artifact-card muted-card">暂无导出产物。</article>
-          </div>
-        </section>
-
-        <section id="ops-panel" class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-kicker">Ops Tools</div>
-              <h2>训练与测评占位</h2>
-            </div>
-            <div class="panel-note">比赛演示环境走轻量接口，用于串联完整工程前端。</div>
-          </div>
-
-          <div class="ops-stack">
-            <div class="ops-card">
-              <div class="field">
-                <label for="train-recipe">训练配方 ID</label>
-                <input id="train-recipe" type="text" placeholder="demo-recipe" />
-              </div>
-              <button id="train-btn" class="ghost-btn">触发训练任务</button>
-              <div id="train-status" class="status-inline">尚未触发训练任务。</div>
-            </div>
-
-            <div class="ops-card">
-              <div class="field-note">默认使用当前选择的数据集触发演示评测。</div>
-              <button id="eval-btn" class="ghost-btn">触发测评</button>
-              <div id="eval-status" class="status-inline">尚未触发测评。</div>
-            </div>
-          </div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-kicker">Quick Links</div>
-              <h2>报告与产物跳转</h2>
-            </div>
-            <div class="panel-note">当前任务完成后，这里会直接给出报告页和输出目录。</div>
-          </div>
-
-          <div class="quick-grid">
-            <article class="quick-card">
-              <span>当前报告页</span>
-              <div id="quick-report" class="quick-copy">尚未生成报告。</div>
-            </article>
-            <article class="quick-card">
-              <span>当前输出目录</span>
-              <div id="quick-output" class="quick-copy">尚未生成输出目录。</div>
-            </article>
-          </div>
-        </section>
-      </aside>
-
-      <section class="workspace-main">
-        <section id="runtime-panel" class="panel live-panel">
-          <div class="panel-head panel-head-spread">
-            <div>
-              <div class="panel-kicker">Runtime Deck</div>
-              <h2>运行态与风险态势</h2>
-            </div>
-            <div class="runtime-badges">
-              <div id="job-badge" class="badge status-queued">未启动</div>
-            </div>
-          </div>
-
-          <div class="insight-grid">
-            <article class="insight-card">
-              <span>任务状态</span>
-              <strong id="metric-status">待机</strong>
-            </article>
-            <article class="insight-card">
-              <span>事件数量</span>
-              <strong id="metric-events">0</strong>
-            </article>
-            <article class="insight-card">
-              <span>当前 FPS</span>
-              <strong id="metric-fps">0.00</strong>
-            </article>
-            <article class="insight-card">
-              <span>当前延迟</span>
-              <strong id="metric-latency">0 ms</strong>
-            </article>
-          </div>
-
-          <div class="preview-layout">
-            <div class="preview-card">
-              <div class="preview-header">
-                <div>
-                  <div class="preview-title">视频预览</div>
-                  <div id="current-job-label" class="preview-copy">当前没有激活任务。</div>
-                </div>
-                <div class="legend-row">
-                  <span class="legend-chip low">LOW</span>
-                  <span class="legend-chip review">REVIEW</span>
-                  <span class="legend-chip medium">MEDIUM</span>
-                  <span class="legend-chip high">HIGH</span>
-                </div>
-              </div>
-              <div id="preview-wrap" class="placeholder">
-                选择样例、上传视频或接入 RTSP 后开始分析。<br />
-                缓存样例可在没有原始视频的情况下仍完整展示报告与日志闭环。
-              </div>
-            </div>
-
-            <div class="runtime-stack">
-              <article class="progress-card">
-                <div class="progress-meta">
-                  <span>分析进度</span>
-                  <span id="progress-value">0%</span>
-                </div>
-                <div class="progress-bar"><span id="progress-bar"></span></div>
-                <div class="chip-list">
-                  <div class="chip" id="summary-source">输入源：未选择</div>
-                  <div class="chip" id="summary-video">视频：未选择</div>
-                  <div class="chip" id="summary-time">时间点：0.00s</div>
-                  <div class="chip" id="summary-runtime">窗口：5 帧段 / 10 帧窗</div>
-                  <div class="chip" id="summary-stream">运行态：待机</div>
-                </div>
-              </article>
-
-              <article class="alert-rail">
-                <div class="alert-rail-head">
-                  <strong>最近预警</strong>
-                  <span>滚动刷新最近 5 条事件</span>
-                </div>
-                <div id="latest-alerts" class="alert-list">
-                  <article class="alert-card muted-card">
-                    <strong>暂无预警</strong>
-                    <p>任务开始运行后，最近告警会出现在这里。</p>
-                  </article>
-                </div>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <div class="review-layout">
-          <section id="events-panel" class="panel">
+      <section id="events-panel" class="panel review-panel">
             <div class="panel-head">
               <div>
-                <div class="panel-kicker">Review Board</div>
-                <h2>预警日志与人工复核</h2>
+                <div class="panel-kicker">Review Queue</div>
+                <h2>待处置预警队列</h2>
               </div>
-              <div class="panel-note">点击时间可跳转视频时间点；原始版只读，当前版可编辑后落盘。</div>
+            <div class="panel-note">按时间核验视频片段，确认风险等级与处理结论；原始版只读，当前版可编辑后保存。</div>
             </div>
 
             <div class="toolbar">
@@ -342,24 +291,109 @@ const CONSOLE_TEMPLATE = `
                 </tbody>
               </table>
             </div>
-          </section>
-
-          <aside id="history-panel" class="panel history-panel">
-            <div class="panel-head">
-              <div>
-                <div class="panel-kicker">Replay Stack</div>
-                <h2>历史任务与回看</h2>
-              </div>
-              <div id="history-summary" class="panel-note">历史记录加载中...</div>
-            </div>
-
-            <div id="history-list" class="history-grid">
-              <article class="history-card muted-card">历史记录加载中...</article>
-            </div>
-          </aside>
-        </div>
       </section>
-    </main>
+
+      <section class="secondary-grid">
+        <section id="export-panel" class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-kicker">Report Archive</div>
+              <h2>报告归档</h2>
+            </div>
+            <div class="panel-note">处理完成后生成报告、下载归档包；结构化格式放在更多格式里。</div>
+          </div>
+
+          <div class="archive-primary">
+            <article class="archive-card">
+              <span>当前任务报告</span>
+              <strong>生成报告并归档</strong>
+              <p>基于当前复核版本更新报告页和归档文件，适合汇报、留档和交接。</p>
+              <div class="archive-actions">
+                <button class="secondary-btn export-btn" data-kind="json">生成 / 更新报告</button>
+                <button class="primary-btn export-btn" data-kind="zip">下载归档包</button>
+              </div>
+            </article>
+          </div>
+
+          <details class="archive-more">
+            <summary>更多格式</summary>
+          <div class="export-grid">
+            <button class="secondary-btn export-btn" data-kind="csv">下载事件表</button>
+            <button class="secondary-btn export-btn" data-kind="json">下载结构化数据</button>
+            <button class="secondary-btn export-btn" data-kind="clips">导出异常片段</button>
+          </div>
+          </details>
+
+          <div id="export-status" class="status-bar">暂无导出记录。</div>
+          <div class="quick-grid">
+            <article class="quick-card">
+              <span>报告预览</span>
+              <div id="quick-report" class="quick-copy">尚未生成报告。</div>
+            </article>
+            <article class="quick-card">
+              <span>归档位置</span>
+              <div id="quick-output" class="quick-copy">尚未生成输出目录。</div>
+            </article>
+          </div>
+          <div id="artifact-list" class="artifact-grid">
+            <article class="artifact-card muted-card">暂无导出产物。</article>
+          </div>
+        </section>
+
+        <aside id="history-panel" class="panel history-panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-kicker">History</div>
+              <h2>历史任务与回看</h2>
+            </div>
+            <div id="history-summary" class="panel-note">历史记录加载中...</div>
+          </div>
+
+          <div id="history-list" class="history-grid">
+            <article class="history-card muted-card">历史记录加载中...</article>
+          </div>
+        </aside>
+
+        <section id="ops-panel" class="panel ops-panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-kicker">Ops</div>
+              <h2>训练与测评占位</h2>
+            </div>
+            <div class="panel-note">比赛演示环境走轻量接口，用于串联完整工程前端。</div>
+          </div>
+
+          <div class="ops-stack">
+            <div class="ops-card">
+              <div class="field">
+                <label for="train-recipe">训练配方 ID</label>
+                <input id="train-recipe" type="text" placeholder="demo-recipe" />
+              </div>
+              <button id="train-btn" class="ghost-btn">触发训练任务</button>
+              <div id="train-status" class="status-inline">尚未触发训练任务。</div>
+            </div>
+
+            <div class="ops-card">
+              <div class="field-note">默认使用当前选择的数据集触发演示评测。</div>
+              <button id="eval-btn" class="ghost-btn">触发测评</button>
+              <div id="eval-status" class="status-inline">尚未触发测评。</div>
+            </div>
+          </div>
+        </section>
+      </section>
+      <section class="page-ops-entry">
+        <a href="?view=ops" data-view-link="ops">进入训练与测评</a>
+      </section>
+      </main>
+    </div>
+
+    <aside id="event-drawer" class="event-drawer" aria-hidden="true">
+      <button id="event-drawer-close" class="drawer-close" type="button">关闭</button>
+      <div class="panel-kicker">Event Detail</div>
+      <h2 id="drawer-title">事件详情</h2>
+      <div id="drawer-meta" class="drawer-meta">暂无事件。</div>
+      <div id="drawer-body" class="drawer-body">点击最近事件可查看完整信息、处理记录和相关片段。</div>
+    </aside>
   </div>
 `;
 
@@ -370,6 +404,7 @@ if (!document.body.dataset.consoleMounted) {
 
 const state = {
   mode: "sample",
+  view: "monitor",
   datasets: [],
   videos: [],
   currentJobId: null,
@@ -380,6 +415,39 @@ const state = {
   historyItems: [],
   trainJob: null,
   evalJob: null,
+};
+
+const viewConfig = {
+  monitor: {
+    eyebrow: "Campus Security Desk",
+    title: "校园安防值守首页",
+    subtitle: "第一屏只保留视频、告警和当前处置判断。",
+  },
+  source: {
+    eyebrow: "Task Intake",
+    title: "任务接入",
+    subtitle: "选择样例、本地视频或 RTSP 流，创建当前分析任务。",
+  },
+  events: {
+    eyebrow: "Event Center",
+    title: "事件中心",
+    subtitle: "复核当前任务的预警事件，必要时回看视频并保存修订。",
+  },
+  export: {
+    eyebrow: "Report Archive",
+    title: "报告归档",
+    subtitle: "把复核后的任务生成报告和归档包，用于交接、汇报和留档。",
+  },
+  history: {
+    eyebrow: "History",
+    title: "历史回看",
+    subtitle: "打开历史任务，回到对应的视频、事件和报告。",
+  },
+  ops: {
+    eyebrow: "Ops",
+    title: "训练与测评",
+    subtitle: "演示环境中的训练与评测入口，默认不放在首页。",
+  },
 };
 
 const modeMeta = {
@@ -439,6 +507,35 @@ const createJobBtn = document.getElementById("create-job-btn");
 const trainStatus = document.getElementById("train-status");
 const evalStatus = document.getElementById("eval-status");
 const currentJobLabel = document.getElementById("current-job-label");
+const logoutBtn = document.getElementById("logout-btn");
+const eventDrawer = document.getElementById("event-drawer");
+const eventDrawerClose = document.getElementById("event-drawer-close");
+
+function requestedView() {
+  const params = new URLSearchParams(window.location.search);
+  const view = params.get("view") || "monitor";
+  return viewConfig[view] ? view : "monitor";
+}
+
+function setView(view, options = {}) {
+  const nextView = viewConfig[view] ? view : "monitor";
+  state.view = nextView;
+  document.body.dataset.consoleView = nextView;
+  document.getElementById("page-eyebrow").textContent = viewConfig[nextView].eyebrow;
+  document.getElementById("page-title").textContent = viewConfig[nextView].title;
+  document.getElementById("page-subtitle").textContent = viewConfig[nextView].subtitle;
+  document.querySelectorAll("[data-view-link]").forEach((link) => {
+    link.classList.toggle("active", link.dataset.viewLink === nextView);
+  });
+  if (options.push) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("view", nextView);
+    window.history.pushState({ view: nextView }, "", url);
+  }
+  if (options.focusTop) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
 
 function formatSeconds(value) {
   return `${Number(value || 0).toFixed(2)}s`;
@@ -525,11 +622,41 @@ async function patchJson(url, payload) {
 }
 
 function updateOverviewStats(activeAlertCount) {
-  document.getElementById("overview-datasets").textContent = String(state.health?.dataset_count || state.datasets.length || 0);
-  document.getElementById("overview-history").textContent = String(state.historyItems.length || 0);
+  const datasetNode = document.getElementById("overview-datasets");
+  const historyNode = document.getElementById("overview-history");
+  if (datasetNode) {
+    datasetNode.textContent = String(state.health?.dataset_count || state.datasets.length || 0);
+  }
+  if (historyNode) {
+    historyNode.textContent = String(state.historyItems.length || 0);
+  }
   document.getElementById("overview-mode").textContent = modeMeta[state.mode].label;
   document.getElementById("overview-alerts").textContent = String(activeAlertCount ?? 0);
   document.getElementById("mode-summary").textContent = modeMeta[state.mode].summary;
+}
+
+function openEventDrawer(event) {
+  if (!eventDrawer || !event) {
+    return;
+  }
+  document.getElementById("drawer-title").textContent = event.behavior_type || "待确认事件";
+  document.getElementById("drawer-meta").innerHTML = `
+    <span class="${riskClass(event.risk_level)}">${escapeHtml(riskLabel[event.risk_level] || event.risk_level || "待确认")}</span>
+    <span>${formatSeconds(event.start_sec)} - ${formatSeconds(event.end_sec)}</span>
+    <span>${escapeHtml(reviewLabel[event.review_status] || event.review_status || "待复核")}</span>
+  `;
+  document.getElementById("drawer-body").innerHTML = `
+    <dl>
+      <div><dt>事件编号</dt><dd>${escapeHtml(event.event_id || "-")}</dd></div>
+      <div><dt>置信度</dt><dd>${Number(event.confidence || 0).toFixed(3)}</dd></div>
+      <div><dt>关联 Track</dt><dd>${escapeHtml((event.track_ids || []).join(", ") || "-")}</dd></div>
+      <div><dt>处理记录</dt><dd>${escapeHtml(event.note || "等待值守人员复核。")}</dd></div>
+      <div><dt>原因说明</dt><dd>${escapeHtml(event.reason_text || "暂无说明。")}</dd></div>
+      <div><dt>相关片段</dt><dd>${event.clip_href ? `<a class="inline-link" href="${escapeHtml(event.clip_href)}" target="_blank">打开视频片段</a>` : "暂无可回放片段"}</dd></div>
+    </dl>
+  `;
+  eventDrawer.classList.add("open");
+  eventDrawer.setAttribute("aria-hidden", "false");
 }
 
 function renderBadge(status) {
@@ -556,7 +683,7 @@ function renderPreview(job) {
 
 function renderArtifacts(artifacts) {
   if (!artifacts || !artifacts.length) {
-    artifactList.innerHTML = '<article class="artifact-card muted-card">暂无导出产物。</article>';
+    artifactList.innerHTML = '<article class="artifact-card muted-card">暂无归档文件。处理完成后可生成报告和下载归档包。</article>';
     return;
   }
   artifactList.innerHTML = artifacts.map((item) => `
@@ -581,7 +708,7 @@ function renderLatestAlerts(events) {
     return;
   }
   latestAlerts.innerHTML = events.slice(-5).reverse().map((event) => `
-    <article class="alert-card ${escapeHtml(event.risk_level || "review")}">
+    <button type="button" class="alert-card alert-card-button ${escapeHtml(event.risk_level || "review")}" data-event-id="${escapeHtml(event.event_id || "")}">
       <strong>${escapeHtml(event.behavior_type || "待确认事件")}</strong>
       <div class="history-meta">
         <span class="${riskClass(event.risk_level)}">${escapeHtml(riskLabel[event.risk_level] || event.risk_level || "待确认")}</span>
@@ -589,8 +716,12 @@ function renderLatestAlerts(events) {
         · ${reviewLabel[event.review_status] || event.review_status || "待复核"}
       </div>
       <div class="mini">置信度 ${Number(event.confidence || 0).toFixed(3)} · track ${escapeHtml((event.track_ids || []).join(", ") || event.event_id)}</div>
-    </article>
+    </button>
   `).join("");
+  const byId = new Map(events.map((event) => [event.event_id, event]));
+  latestAlerts.querySelectorAll(".alert-card-button").forEach((button) => {
+    button.addEventListener("click", () => openEventDrawer(byId.get(button.dataset.eventId)));
+  });
 }
 
 function renderJob(job) {
@@ -598,6 +729,7 @@ function renderJob(job) {
     renderBadge("queued");
     document.getElementById("metric-status").textContent = "待机";
     document.getElementById("metric-events").textContent = "0";
+    document.getElementById("priority-event").textContent = "暂无高优先级";
     document.getElementById("metric-fps").textContent = "0.00";
     document.getElementById("metric-latency").textContent = "0 ms";
     document.getElementById("progress-value").textContent = "0%";
@@ -627,6 +759,9 @@ function renderJob(job) {
     ? `${statusText(job.status)} / ${streamStateText(job.stream_state)}`
     : statusText(job.status);
   document.getElementById("metric-events").textContent = String(job.event_count || 0);
+  document.getElementById("priority-event").textContent = (job.latest_alerts || []).some((event) => event.risk_level === "high")
+    ? "高风险事件待复核"
+    : ((job.latest_alerts || [])[0]?.behavior_type || "暂无高优先级");
   document.getElementById("metric-fps").textContent = processingFps.toFixed(2);
   document.getElementById("metric-latency").textContent = `${Number(job.latency_ms || 0).toFixed(0)} ms`;
   document.getElementById("progress-value").textContent = isStreaming ? "流式任务" : progressPercent;
@@ -829,7 +964,8 @@ function renderEvents(events, fromStream = false) {
     <tr data-event-id="${escapeHtml(event.event_id)}">
       <td>
         <button class="time-btn" data-start="${Number(event.start_sec || 0)}">
-          ${formatSeconds(event.start_sec)}<br />${formatSeconds(event.end_sec)}
+          <span>${formatSeconds(event.start_sec)} - ${formatSeconds(event.end_sec)}</span>
+          <em>跳到片段</em>
         </button>
       </td>
       <td>
@@ -876,7 +1012,7 @@ function renderEvents(events, fromStream = false) {
     button.addEventListener("click", () => {
       const video = document.getElementById("job-video");
       if (!video) {
-        eventsStatus.textContent = "当前任务没有可回放视频，但日志和导出仍可正常演示。";
+        eventsStatus.textContent = "当前任务没有可直接回放的原视频。请结合事件说明复核；如已生成异常片段，可在本行“切片”或“报告归档”中打开。";
         return;
       }
       video.currentTime = Number(button.dataset.start || 0);
@@ -934,13 +1070,19 @@ async function saveEvents() {
 
 async function exportJob(kind) {
   if (!state.currentJobId) {
-    setStatus(exportStatus, "请先创建或打开一个任务。");
+    setStatus(exportStatus, "请先在“任务接入”创建任务，或从“历史回看”重新打开一个任务。");
     return;
   }
-  setStatus(exportStatus, `正在执行 ${kind} 导出...`);
+  const actionLabel = {
+    json: "报告数据",
+    csv: "事件表",
+    clips: "异常片段",
+    zip: "归档包",
+  }[kind] || kind;
+  setStatus(exportStatus, `正在准备${actionLabel}...`);
   const data = await postJson(`/campus_demo/api/jobs/${encodeURIComponent(state.currentJobId)}/export`, { kind });
   renderArtifacts(data.artifacts || []);
-  setStatus(exportStatus, `导出完成：${kind}。已刷新导出产物列表。`);
+  setStatus(exportStatus, `${actionLabel}已准备完成。下方文件清单已刷新。`);
   if (data.job) {
     renderJob(data.job);
   }
@@ -1006,22 +1148,22 @@ async function loadHistory() {
 
   historyList.innerHTML = items.map((item) => `
     <article class="history-card">
-      <div class="history-head">
-        <div>
-          <strong>${escapeHtml(item.video_name || item.source_label || item.job_id)}</strong>
-          <div class="history-meta">${escapeHtml(item.dataset_display_name || item.dataset_name || "未知数据集")} · ${escapeHtml(item.created_at || "")}</div>
+      <div class="history-main">
+        <strong>${escapeHtml(item.video_name || item.source_label || item.job_id)}</strong>
+        <div class="history-meta">${escapeHtml(item.dataset_display_name || item.dataset_name || "未知数据集")} · ${escapeHtml(item.created_at || "")}</div>
+        <div class="history-fields">
+          <span>事件 ${item.event_count || 0} 条</span>
+          <span>${item.source_type || "sample"}</span>
+          <span>${item.report_href ? "已生成报告" : "未生成报告"}</span>
+          <span>${item.progress_mode === "indeterminate" && ["queued", "running"].includes(item.status) ? "流式任务" : `进度 ${Math.round(Number(item.progress || 0) * 100)}%`}</span>
         </div>
-        <div class="badge status-${escapeHtml(item.status || "queued")}">${escapeHtml(statusText(item.status))}</div>
       </div>
-      <div class="mini">
-        事件 ${item.event_count || 0} 条 · 分段 ${item.processed_segments || 0} · 窗口 ${item.analyzed_windows || 0}
-        · ${item.source_type || "sample"}
-        · ${item.report_href ? "已生成报告" : "未生成报告"}
-        · ${item.progress_mode === "indeterminate" && ["queued", "running"].includes(item.status) ? "流式任务" : `进度 ${Math.round(Number(item.progress || 0) * 100)}%`}
+      <div class="history-status">
+        <div class="badge status-${escapeHtml(item.status || "queued")}">${escapeHtml(statusText(item.status))}</div>
       </div>
       <div class="history-actions">
         <button class="ghost-btn open-history-btn" data-job-id="${escapeHtml(item.job_id)}">重新打开</button>
-        ${item.report_href ? `<a class="inline-link" href="/campus_demo_outputs/${escapeHtml(item.report_href)}" target="_blank">报告页</a>` : ""}
+        ${item.report_href ? `<a class="inline-link" href="/campus_demo_outputs/${escapeHtml(item.report_href)}" target="_blank">查看报告</a>` : ""}
       </div>
     </article>
   `).join("");
@@ -1185,6 +1327,17 @@ document.querySelectorAll(".export-btn").forEach((button) => {
   });
 });
 
+document.querySelectorAll("[data-view-link]").forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    setView(link.dataset.viewLink, { push: true, focusTop: true });
+  });
+});
+
+window.addEventListener("popstate", () => {
+  setView(requestedView());
+});
+
 document.getElementById("train-btn").addEventListener("click", async () => {
   try {
     await runTrain();
@@ -1202,6 +1355,19 @@ document.getElementById("eval-btn").addEventListener("click", async () => {
 });
 
 window.addEventListener("DOMContentLoaded", () => {
+  setView(requestedView());
+
+  logoutBtn?.addEventListener("click", () => {
+    localStorage.removeItem(AUTH_KEY);
+    sessionStorage.removeItem(AUTH_KEY);
+    window.location.href = `${loginPath}?next=${encodeURIComponent("/campus_demo/console")}`;
+  });
+
+  eventDrawerClose?.addEventListener("click", () => {
+    eventDrawer.classList.remove("open");
+    eventDrawer.setAttribute("aria-hidden", "true");
+  });
+
   init().catch((error) => {
     setStatus(sourceStatus, `初始化失败：${error.message}`);
   });
