@@ -6,9 +6,15 @@
   <title>鼎新智眼 · 校园安防监控预警系统</title>
   <meta
     name="description"
-    content="鼎新智眼是面向校园场景的智能视频安防监控预警系统，提供实时预警、行为分析、事件复核和报告留档。"
+    content="鼎新智眼把校园视频里的异常转成可处理事件，支持发现、核验、记录和回看。"
   />
-  <link rel="stylesheet" href="/campus_demo/landing.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/campus_demo/landing.css?v=font-05-03" />
 </head>
 <body>
   <nav class="site-nav" aria-label="主导航">
@@ -46,18 +52,18 @@
         <p class="eyebrow">Dingxin Vision Intelligence</p>
         <h1 id="hero-title">鼎新智眼</h1>
         <p class="hero-lead">
-          面向校园安防监控的智能预警系统。以视频流为入口，统一完成实时预警、异常行为分析、人工复核与报告留档，让风险处置更早、更准、更可追溯。
+          从视频里发现异常，把事件交给人判断。
         </p>
         <div class="hero-actions" aria-label="主要操作">
-          <a class="primary-action" href="/campus_demo/login?next=/campus_demo/console">进入管理控制台</a>
-          <a class="secondary-action" href="#capability">查看系统能力</a>
+          <a class="primary-action" href="/campus_demo/login?next=/campus_demo/console">进入控制台</a>
+          <a class="secondary-action" href="#capability">查看能力</a>
         </div>
       </div>
 
       <div class="hero-status" aria-label="系统状态摘要">
-        <span>值守模式</span>
-        <strong>实时监测</strong>
-        <em>预警 · 复核 · 归档</em>
+        <span>值守中</span>
+        <strong>视频异常</strong>
+        <em>发现 · 核验 · 记录</em>
       </div>
     </section>
 
@@ -65,30 +71,30 @@
       <div class="section-inner editorial-inner">
         <div class="editorial-copy">
           <p class="section-kicker">Campus Moments</p>
-          <h2 id="moments-title">看见校园运行的每一个关键时刻</h2>
-          <p>实时感知 · 智能预警 · 协同处置</p>
+          <h2 id="moments-title">把画面变成线索。</h2>
+          <p>发现 · 核验 · 记录 · 回看</p>
         </div>
 
         <div class="editorial-layout" aria-label="校园安防场景图片">
           <figure class="editorial-photo editorial-photo-main">
             <img src="/campus_demo/assets/editorial-campus-entry.jpg" alt="清晨校园主入口远景" />
-            <figcaption><span>01</span> 主入口秩序</figcaption>
+            <figcaption><span>01</span> 校门</figcaption>
           </figure>
           <figure class="editorial-photo editorial-photo-tall">
             <img src="/campus_demo/assets/editorial-monitor-center.jpg" alt="校园监控中心工作人员背影" />
-            <figcaption><span>02</span> 值守中心</figcaption>
+            <figcaption><span>02</span> 值守</figcaption>
           </figure>
           <figure class="editorial-photo editorial-photo-square">
             <img src="/campus_demo/assets/editorial-camera-walkway.jpg" alt="校园道路与摄像头视角" />
-            <figcaption><span>03</span> 道路感知</figcaption>
+            <figcaption><span>03</span> 道路</figcaption>
           </figure>
           <figure class="editorial-photo editorial-photo-small">
             <img src="/campus_demo/assets/editorial-data-map.jpg" alt="浅色校园安防数据点位图" />
-            <figcaption><span>04</span> 点位协同</figcaption>
+            <figcaption><span>04</span> 点位</figcaption>
           </figure>
           <figure class="editorial-photo editorial-photo-quiet">
             <img src="/campus_demo/assets/editorial-campus-daily.jpg" alt="校园操场与教学楼日常远景" />
-            <figcaption><span>05</span> 日常守护</figcaption>
+            <figcaption><span>05</span> 日常</figcaption>
           </figure>
         </div>
       </div>
@@ -99,38 +105,63 @@
         <div class="identity-emblem" aria-hidden="true">
           <img src="/campus_demo/assets/dingxin-vision-logo.svg" alt="" />
         </div>
-        <div>
+        <div class="identity-copy">
           <p class="section-kicker">System Positioning</p>
-          <h2 id="positioning-title">不是展示屏，而是校园安防事件的工作入口。</h2>
+          <h2 id="positioning-title">摄像头就是事件入口。</h2>
+          <div class="identity-points" aria-label="系统定位要点">
+            <span>发现</span>
+            <span>核验</span>
+            <span>记录</span>
+          </div>
         </div>
-        <p>
-          鼎新智眼把视频监控、算法分析、人工确认和报告归档放在同一条链路里。首页负责建立可信的系统形象，后台控制台负责完成真实任务流：接入、分析、复核、导出。
+        <p class="identity-summary">
+          画面进入系统，异常形成事件，值守人员再核验。
         </p>
-        <figure class="identity-photo">
-          <img src="/campus_demo/assets/editorial-camera-walkway.jpg" alt="校园道路与摄像头视角" />
-        </figure>
+        <div class="identity-media" aria-label="校园安防系统主视觉轮转图">
+          <div class="identity-viewport">
+            <div class="identity-track">
+              <figure class="identity-photo identity-slide is-active">
+                <img src="/campus_demo/assets/landing-identity-camera-900x360.jpg" alt="校园安防摄像头与主入口横向视角" />
+                <figcaption><span>01</span> 摄像头入口</figcaption>
+              </figure>
+              <figure class="identity-photo identity-slide">
+                <img src="/campus_demo/assets/landing-identity-gate-900x360.jpg" alt="校园主入口安防监测横向视角" />
+                <figcaption><span>02</span> 校门可见</figcaption>
+              </figure>
+              <figure class="identity-photo identity-slide">
+                <img src="/campus_demo/assets/landing-identity-map-900x360.jpg" alt="校园安防点位联动横向图" />
+                <figcaption><span>03</span> 点位联动</figcaption>
+              </figure>
+            </div>
+          </div>
+          <div class="identity-controls" aria-label="切换定位区图片">
+            <button type="button" class="is-active" data-slide="0" aria-label="查看摄像头入口图"></button>
+            <button type="button" data-slide="1" aria-label="查看校门监测图"></button>
+            <button type="button" data-slide="2" aria-label="查看点位联动图"></button>
+          </div>
+        </div>
       </div>
     </section>
 
     <section id="capability" class="capability-section reveal-section" aria-labelledby="capability-title">
       <div class="section-inner">
         <p class="section-kicker">Core Capability</p>
-        <h2 id="capability-title">从视频接入到事件闭环，保持轻量但完整。</h2>
+        <h2 id="capability-title">先看风险，再看细节。</h2>
         <div class="capability-list">
           <article>
             <span>01</span>
-            <h3>实时预警</h3>
-            <p>接入样例视频、本地文件或预留视频流入口，聚合异常片段和风险状态。</p>
+            <h3>发现异常</h3>
+            <p>系统标出异常片段和风险等级。</p>
           </article>
           <article>
             <span>02</span>
-            <h3>智能分析</h3>
-            <p>结合行为识别、场景分段和风险映射，输出可复核的结构化事件。</p>
+            <h3>回看片段</h3>
+            <p>每条事件都能回到对应时间点。</p>
           </article>
           <article>
             <span>03</span>
-            <h3>留档追溯</h3>
-            <p>支持人工修订、导出 JSON / CSV / ZIP，便于比赛展示和后续审计。</p>
+            <h3>留下记录</h3>
+            <p>复核结果和报告一起归档。</p>
           </article>
         </div>
       </div>
@@ -140,31 +171,32 @@
       <div class="section-inner workflow-grid">
         <div class="workflow-intro">
           <p class="section-kicker">Response Workflow</p>
-          <h2 id="workflow-title">把安防处置拆成可追踪的四步。</h2>
+          <h2 id="workflow-title">四步处理一件事。</h2>
           <figure class="workflow-photo">
-            <img src="/campus_demo/assets/editorial-monitor-center.jpg" alt="校园监控中心值守画面" />
+            <img src="/campus_demo/assets/landing-workflow-440x300.jpg" alt="校园安防值守中心与监控画面" />
+            <figcaption>当前任务，当前判断。</figcaption>
           </figure>
         </div>
         <ol class="workflow-list">
           <li>
             <span>01</span>
-            <strong>接入视频源</strong>
-            <p>选择样例、本地上传或预留 RTSP 流，为不同演示场景保留入口。</p>
+            <strong>接入视频</strong>
+            <p>选择样例、本地文件或视频流。</p>
           </li>
           <li>
             <span>02</span>
-            <strong>生成预警任务</strong>
-            <p>后端返回任务状态、事件数量、FPS、延迟和最近告警。</p>
+            <strong>生成预警</strong>
+            <p>系统输出事件和风险等级。</p>
           </li>
           <li>
             <span>03</span>
-            <strong>人工复核修订</strong>
-            <p>管理员确认风险等级、行为标签、误报状态和备注说明。</p>
+            <strong>人工复核</strong>
+            <p>管理员确认、修订、备注。</p>
           </li>
           <li>
             <span>04</span>
-            <strong>导出归档报告</strong>
-            <p>输出结构化 JSON、CSV、异常片段清单和 ZIP 资料包。</p>
+            <strong>导出报告</strong>
+            <p>保存结果，便于回看和交接。</p>
           </li>
         </ol>
       </div>
@@ -174,27 +206,28 @@
       <div class="section-inner">
         <div class="scene-head">
           <p class="section-kicker">Campus Scenes</p>
-          <h2 id="scene-title">覆盖校园高频安防区域，先服务演示，再逐步接入真实摄像头。</h2>
+          <h2 id="scene-title">看住关键位置。</h2>
         </div>
         <figure class="scene-photo">
-          <img src="/campus_demo/assets/editorial-campus-daily.jpg" alt="校园操场与教学楼日常远景" />
+          <img src="/campus_demo/assets/landing-scenes-980x360.jpg" alt="校园主入口与安防摄像头横向视角" />
+          <figcaption>异常先形成事件，再交给人核验。</figcaption>
         </figure>
         <div class="scene-strip">
           <article>
-            <span>校门与围栏</span>
-            <p>关注异常聚集、翻越、追逐和深夜滞留。</p>
+            <span>校门</span>
+            <p>聚集、翻越、滞留。</p>
           </article>
           <article>
-            <span>教学楼走廊</span>
-            <p>识别冲突、摔倒、拥挤和可疑徘徊。</p>
+            <span>走廊</span>
+            <p>冲突、摔倒、徘徊。</p>
           </article>
           <article>
             <span>宿舍公共区</span>
-            <p>辅助值班人员快速定位高风险片段。</p>
+            <p>先看高风险片段。</p>
           </article>
           <article>
-            <span>操场与广场</span>
-            <p>面向开放空间提供事件回看和留档。</p>
+            <span>操场</span>
+            <p>事件回看和留档。</p>
           </article>
         </div>
       </div>
@@ -204,7 +237,7 @@
       <div class="section-inner access-grid">
         <div>
           <p class="section-kicker">Admin Access</p>
-          <h2 id="access-title">管理员从官网进入后台，后台完成具体处置。</h2>
+          <h2 id="access-title">进入值守控制台。</h2>
         </div>
         <div class="access-panel">
           <div class="access-logo">
@@ -212,7 +245,7 @@
           </div>
           <div>
             <strong>鼎新智眼控制台</strong>
-            <p>当前版本保持轻量入口，后续可在这里接入管理员账号、角色权限和审计记录。</p>
+            <p>登录后处理任务、核验事件、查看报告。</p>
           </div>
           <a class="panel-action" href="/campus_demo/login?next=/campus_demo/console">进入控制台</a>
         </div>
@@ -223,10 +256,10 @@
       <div class="section-inner governance-grid">
         <div>
           <p class="section-kicker">Campus Governance</p>
-          <h2 id="governance-title">给管理员一个清晰、可信、可解释的工作入口。</h2>
+          <h2 id="governance-title">系统给线索，人做判断。</h2>
         </div>
         <p>
-          首页承担官网与系统入口的职责，后台控制台继续承载任务创建、运行态监控、复核日志和导出中心。视觉上以明亮中性色、克制蓝绿强调色和真实校园画面建立可信感。
+          鼎新智眼只把风险更早、更清楚地呈现出来。
         </p>
       </div>
     </section>
