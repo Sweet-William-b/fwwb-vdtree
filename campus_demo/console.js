@@ -209,7 +209,7 @@ const CONSOLE_TEMPLATE = `
           <div class="action-row">
             <button id="create-job-btn" class="primary-btn">开始分析</button>
             <button id="cancel-job-btn" class="danger-btn">取消任务</button>
-            <a id="report-link" class="ghost-btn hidden" href="#" target="_blank">打开报告页</a>
+            <a id="report-link" class="ghost-btn hidden" href="#">打开报告页</a>
           </div>
 
           <div id="source-status" class="status-bar">等待创建任务。</div>
@@ -777,7 +777,7 @@ function renderJob(job) {
     `运行态：${streamStateText(job.stream_state)} · 模式 ${job.progress_mode === "indeterminate" ? "流式" : "确定进度"} · 源 FPS ${Number(job.source_fps || 0).toFixed(2)}`;
   currentJobLabel.textContent = `当前任务：${job.job_id} · ${job.video_name || job.source_label || "未命名输入"}`;
   quickReport.innerHTML = job.report_href
-    ? `<a href="/campus_demo_outputs/${escapeHtml(job.report_href)}" target="_blank">${escapeHtml(job.report_href)}</a>`
+    ? `<a href="/campus_demo_outputs/${escapeHtml(job.report_href)}">${escapeHtml(job.report_href)}</a>`
     : "尚未生成报告。";
   quickOutput.textContent = job.output_dir || "尚未生成输出目录。";
 
@@ -1162,8 +1162,8 @@ async function loadHistory() {
         <div class="badge status-${escapeHtml(item.status || "queued")}">${escapeHtml(statusText(item.status))}</div>
       </div>
       <div class="history-actions">
-        <button class="ghost-btn open-history-btn" data-job-id="${escapeHtml(item.job_id)}">重新打开</button>
-        ${item.report_href ? `<a class="inline-link" href="/campus_demo_outputs/${escapeHtml(item.report_href)}" target="_blank">查看报告</a>` : ""}
+        <button class="ghost-btn open-history-btn" type="button" data-job-id="${escapeHtml(item.job_id)}">重新打开</button>
+        ${item.report_href ? `<button class="ghost-btn history-report-btn" type="button" data-report-href="/campus_demo_outputs/${escapeHtml(item.report_href)}">查看报告</button>` : ""}
       </div>
     </article>
   `).join("");
@@ -1174,6 +1174,16 @@ async function loadHistory() {
       const jobData = await fetchJson(`/campus_demo/api/jobs/${encodeURIComponent(button.dataset.jobId)}`);
       if (["queued", "running"].includes(jobData.job.status)) {
         openStream(button.dataset.jobId);
+      }
+      setView("monitor", { push: true, focusTop: true });
+      setStatus(sourceStatus, `已打开历史任务：${jobData.job.video_name || jobData.job.source_label || button.dataset.jobId}`);
+    });
+  });
+  document.querySelectorAll(".history-report-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const href = button.dataset.reportHref;
+      if (href) {
+        window.location.href = href;
       }
     });
   });

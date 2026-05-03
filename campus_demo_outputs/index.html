@@ -6,6 +6,9 @@
   <title>Campus Demo Reports</title>
   <style>
     :root {
+      --font-ui: "PingFang SC", "STHeiti Light", "Noto Sans SC", "HarmonyOS Sans SC", "Source Han Sans SC", "Microsoft YaHei UI", sans-serif;
+      --font-display: "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
+      --font-latin: "Geist", "Satoshi", "DIN Alternate", "Arial", sans-serif;
       --bg: #f5f8f7;
       --panel: rgba(255, 255, 255, 0.88);
       --line: rgba(22, 41, 37, 0.12);
@@ -21,7 +24,9 @@
     body {
       margin: 0;
       color: var(--ink);
-      font-family: "Geist", "Satoshi", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
+      font-family: var(--font-ui);
+      font-weight: 300;
+      letter-spacing: 0;
       background:
         linear-gradient(90deg, rgba(31, 117, 107, 0.04) 0 1px, transparent 1px 100%) 0 0 / 56px 56px,
         linear-gradient(180deg, rgba(22, 41, 37, 0.03) 0 1px, transparent 1px 100%) 0 0 / 56px 56px,
@@ -51,7 +56,8 @@
       gap: 10px;
       padding: 0 8px;
       color: var(--ink);
-      font-weight: 820;
+      font-family: var(--font-ui);
+      font-weight: 520;
     }
     .brand-mark {
       display: inline-grid;
@@ -80,7 +86,8 @@
       gap: 10px;
       color: var(--accent);
       font-size: 12px;
-      font-weight: 800;
+      font-family: var(--font-latin), var(--font-ui);
+      font-weight: 760;
       letter-spacing: 0.16em;
       text-transform: uppercase;
     }
@@ -92,7 +99,9 @@
     }
     .hero h1 {
       margin: 10px 0 8px;
+      font-family: var(--font-display);
       font-size: clamp(26px, 3vw, 38px);
+      font-weight: 300;
       line-height: 1.12;
     }
     .hero p {
@@ -116,14 +125,17 @@
       display: block;
       color: var(--muted);
       font-size: 12px;
-      font-weight: 700;
+      font-family: var(--font-latin), var(--font-ui);
+      font-weight: 680;
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
     .stat strong {
       display: block;
       margin-top: 10px;
+      font-family: var(--font-latin), var(--font-ui);
       font-size: 28px;
+      font-weight: 520;
     }
     table {
       width: 100%;
@@ -138,14 +150,15 @@
     th {
       color: var(--muted);
       font-size: 12px;
-      font-weight: 800;
+      font-family: var(--font-latin), var(--font-ui);
+      font-weight: 680;
       text-transform: uppercase;
       letter-spacing: 0.1em;
     }
     a {
       color: var(--accent);
       text-decoration: none;
-      font-weight: 700;
+      font-weight: 420;
     }
     .links a {
       display: inline-flex;

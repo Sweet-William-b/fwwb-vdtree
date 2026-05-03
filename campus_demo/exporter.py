@@ -497,6 +497,9 @@ def build_report_html(
   <title>{escape(video_name)} - 校园安防报告</title>
   <style>
     :root {{
+      --font-ui: "PingFang SC", "STHeiti Light", "Noto Sans SC", "HarmonyOS Sans SC", "Source Han Sans SC", "Microsoft YaHei UI", sans-serif;
+      --font-display: "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
+      --font-latin: "Geist", "Satoshi", "DIN Alternate", "Arial", sans-serif;
       --bg: #f5f8f7;
       --panel: rgba(255, 255, 255, 0.88);
       --panel-soft: #f8fbfa;
@@ -517,7 +520,9 @@ def build_report_html(
     * {{ box-sizing: border-box; }}
     body {{
       margin: 0;
-      font-family: "Geist", "Satoshi", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
+      font-family: var(--font-ui);
+      font-weight: 300;
+      letter-spacing: 0;
       color: var(--ink);
       background:
         linear-gradient(90deg, rgba(31, 117, 107, 0.04) 0 1px, transparent 1px 100%) 0 0 / 56px 56px,
@@ -553,7 +558,8 @@ def build_report_html(
       gap: 10px;
       padding: 0 8px;
       color: var(--ink);
-      font-weight: 820;
+      font-family: var(--font-ui);
+      font-weight: 520;
     }}
     .brand-mark {{
       display: inline-grid;
@@ -586,7 +592,7 @@ def build_report_html(
       color: var(--muted);
       background: rgba(255, 255, 255, 0.72);
       font-size: 13px;
-      font-weight: 760;
+      font-weight: 420;
     }}
     .top-actions a:hover,
     .download-card:hover,
@@ -615,7 +621,8 @@ def build_report_html(
       gap: 10px;
       color: var(--accent);
       font-size: 12px;
-      font-weight: 800;
+      font-family: var(--font-latin), var(--font-ui);
+      font-weight: 760;
       letter-spacing: 0.16em;
       text-transform: uppercase;
     }}
@@ -627,7 +634,9 @@ def build_report_html(
     }}
     .hero h1 {{
       margin: 10px 0 8px;
+      font-family: var(--font-display);
       font-size: clamp(26px, 3vw, 38px);
+      font-weight: 300;
       line-height: 1.12;
       letter-spacing: 0;
     }}
@@ -651,7 +660,7 @@ def build_report_html(
       background: rgba(255, 255, 255, 0.76);
       border: 1px solid var(--line);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 520;
     }}
     .summary-stack {{
       display: grid;
@@ -668,15 +677,17 @@ def build_report_html(
       display: block;
       color: var(--muted);
       font-size: 12px;
-      font-weight: 700;
+      font-family: var(--font-latin), var(--font-ui);
+      font-weight: 680;
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }}
     .summary-card strong, .stat .value {{
       display: block;
       margin-top: 8px;
+      font-family: var(--font-latin), var(--font-ui);
       font-size: 24px;
-      font-weight: 800;
+      font-weight: 520;
     }}
     .summary-card p {{ margin: 6px 0 0; color: var(--muted); line-height: 1.55; font-size: 12px; }}
     .stats {{
@@ -706,7 +717,9 @@ def build_report_html(
     }}
     .panel h2 {{
       margin: 7px 0 0;
+      font-family: var(--font-display);
       font-size: 24px;
+      font-weight: 300;
       line-height: 1.14;
     }}
     .video-shell video {{
@@ -766,10 +779,12 @@ def build_report_html(
     .response-item span {{
       color: var(--muted);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 420;
     }}
     .response-item strong {{
+      font-family: var(--font-latin), var(--font-ui);
       font-size: 22px;
+      font-weight: 520;
       line-height: 1;
     }}
     .download-grid {{
@@ -816,7 +831,8 @@ def build_report_html(
       border-radius: 8px;
       min-height: 38px;
       padding: 0 16px;
-      font-weight: 800;
+      font-family: var(--font-ui);
+      font-weight: 420;
       cursor: pointer;
     }}
     .toggle button {{
@@ -875,7 +891,7 @@ def build_report_html(
     .field label {{
       color: var(--muted);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 420;
     }}
     .wide-field {{
       grid-column: span 2;
@@ -899,7 +915,7 @@ def build_report_html(
       color: var(--accent);
       background: rgba(31, 117, 107, 0.06);
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 420;
     }}
     table {{ width: 100%; border-collapse: collapse; min-width: 1100px; }}
     th, td {{
@@ -911,7 +927,8 @@ def build_report_html(
     th {{
       color: var(--muted);
       font-size: 12px;
-      font-weight: 800;
+      font-family: var(--font-latin), var(--font-ui);
+      font-weight: 680;
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }}
@@ -921,7 +938,7 @@ def build_report_html(
       padding: 10px 12px;
       background: rgba(29, 90, 74, 0.12);
       color: var(--accent);
-      font-weight: 800;
+      font-weight: 420;
       cursor: pointer;
     }}
     input[type="text"], textarea, select {{
@@ -935,7 +952,7 @@ def build_report_html(
       padding: 12px 14px;
     }}
     textarea {{ min-height: 88px; resize: vertical; }}
-    .event-title {{ font-weight: 700; }}
+    .event-title {{ font-weight: 420; }}
     .event-tags {{
       display: flex;
       gap: 8px;
@@ -952,17 +969,17 @@ def build_report_html(
       border: 1px solid var(--line);
       color: var(--muted);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 420;
     }}
     .event-tag.edited {{
       color: var(--accent);
       border-color: rgba(29, 90, 74, 0.22);
       background: rgba(29, 90, 74, 0.08);
     }}
-    .risk-high, .review-false_positive {{ color: var(--danger); font-weight: 700; }}
-    .risk-medium {{ color: var(--warn); font-weight: 700; }}
-    .risk-review, .review-pending {{ color: var(--review); font-weight: 700; }}
-    .risk-low, .review-confirmed {{ color: var(--low); font-weight: 700; }}
+    .risk-high, .review-false_positive {{ color: var(--danger); font-weight: 520; }}
+    .risk-medium {{ color: var(--warn); font-weight: 520; }}
+    .risk-review, .review-pending {{ color: var(--review); font-weight: 520; }}
+    .risk-low, .review-confirmed {{ color: var(--low); font-weight: 520; }}
     @media (max-width: 960px) {{
       .topbar {{ position: static; display: grid; }}
       .hero-top, .report-layout {{ grid-template-columns: 1fr; }}
@@ -1362,6 +1379,9 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
   <title>Campus Demo Reports</title>
   <style>
     :root {{
+      --font-ui: "PingFang SC", "STHeiti Light", "Noto Sans SC", "HarmonyOS Sans SC", "Source Han Sans SC", "Microsoft YaHei UI", sans-serif;
+      --font-display: "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
+      --font-latin: "Geist", "Satoshi", "DIN Alternate", "Arial", sans-serif;
       --bg: #f5f8f7;
       --panel: rgba(255, 255, 255, 0.88);
       --line: rgba(22, 41, 37, 0.12);
@@ -1377,7 +1397,9 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
     body {{
       margin: 0;
       color: var(--ink);
-      font-family: "Geist", "Satoshi", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", sans-serif;
+      font-family: var(--font-ui);
+      font-weight: 300;
+      letter-spacing: 0;
       background:
         linear-gradient(90deg, rgba(31, 117, 107, 0.04) 0 1px, transparent 1px 100%) 0 0 / 56px 56px,
         linear-gradient(180deg, rgba(22, 41, 37, 0.03) 0 1px, transparent 1px 100%) 0 0 / 56px 56px,
@@ -1407,7 +1429,8 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
       gap: 10px;
       padding: 0 8px;
       color: var(--ink);
-      font-weight: 820;
+      font-family: var(--font-ui);
+      font-weight: 520;
     }}
     .brand-mark {{
       display: inline-grid;
@@ -1436,7 +1459,8 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
       gap: 10px;
       color: var(--accent);
       font-size: 12px;
-      font-weight: 800;
+      font-family: var(--font-latin), var(--font-ui);
+      font-weight: 760;
       letter-spacing: 0.16em;
       text-transform: uppercase;
     }}
@@ -1448,7 +1472,9 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
     }}
     .hero h1 {{
       margin: 10px 0 8px;
+      font-family: var(--font-display);
       font-size: clamp(26px, 3vw, 38px);
+      font-weight: 300;
       line-height: 1.12;
     }}
     .hero p {{
@@ -1472,14 +1498,17 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
       display: block;
       color: var(--muted);
       font-size: 12px;
-      font-weight: 700;
+      font-family: var(--font-latin), var(--font-ui);
+      font-weight: 680;
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }}
     .stat strong {{
       display: block;
       margin-top: 10px;
+      font-family: var(--font-latin), var(--font-ui);
       font-size: 28px;
+      font-weight: 520;
     }}
     table {{
       width: 100%;
@@ -1494,14 +1523,15 @@ def build_history_index(output_root: Path, history_records: list[dict[str, Any]]
     th {{
       color: var(--muted);
       font-size: 12px;
-      font-weight: 800;
+      font-family: var(--font-latin), var(--font-ui);
+      font-weight: 680;
       text-transform: uppercase;
       letter-spacing: 0.1em;
     }}
     a {{
       color: var(--accent);
       text-decoration: none;
-      font-weight: 700;
+      font-weight: 420;
     }}
     .links a {{
       display: inline-flex;

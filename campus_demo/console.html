@@ -683,7 +683,7 @@
           <div class="actions">
             <button id="create-job-btn" class="primary-btn">开始分析</button>
             <button id="cancel-job-btn" class="danger-btn">停止采集</button>
-            <a id="report-link" class="ghost-btn hidden" href="#" target="_blank">打开报告页</a>
+            <a id="report-link" class="ghost-btn hidden" href="#">打开报告页</a>
             <a class="ghost-btn" href="/campus_demo_outputs/index.html" target="_blank">静态历史页</a>
           </div>
 
@@ -851,7 +851,7 @@
     </div>
   </div>
 
-  <script src="/campus_demo/console.js"></script>
+  <script src="/campus_demo/console.js?v=report-font-01"></script>
   <script>
     if (!window.__newConsoleApp) {
     const state = {
@@ -1070,7 +1070,7 @@
       document.getElementById("summary-stream").textContent =
         `运行态：${streamStateText(job.stream_state)} · 模式 ${job.progress_mode === "indeterminate" ? "流式" : "确定进度"} · 源 FPS ${Number(job.source_fps || 0).toFixed(2)}`;
       quickReport.innerHTML = job.report_href
-        ? `<a href="/campus_demo_outputs/${escapeHtml(job.report_href)}" target="_blank">${escapeHtml(job.report_href)}</a>`
+        ? `<a href="/campus_demo_outputs/${escapeHtml(job.report_href)}">${escapeHtml(job.report_href)}</a>`
         : "尚未生成报告。";
       quickOutput.textContent = job.output_dir || "尚未生成输出目录。";
 
@@ -1364,7 +1364,7 @@
           <div class="mini">
             事件 ${item.event_count || 0} 条 · 分段 ${item.processed_segments || 0} · 窗口 ${item.analyzed_windows || 0}
             · ${item.progress_mode === "indeterminate" && ["queued", "running"].includes(item.status) ? "流式任务" : `进度 ${Math.round(Number(item.progress || 0) * 100)}%`}
-            ${item.report_href ? ` · <a href="/campus_demo_outputs/${escapeHtml(item.report_href)}" target="_blank">报告页</a>` : ""}
+            ${item.report_href ? ` · <a href="/campus_demo_outputs/${escapeHtml(item.report_href)}">报告页</a>` : ""}
           </div>
           <div class="actions" style="margin-top: 10px;">
             <button class="ghost-btn open-history-btn" data-job-id="${escapeHtml(item.job_id)}">重新打开</button>
