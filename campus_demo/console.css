@@ -1417,6 +1417,79 @@ tr:last-child td {
 ) {
   font-weight: 400 !important;
 }
+
+.console-shell :where(
+  .pod-label,
+  .pod-value,
+  .pod-meta,
+  .priority-card span,
+  .summary-metrics span,
+  .hero-stat span,
+  .archive-card span,
+  .quick-card span,
+  .progress-meta,
+  .progress-meta span,
+  .artifact-card span,
+  .history-fields span,
+  th,
+  summary,
+  .field label,
+  .drawer-body dt
+) {
+  font-family: var(--font-ui) !important;
+  font-weight: 300 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.console-shell :where(
+  .pod-value,
+  .priority-card strong,
+  .hero-stat strong,
+  #metric-status,
+  #overview-mode,
+  .archive-card strong,
+  .alert-card strong,
+  .artifact-card strong,
+  .history-card strong
+) {
+  font-family: var(--font-display) !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.015em !important;
+  font-synthesis-weight: none;
+}
+
+.console-shell :where(
+  .summary-metrics strong,
+  #metric-events,
+  #device-online-rate,
+  #overview-alerts,
+  #abnormal-devices,
+  #metric-fps,
+  #metric-latency
+) {
+  font-family: var(--font-latin), var(--font-ui) !important;
+  font-weight: 360 !important;
+  letter-spacing: 0 !important;
+}
+
+.console-shell :where(
+  .quick-entry a,
+  .inline-link,
+  .feed-state,
+  .badge,
+  .event-tag,
+  .time-btn,
+  .clip-link,
+  .page-ops-entry a,
+  .feed-bar strong,
+  .camera-visual,
+  .camera-visual span
+) {
+  font-family: var(--font-ui) !important;
+  font-weight: 300 !important;
+  letter-spacing: 0 !important;
+}
 @media (max-width: 980px) {
   .monitor-dashboard {
     grid-template-columns: 1fr;
