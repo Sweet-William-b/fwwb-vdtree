@@ -1,0 +1,32 @@
+[
+  {
+    "event_id": "evt_0001",
+    "start_frame": 158,
+    "end_frame": 235,
+    "start_sec": 6.32,
+    "end_sec": 9.4,
+    "duration_sec": 3.12,
+    "peak_frame": 209,
+    "peak_score": 0.3251,
+    "mean_score": 0.3086,
+    "risk_level": "high",
+    "source_class": "Assault",
+    "campus_label": "单向攻击/疑似欺凌",
+    "behavior_type": "单向攻击/疑似欺凌",
+    "mapping_summary": "疑似存在持续攻击、压制或校园欺凌场景，需要立即复核。",
+    "caption_interval": "66, 257",
+    "caption_summary": "The video depicts a scene on a staircase where two individuals are involved in a physical altercation. The setting is an indoor stairwell with beige walls and black railings.",
+    "reason_interval": "66, 257",
+    "reasoning_score": 0.8,
+    "reason_excerpt": "Alright, so I need to figure out how to rate this scene on a scale from 0 to 1.",
+    "reason_text": "单向攻击/疑似欺凌：The video depicts a scene on a staircase where two individuals are involved in a physical altercation. The setting is an indoor stairwell with beige walls and black railings.",
+    "review_status": "pending",
+    "note": "",
+    "track_ids": [
+      "evt_0001"
+    ],
+    "confidence": 0.3251,
+    "clip_href": null,
+    "html_reason_text": "单向攻击/疑似欺凌：The video depicts a scene on a staircase where two individuals are involved in a physical altercation. The setting is an indoor stairwell with beige walls and black railings."
+  }
+]

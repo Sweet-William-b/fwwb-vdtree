@@ -517,12 +517,12 @@
         <div>
           <div class="eyebrow">Campus Security Report</div>
           <h1>Robbery048_x264.mp4</h1>
-          <p class="lead">存在抢夺或威胁性财物风险行为。</p>
+          <p class="lead">存在抢夺、胁迫或明显财物风险行为，需要持续关注。</p>
           <div class="hero-chips">
             <span class="hero-chip">UCF-Crime</span>
             <span class="hero-chip">Robbery</span>
             <span class="hero-chip">可疑闯入/财物风险</span>
-            <span class="hero-chip">报告生成 2026-05-01 00:37:47</span>
+            <span class="hero-chip">报告生成 2026-05-05 04:14:33</span>
           </div>
         </div>
         <div class="stats">
@@ -544,7 +544,7 @@
             </div>
             <div class="note">点击事件时间可跳到对应片段，用于人工复核。</div>
           </div>
-          <div class="video-shell"><video id="main-video" controls preload="metadata" src="../../../UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4" width="100%"></video><p class="note">点击日志中的时间按钮可跳转对应起点；没有切片时也可使用 jump 链接打开原视频时间段。</p></div>
+          <div class="video-shell"><video id="main-video" controls preload="metadata" src="../../../UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4" width="100%"></video><p class="note">点击日志中的时间按钮可跳转对应起点；没有切片时也可使用 jump 链接打开原视频时间段。若原始源视频缺失，当前展示的是本地演示视频。</p></div>
         </section>
         <section class="panel">
           <div class="panel-head">
@@ -555,7 +555,7 @@
             <div class="note">高亮区域是系统识别出的异常片段。</div>
           </div>
           <img src="score.svg" alt="score timeline" style="width:100%;height:auto" />
-          <p class="note">切片导出模式：<strong>fragment_only</strong>。若没有直接 mp4 切片，可使用 jump 链接打开原视频时间段。</p>
+          <p class="note">切片导出模式：<strong>opencv</strong>。若没有直接 mp4 切片，可使用 jump 链接打开原视频时间段。</p>
         </section>
       </div>
       <div class="side-stack">
@@ -621,8 +621,8 @@
     </section>
   </div>
   <script>
-    const clipLookup = {"evt_0001": {"event_id": "evt_0001", "start_sec": 13.53, "end_sec": 30.17, "status": "fragment_only", "clip_path": null, "source_video": "/home/zh-star/rspace/VADTree/UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4", "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4#t=13.53,30.17"}};
-    const fallbackEvents = [{"event_id": "evt_0001", "start_frame": 406, "end_frame": 905, "start_sec": 13.53, "end_sec": 30.17, "duration_sec": 16.67, "peak_frame": 557, "peak_score": 0.2996, "mean_score": 0.2868, "risk_level": "high", "source_class": "Robbery", "campus_label": "可疑闯入/财物风险", "mapping_summary": "存在抢夺或威胁性财物风险行为。", "caption_interval": "673, 1140", "caption_summary": "The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object.", "reason_interval": "673, 1140", "reasoning_score": 0.4, "reason_excerpt": "Alright, so I need to figure out how to rate this scene on a scale from 0 to 1, where 0 is standard and 1 is suspicious or potentially criminal.", "reason_text": "可疑闯入/财物风险：The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object.", "html_reason_text": "可疑闯入/财物风险：The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object."}];
+    const clipLookup = {"evt_0001": {"event_id": "evt_0001", "start_sec": 13.53, "end_sec": 30.17, "status": "opencv_failed", "clip_path": null, "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4", "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4#t=13.53,30.17", "opencv_error": "opencv_unavailable"}};
+    const fallbackEvents = [{"event_id": "evt_0001", "start_frame": 406, "end_frame": 905, "start_sec": 13.53, "end_sec": 30.17, "duration_sec": 16.67, "peak_frame": 557, "peak_score": 0.2996, "mean_score": 0.2868, "risk_level": "high", "source_class": "Robbery", "campus_label": "可疑闯入/财物风险", "behavior_type": "可疑闯入/财物风险", "mapping_summary": "存在抢夺、胁迫或明显财物风险行为，需要持续关注。", "caption_interval": "673, 1140", "caption_summary": "The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object.", "reason_interval": "673, 1140", "reasoning_score": 0.4, "reason_excerpt": "Alright, so I need to figure out how to rate this scene on a scale from 0 to 1, where 0 is standard and 1 is suspicious or potentially criminal.", "reason_text": "可疑闯入/财物风险：The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object.", "review_status": "pending", "note": "", "track_ids": ["evt_0001"], "confidence": 0.2996, "clip_href": null, "html_reason_text": "可疑闯入/财物风险：The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object."}];
     const reportId = document.body.dataset.reportId;
     const eventReviewList = document.getElementById('event-review-list');
     const saveStatus = document.getElementById('save-status');

@@ -1,0 +1,12 @@
+[
+  {
+    "event_id": "evt_0001",
+    "start_sec": 0.0,
+    "end_sec": 10.97,
+    "status": "opencv_failed",
+    "clip_path": null,
+    "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Arson009_x264.mp4",
+    "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Arson009_x264.mp4#t=0.0,10.97",
+    "opencv_error": "opencv_unavailable"
+  }
+]

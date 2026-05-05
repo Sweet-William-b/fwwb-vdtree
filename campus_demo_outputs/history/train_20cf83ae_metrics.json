@@ -1,0 +1,8 @@
+{
+  "train_id": "train_20cf83ae",
+  "recipe_id": "demo-recipe",
+  "status": "completed",
+  "model_alias": "demo-campusguard-baseline",
+  "metrics_path": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/history/train_20cf83ae_metrics.json",
+  "message": "比赛演示环境返回的是轻量占位产物，用于串联前端流程。"
+}

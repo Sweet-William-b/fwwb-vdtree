@@ -514,6 +514,49 @@ body[data-console-view="events"] .page-ops-entry {
     #fbfdfc;
 }
 
+.preview-splash {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  background: #eef4f2;
+}
+
+.preview-splash img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-splash-copy {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 18px;
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  color: #f7fbf9;
+  background: linear-gradient(180deg, rgba(12, 25, 22, 0.16), rgba(12, 25, 22, 0.64));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+}
+
+.preview-splash-copy span,
+.preview-splash-copy em {
+  font-size: 12px;
+  font-style: normal;
+  color: rgba(247, 251, 249, 0.78);
+}
+
+.preview-splash-copy strong {
+  font-size: 18px;
+  font-weight: 600;
+}
+
 #job-video {
   display: block;
   object-fit: cover;
@@ -850,6 +893,9 @@ td textarea {
 .sample-card {
   width: 100%;
   min-width: 160px;
+  display: grid;
+  align-content: start;
+  gap: 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
@@ -885,6 +931,37 @@ td textarea {
 .sample-card strong {
   display: block;
   font-size: 14px;
+}
+
+.sample-card-media {
+  overflow: hidden;
+  border-radius: 8px;
+  background: #edf4f1;
+  aspect-ratio: 16 / 9;
+}
+
+.sample-card-video,
+.sample-card-cover {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sample-card-select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.sample-card-select.active {
+  color: #fff;
+  background: var(--accent);
+  border-color: transparent;
 }
 
 .sample-card-meta,

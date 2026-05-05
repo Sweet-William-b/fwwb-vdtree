@@ -1,0 +1,2 @@
+event_id,behavior_type,campus_label,risk_level,review_status,note,track_ids,start_sec,end_sec,confidence,peak_score,mean_score,reason_text,caption_interval,reason_interval
+evt_0001,火情/极端危险行为,火情/极端危险行为,high,pending,,evt_0001,0.0,10.97,0.3054,0.3054,0.2982,"火情/极端危险行为：The video begins with a dark scene where a white van is parked in a dimly lit area. The timestamp on the footage reads ""07/18/2014 11:36:57 PM."" A person wearing a hooded jacket approaches the van from the right side of the frame and starts to interact with...","42, 334","42, 334"

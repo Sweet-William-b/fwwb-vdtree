@@ -1,0 +1,2 @@
+event_id,behavior_type,campus_label,risk_level,review_status,note,track_ids,start_sec,end_sec,confidence,peak_score,mean_score,reason_text,caption_interval,reason_interval
+evt_0001,单向攻击/疑似欺凌,单向攻击/疑似欺凌,high,pending,,evt_0001,6.32,9.4,0.3251,0.3251,0.3086,单向攻击/疑似欺凌：The video depicts a scene on a staircase where two individuals are involved in a physical altercation. The setting is an indoor stairwell with beige walls and black railings.,"66, 257","66, 257"

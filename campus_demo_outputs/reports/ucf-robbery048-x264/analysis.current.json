@@ -1,0 +1,80 @@
+{
+  "summary": {
+    "dataset_name": "ucf",
+    "dataset_display_name": "UCF-Crime",
+    "video_name": "Robbery048_x264.mp4",
+    "video_stem": "Robbery048_x264",
+    "video_path": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4",
+    "source_class": "Robbery",
+    "campus_label": "可疑闯入/财物风险",
+    "headline": "存在抢夺、胁迫或明显财物风险行为，需要持续关注。",
+    "event_count": 1,
+    "peak_score": 0.2996,
+    "mean_score": 0.2515,
+    "threshold": 0.2756,
+    "high_threshold": 0.2996,
+    "roc_auc": 0.9802,
+    "pr_auc": 0.9772,
+    "pos_mean": 0.2856,
+    "neg_mean": 0.2339,
+    "fps": 30.0,
+    "clip_mode": "opencv",
+    "current_event_count": 1,
+    "last_edited_at": "2026-05-05T03:57:16"
+  },
+  "events": [
+    {
+      "event_id": "evt_0001",
+      "start_frame": 406,
+      "end_frame": 905,
+      "start_sec": 13.53,
+      "end_sec": 30.17,
+      "duration_sec": 16.67,
+      "peak_frame": 557,
+      "peak_score": 0.2996,
+      "mean_score": 0.2868,
+      "risk_level": "high",
+      "source_class": "Robbery",
+      "campus_label": "可疑闯入/财物风险",
+      "behavior_type": "可疑闯入/财物风险",
+      "mapping_summary": "存在抢夺、胁迫或明显财物风险行为，需要持续关注。",
+      "caption_interval": "673, 1140",
+      "caption_summary": "The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object.",
+      "reason_interval": "673, 1140",
+      "reasoning_score": 0.4,
+      "reason_excerpt": "Alright, so I need to figure out how to rate this scene on a scale from 0 to 1, where 0 is standard and 1 is suspicious or potentially criminal.",
+      "reason_text": "可疑闯入/财物风险：The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object.",
+      "review_status": "pending",
+      "note": "",
+      "track_ids": [
+        "evt_0001"
+      ],
+      "confidence": 0.2996,
+      "clip_href": null,
+      "html_reason_text": "可疑闯入/财物风险：The video begins with a man in a red and white striped shirt and gray pants standing near the entrance of a store. He is holding a long object, possibly a stick or a bat, and appears to be either defending himself or preparing to use the object."
+    }
+  ],
+  "metrics": {
+    "roc_auc": 0.9802,
+    "pr_auc": 0.9772,
+    "1_mean": 0.2856,
+    "0_mean": 0.2339
+  },
+  "thresholds": {
+    "threshold": 0.2756,
+    "high_threshold": 0.2996,
+    "smoothed_peak": 0.2996
+  },
+  "clip_manifest": [
+    {
+      "event_id": "evt_0001",
+      "start_sec": 13.53,
+      "end_sec": 30.17,
+      "status": "opencv_failed",
+      "clip_path": null,
+      "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4",
+      "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4#t=13.53,30.17",
+      "opencv_error": "opencv_unavailable"
+    }
+  ]
+}

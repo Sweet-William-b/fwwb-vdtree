@@ -517,12 +517,12 @@
         <div>
           <div class="eyebrow">Campus Security Report</div>
           <h1>Burglary018_x264.mp4</h1>
-          <p class="lead">存在非常规闯入或异常靠近敏感区域行为。</p>
+          <p class="lead">存在非常规闯入或异常靠近敏感区域的行为。</p>
           <div class="hero-chips">
             <span class="hero-chip">UCF-Crime</span>
             <span class="hero-chip">Burglary</span>
             <span class="hero-chip">可疑闯入/财物风险</span>
-            <span class="hero-chip">报告生成 2026-05-01 00:37:47</span>
+            <span class="hero-chip">报告生成 2026-05-05 04:14:33</span>
           </div>
         </div>
         <div class="stats">
@@ -544,7 +544,7 @@
             </div>
             <div class="note">点击事件时间可跳到对应片段，用于人工复核。</div>
           </div>
-          <div class="video-shell"><video id="main-video" controls preload="metadata" src="../../../UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4" width="100%"></video><p class="note">点击日志中的时间按钮可跳转对应起点；没有切片时也可使用 jump 链接打开原视频时间段。</p></div>
+          <div class="video-shell"><video id="main-video" controls preload="metadata" src="../../../UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4" width="100%"></video><p class="note">点击日志中的时间按钮可跳转对应起点；没有切片时也可使用 jump 链接打开原视频时间段。若原始源视频缺失，当前展示的是本地演示视频。</p></div>
         </section>
         <section class="panel">
           <div class="panel-head">
@@ -555,7 +555,7 @@
             <div class="note">高亮区域是系统识别出的异常片段。</div>
           </div>
           <img src="score.svg" alt="score timeline" style="width:100%;height:auto" />
-          <p class="note">切片导出模式：<strong>fragment_only</strong>。若没有直接 mp4 切片，可使用 jump 链接打开原视频时间段。</p>
+          <p class="note">切片导出模式：<strong>opencv</strong>。若没有直接 mp4 切片，可使用 jump 链接打开原视频时间段。</p>
         </section>
       </div>
       <div class="side-stack">
@@ -621,8 +621,8 @@
     </section>
   </div>
   <script>
-    const clipLookup = {"evt_0001": {"event_id": "evt_0001", "start_sec": 6.93, "end_sec": 37.47, "status": "fragment_only", "clip_path": null, "source_video": "/home/zh-star/rspace/VADTree/UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4", "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4#t=6.93,37.47"}};
-    const fallbackEvents = [{"event_id": "evt_0001", "start_frame": 208, "end_frame": 1124, "start_sec": 6.93, "end_sec": 37.47, "duration_sec": 30.57, "peak_frame": 725, "peak_score": 0.3488, "mean_score": 0.3396, "risk_level": "high", "source_class": "Burglary", "campus_label": "可疑闯入/财物风险", "mapping_summary": "存在非常规闯入或异常靠近敏感区域行为。", "caption_interval": "177, 715", "caption_summary": "The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background.", "reason_interval": "177, 715", "reasoning_score": 0.2, "reason_excerpt": "Okay, so I need to figure out how to rate this scene on a scale from 0 to 1.", "reason_text": "可疑闯入/财物风险：The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background.", "html_reason_text": "可疑闯入/财物风险：The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background."}];
+    const clipLookup = {"evt_0001": {"event_id": "evt_0001", "start_sec": 6.93, "end_sec": 37.47, "status": "opencv_failed", "clip_path": null, "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4", "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Burglary018_x264.mp4#t=6.93,37.47", "opencv_error": "opencv_unavailable"}};
+    const fallbackEvents = [{"event_id": "evt_0001", "start_frame": 208, "end_frame": 1124, "start_sec": 6.93, "end_sec": 37.47, "duration_sec": 30.57, "peak_frame": 725, "peak_score": 0.3488, "mean_score": 0.3396, "risk_level": "high", "source_class": "Burglary", "campus_label": "可疑闯入/财物风险", "behavior_type": "可疑闯入/财物风险", "mapping_summary": "存在非常规闯入或异常靠近敏感区域的行为。", "caption_interval": "177, 715", "caption_summary": "The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background.", "reason_interval": "177, 715", "reasoning_score": 0.2, "reason_excerpt": "Okay, so I need to figure out how to rate this scene on a scale from 0 to 1.", "reason_text": "可疑闯入/财物风险：The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background.", "review_status": "pending", "note": "", "track_ids": ["evt_0001"], "confidence": 0.3488, "clip_href": null, "html_reason_text": "可疑闯入/财物风险：The video shows a series of images captured by a security camera at night, timestamped from 21:09 to 21:18 on April 1, 2017. The scene is set in an outdoor area with a paved ground and a building wall in the background."}];
     const reportId = document.body.dataset.reportId;
     const eventReviewList = document.getElementById('event-review-list');
     const saveStatus = document.getElementById('save-status');

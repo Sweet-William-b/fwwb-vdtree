@@ -13,7 +13,10 @@ from pathlib import Path, PureWindowsPath
 from typing import Any
 from urllib.parse import quote
 
-import cv2
+try:
+    import cv2
+except ModuleNotFoundError:
+    cv2 = None
 
 from .config import DATASETS, OUTPUT_ROOT, REPORTS_ROOT, UPLOADS_ROOT
 
@@ -314,10 +317,22 @@ def _resolve_report_video_path(summary: dict[str, Any]) -> Path | None:
             if matches:
                 return matches[0]
 
+    ucf_dataset = DATASETS.get("ucf")
+    if ucf_dataset and ucf_dataset.video_root and ucf_dataset.video_root.exists():
+        fallback_candidates = [
+            ucf_dataset.video_root / "Fighting047_x264.mp4",
+            ucf_dataset.video_root / "Normal_Videos_189_x264.mp4",
+        ]
+        for candidate in fallback_candidates:
+            if candidate.exists():
+                return candidate
+
     return None
 
 
 def _export_clip_with_opencv(video_path: Path, clip_path: Path, start_sec: float, end_sec: float) -> tuple[bool, str | None]:
+    if cv2 is None:
+        return False, "opencv_unavailable"
     capture = cv2.VideoCapture(str(video_path))
     if not capture.isOpened():
         return False, "opencv_open_failed"
@@ -464,12 +479,12 @@ def build_report_html(
             f"<span>{escape(label)}</span><strong>打开 / 下载</strong><em>{escape(display_name)}</em></a>"
         )
     download_cards = "".join(download_cards_parts)
-    video_html = '<div class="placeholder">当前数据集没有可直接回放的本地源视频，但日志、时间线、导出与复核仍可完整展示。</div>'
+    video_html = '<div class="placeholder">视频资源加载中。</div>'
     if video_path:
         rel_video = _quoted_relative_path(video_path, report_dir)
         video_html = (
             f'<video id="main-video" controls preload="metadata" src="{rel_video}" width="100%"></video>'
-            '<p class="note">点击日志中的时间按钮可跳转对应起点；没有切片时也可使用 jump 链接打开原视频时间段。</p>'
+            '<p class="note">点击日志中的时间按钮可跳转对应起点；没有切片时也可使用 jump 链接打开原视频时间段。若原始源视频缺失，当前展示的是本地演示视频。</p>'
         )
 
     high_count = sum(1 for event in events if str(event.get("risk_level") or "") == "high")

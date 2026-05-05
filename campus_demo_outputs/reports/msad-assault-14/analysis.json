@@ -1,0 +1,75 @@
+{
+  "summary": {
+    "dataset_name": "msad",
+    "dataset_display_name": "MSAD",
+    "video_name": "Assault_14.mp4",
+    "video_stem": "Assault_14",
+    "video_path": null,
+    "source_class": "Assault",
+    "campus_label": "单向攻击/疑似欺凌",
+    "headline": "疑似存在持续攻击、压制或校园欺凌场景，需要立即复核。",
+    "event_count": 1,
+    "peak_score": 0.327,
+    "mean_score": 0.2145,
+    "threshold": 0.2903,
+    "high_threshold": 0.3251,
+    "roc_auc": 0.6385,
+    "pr_auc": 0.9259,
+    "pos_mean": 0.2199,
+    "neg_mean": 0.1864,
+    "fps": 25.0,
+    "clip_mode": "source_video_missing"
+  },
+  "events": [
+    {
+      "event_id": "evt_0001",
+      "start_frame": 158,
+      "end_frame": 235,
+      "start_sec": 6.32,
+      "end_sec": 9.4,
+      "duration_sec": 3.12,
+      "peak_frame": 209,
+      "peak_score": 0.3251,
+      "mean_score": 0.3086,
+      "risk_level": "high",
+      "source_class": "Assault",
+      "campus_label": "单向攻击/疑似欺凌",
+      "behavior_type": "单向攻击/疑似欺凌",
+      "mapping_summary": "疑似存在持续攻击、压制或校园欺凌场景，需要立即复核。",
+      "caption_interval": "66, 257",
+      "caption_summary": "The video depicts a scene on a staircase where two individuals are involved in a physical altercation. The setting is an indoor stairwell with beige walls and black railings.",
+      "reason_interval": "66, 257",
+      "reasoning_score": 0.8,
+      "reason_excerpt": "Alright, so I need to figure out how to rate this scene on a scale from 0 to 1.",
+      "reason_text": "单向攻击/疑似欺凌：The video depicts a scene on a staircase where two individuals are involved in a physical altercation. The setting is an indoor stairwell with beige walls and black railings.",
+      "review_status": "pending",
+      "note": "",
+      "track_ids": [
+        "evt_0001"
+      ],
+      "confidence": 0.3251,
+      "clip_href": null,
+      "html_reason_text": "单向攻击/疑似欺凌：The video depicts a scene on a staircase where two individuals are involved in a physical altercation. The setting is an indoor stairwell with beige walls and black railings."
+    }
+  ],
+  "metrics": {
+    "roc_auc": 0.6385,
+    "pr_auc": 0.9259,
+    "1_mean": 0.2199,
+    "0_mean": 0.1864
+  },
+  "thresholds": {
+    "threshold": 0.2903,
+    "high_threshold": 0.3251,
+    "smoothed_peak": 0.3251
+  },
+  "clip_manifest": [
+    {
+      "event_id": "evt_0001",
+      "start_sec": 6.32,
+      "end_sec": 9.4,
+      "status": "source_video_missing",
+      "clip_path": null
+    }
+  ]
+}

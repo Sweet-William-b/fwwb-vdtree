@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import mimetypes
+import os
 import re
 import threading
 import time
@@ -38,14 +39,28 @@ if __package__ in {None, ""}:
     from campus_demo.history import append_history, read_history
     from campus_demo.mapper import enrich_events, get_mapping
     from campus_demo.result_loader import available_datasets, get_store
-    from campus_demo.runtime_pipeline import (
-        AnalysisCancelledError,
-        SEGMENT_FRAMES,
-        WINDOW_FRAMES,
-        build_runtime_report,
-        run_rtsp_analysis,
-        run_upload_analysis,
-    )
+    try:
+        from campus_demo.runtime_pipeline import (
+            AnalysisCancelledError,
+            SEGMENT_FRAMES,
+            WINDOW_FRAMES,
+            build_runtime_report,
+            run_rtsp_analysis,
+            run_upload_analysis,
+        )
+    except ModuleNotFoundError:
+        class AnalysisCancelledError(RuntimeError):
+            pass
+
+        SEGMENT_FRAMES = 5
+        WINDOW_FRAMES = 10
+
+        def _runtime_unavailable(*args: Any, **kwargs: Any) -> Any:
+            raise RuntimeError("runtime pipeline dependencies are unavailable in the current environment.")
+
+        build_runtime_report = _runtime_unavailable
+        run_rtsp_analysis = _runtime_unavailable
+        run_upload_analysis = _runtime_unavailable
 else:
     from .config import HISTORY_PATH, JOB_HISTORY_PATH, OUTPUT_ROOT, REPO_ROOT, UPLOADS_ROOT
     from .event_builder import build_events
@@ -67,14 +82,28 @@ else:
     from .history import append_history, read_history
     from .mapper import enrich_events, get_mapping
     from .result_loader import available_datasets, get_store
-    from .runtime_pipeline import (
-        AnalysisCancelledError,
-        SEGMENT_FRAMES,
-        WINDOW_FRAMES,
-        build_runtime_report,
-        run_rtsp_analysis,
-        run_upload_analysis,
-    )
+    try:
+        from .runtime_pipeline import (
+            AnalysisCancelledError,
+            SEGMENT_FRAMES,
+            WINDOW_FRAMES,
+            build_runtime_report,
+            run_rtsp_analysis,
+            run_upload_analysis,
+        )
+    except ModuleNotFoundError:
+        class AnalysisCancelledError(RuntimeError):
+            pass
+
+        SEGMENT_FRAMES = 5
+        WINDOW_FRAMES = 10
+
+        def _runtime_unavailable(*args: Any, **kwargs: Any) -> Any:
+            raise RuntimeError("runtime pipeline dependencies are unavailable in the current environment.")
+
+        build_runtime_report = _runtime_unavailable
+        run_rtsp_analysis = _runtime_unavailable
+        run_upload_analysis = _runtime_unavailable
 
 
 CONSOLE_HTML_PATH = Path(__file__).with_name("console.html")
@@ -1202,7 +1231,10 @@ def _status_for_exception(exc: Exception) -> int:
 
 
 class CampusDemoHandler(SimpleHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def __init__(self, *args: Any, **kwargs: Any):
+        self._range: tuple[int, int] | None = None
         super().__init__(*args, directory=str(REPO_ROOT), **kwargs)
 
     def _send_json(self, payload: Any, status: int = 200) -> None:
@@ -1257,7 +1289,15 @@ class CampusDemoHandler(SimpleHTTPRequestHandler):
         if path == "/campus_demo/api/videos":
             dataset = parse_qs(parsed.query).get("dataset", ["ucf"])[0]
             store = get_store(dataset)
-            website_videos = store.website_videos()
+            website_videos = []
+            for item in store.website_videos():
+                local_path = store.local_video_path(item["name"])
+                website_videos.append(
+                    {
+                        **item,
+                        "preview_href": _served_href_for_path(local_path),
+                    }
+                )
             self._send_json(
                 {
                     "dataset": dataset,
@@ -1451,6 +1491,74 @@ class CampusDemoHandler(SimpleHTTPRequestHandler):
             return
 
         super().do_GET()
+
+    def send_head(self):  # type: ignore[override]
+        self._range = None
+        range_header = self.headers.get("Range")
+        if not range_header:
+            return super().send_head()
+
+        path = self.translate_path(self.path)
+        if os.path.isdir(path):
+            return super().send_head()
+
+        ctype = self.guess_type(path)
+        try:
+            file_handle = open(path, "rb")
+        except OSError:
+            self.send_error(404, "File not found")
+            return None
+
+        fs = os.fstat(file_handle.fileno())
+        file_size = fs.st_size
+        match = re.fullmatch(r"bytes=(\d*)-(\d*)", range_header.strip())
+        if not match:
+            file_handle.close()
+            return super().send_head()
+
+        start_text, end_text = match.groups()
+        if not start_text and not end_text:
+            file_handle.close()
+            return super().send_head()
+
+        if start_text:
+            start = int(start_text)
+            end = int(end_text) if end_text else file_size - 1
+        else:
+            suffix_length = int(end_text)
+            start = max(0, file_size - suffix_length)
+            end = file_size - 1
+
+        if start >= file_size or start < 0 or end < start:
+            file_handle.close()
+            self.send_error(416, "Requested Range Not Satisfiable")
+            return None
+
+        end = min(end, file_size - 1)
+        length = end - start + 1
+        self._range = (start, end)
+        self.send_response(206)
+        self.send_header("Content-type", ctype)
+        self.send_header("Accept-Ranges", "bytes")
+        self.send_header("Content-Range", f"bytes {start}-{end}/{file_size}")
+        self.send_header("Content-Length", str(length))
+        self.send_header("Last-Modified", self.date_time_string(fs.st_mtime))
+        self.end_headers()
+        file_handle.seek(start)
+        return file_handle
+
+    def copyfile(self, source, outputfile):  # type: ignore[override]
+        if not self._range:
+            return super().copyfile(source, outputfile)
+
+        start, end = self._range
+        remaining = end - start + 1
+        while remaining > 0:
+            chunk = source.read(min(64 * 1024, remaining))
+            if not chunk:
+                break
+            outputfile.write(chunk)
+            remaining -= len(chunk)
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)

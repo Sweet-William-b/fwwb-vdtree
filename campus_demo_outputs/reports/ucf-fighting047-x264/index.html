@@ -522,7 +522,7 @@
             <span class="hero-chip">UCF-Crime</span>
             <span class="hero-chip">Fighting</span>
             <span class="hero-chip">打架斗殴</span>
-            <span class="hero-chip">报告生成 2026-05-01 00:37:47</span>
+            <span class="hero-chip">报告生成 2026-05-05 04:14:33</span>
           </div>
         </div>
         <div class="stats">
@@ -544,7 +544,7 @@
             </div>
             <div class="note">点击事件时间可跳到对应片段，用于人工复核。</div>
           </div>
-          <div class="video-shell"><video id="main-video" controls preload="metadata" src="../../../UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4" width="100%"></video><p class="note">点击日志中的时间按钮可跳转对应起点；没有切片时也可使用 jump 链接打开原视频时间段。</p></div>
+          <div class="video-shell"><video id="main-video" controls preload="metadata" src="../../../UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4" width="100%"></video><p class="note">点击日志中的时间按钮可跳转对应起点；没有切片时也可使用 jump 链接打开原视频时间段。若原始源视频缺失，当前展示的是本地演示视频。</p></div>
         </section>
         <section class="panel">
           <div class="panel-head">
@@ -621,7 +621,7 @@
     </section>
   </div>
   <script>
-    const clipLookup = {"evt_0001": {"event_id": "evt_0001", "start_sec": 30.1, "end_sec": 52.53, "status": "opencv", "clip_path": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/reports/ucf-fighting047-x264/clips/evt_0001.mp4", "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4", "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4#t=30.1,52.53"}};
+    const clipLookup = {"evt_0001": {"event_id": "evt_0001", "start_sec": 30.1, "end_sec": 52.53, "status": "opencv_failed", "clip_path": null, "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4", "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Fighting047_x264.mp4#t=30.1,52.53", "opencv_error": "opencv_unavailable"}};
     const fallbackEvents = [{"event_id": "evt_0001", "start_frame": 903, "end_frame": 1576, "start_sec": 30.1, "end_sec": 52.53, "duration_sec": 22.47, "peak_frame": 1144, "peak_score": 0.4049, "mean_score": 0.3906, "risk_level": "high", "source_class": "Fighting", "campus_label": "打架斗殴", "behavior_type": "打架斗殴", "mapping_summary": "多人发生明显肢体冲突，属于校园高风险异常行为。", "caption_interval": "798, 4458", "caption_summary": "The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads '2016/05/23 08:30:00'.", "reason_interval": "798, 4458", "reasoning_score": 0.3, "reason_excerpt": "Okay, so I need to figure out how to rate the described scene on a scale from 0 to 1.", "reason_text": "打架斗殴：The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads '2016/05/23 08:30:00'.", "review_status": "pending", "note": "", "track_ids": ["evt_0001"], "confidence": 0.4049, "clip_href": null, "html_reason_text": "打架斗殴：The video begins with an empty garage or workshop, equipped with various tools and equipment such as car lifts, oil containers, and shelves. The timestamp on the footage reads &#x27;2016/05/23 08:30:00&#x27;."}];
     const reportId = document.body.dataset.reportId;
     const eventReviewList = document.getElementById('event-review-list');

@@ -1,0 +1,32 @@
+[
+  {
+    "event_id": "evt_0001",
+    "start_frame": 0,
+    "end_frame": 329,
+    "start_sec": 0.0,
+    "end_sec": 10.97,
+    "duration_sec": 11.0,
+    "peak_frame": 30,
+    "peak_score": 0.3054,
+    "mean_score": 0.2982,
+    "risk_level": "high",
+    "source_class": "Arson",
+    "campus_label": "火情/极端危险行为",
+    "behavior_type": "火情/极端危险行为",
+    "mapping_summary": "存在纵火或明显起火风险，属于极高风险事件。",
+    "caption_interval": "42, 334",
+    "caption_summary": "The video begins with a dark scene where a white van is parked in a dimly lit area. The timestamp on the footage reads \"07/18/2014 11:36:57 PM.\" A person wearing a hooded jacket approaches the van from the right side of the frame and starts to interact with...",
+    "reason_interval": "42, 334",
+    "reasoning_score": 0.2,
+    "reason_excerpt": "Alright, I need to evaluate this scene on a scale from 0 to 1.",
+    "reason_text": "火情/极端危险行为：The video begins with a dark scene where a white van is parked in a dimly lit area. The timestamp on the footage reads \"07/18/2014 11:36:57 PM.\" A person wearing a hooded jacket approaches the van from the right side of the frame and starts to interact with...",
+    "review_status": "pending",
+    "note": "",
+    "track_ids": [
+      "evt_0001"
+    ],
+    "confidence": 0.3054,
+    "clip_href": null,
+    "html_reason_text": "火情/极端危险行为：The video begins with a dark scene where a white van is parked in a dimly lit area. The timestamp on the footage reads &quot;07/18/2014 11:36:57 PM.&quot; A person wearing a hooded jacket approaches the van from the right side of the frame and starts to interact with..."
+  }
+]

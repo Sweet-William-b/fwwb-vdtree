@@ -98,19 +98,21 @@
       "event_id": "evt_0001",
       "start_sec": 46.03,
       "end_sec": 84.07,
-      "status": "opencv",
-      "clip_path": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/reports/ucf-assault006-x264/clips/evt_0001.mp4",
+      "status": "opencv_failed",
+      "clip_path": null,
       "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4",
-      "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4#t=46.03,84.07"
+      "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4#t=46.03,84.07",
+      "opencv_error": "opencv_unavailable"
     },
     {
       "event_id": "evt_0002",
       "start_sec": 130.77,
       "end_sec": 133.73,
-      "status": "opencv",
-      "clip_path": "/home/zh-star/rspace/fwwb-vdtree/campus_demo_outputs/reports/ucf-assault006-x264/clips/evt_0002.mp4",
+      "status": "opencv_failed",
+      "clip_path": null,
       "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4",
-      "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4#t=130.77,133.73"
+      "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Assault006_x264.mp4#t=130.77,133.73",
+      "opencv_error": "opencv_unavailable"
     }
   ]
 }

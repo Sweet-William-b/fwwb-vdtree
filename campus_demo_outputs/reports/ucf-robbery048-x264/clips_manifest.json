@@ -3,9 +3,10 @@
     "event_id": "evt_0001",
     "start_sec": 13.53,
     "end_sec": 30.17,
-    "status": "fragment_only",
+    "status": "opencv_failed",
     "clip_path": null,
-    "source_video": "/home/zh-star/rspace/VADTree/UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4",
-    "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4#t=13.53,30.17"
+    "source_video": "/home/zh-star/rspace/fwwb-vdtree/UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4",
+    "fragment_href": "../../../UCF_CRIME_TEST_VIDEO_DIR/Robbery048_x264.mp4#t=13.53,30.17",
+    "opencv_error": "opencv_unavailable"
   }
 ]

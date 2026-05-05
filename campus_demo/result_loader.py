@@ -84,9 +84,13 @@ class DatasetStore:
         return sorted(self.score_data["vid_score"])
 
     def has_local_video(self, video_name: str) -> bool:
+        return self.local_video_path(video_name) is not None
+
+    def local_video_path(self, video_name: str) -> Path | None:
         if self.config.video_root is None:
-            return False
-        return (self.config.video_root / Path(video_name).name).exists()
+            return None
+        candidate = self.config.video_root / Path(video_name).name
+        return candidate if candidate.exists() else None
 
     def list_videos(self, video_names: list[str] | None = None) -> list[dict[str, Any]]:
         default_samples = set(self.default_samples())
@@ -126,11 +130,7 @@ class DatasetStore:
         captions = self.caption_data.get("vid_captions", {}).get(normalized_name, {})
         reasoning = self.reason_data.get("vid_score", {}).get(normalized_name, {})
         metrics = self.metric_data.get("vid_metric", {}).get(video_stem, {})
-        video_path = None
-        if self.config.video_root is not None:
-            candidate = self.config.video_root / normalized_name
-            if candidate.exists():
-                video_path = candidate
+        video_path = self.local_video_path(normalized_name)
         return LoadedVideo(
             dataset_name=self.config.name,
             dataset_display_name=self.config.display_name,

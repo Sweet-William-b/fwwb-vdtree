@@ -66,9 +66,12 @@ const CONSOLE_TEMPLATE = `
                 </div>
                 <div class="feed-state online">在线</div>
               </div>
-              <div id="preview-wrap" class="placeholder">
-                选择样例、上传视频或接入 RTSP 后开始分析。<br />
-                缓存样例可在没有原始视频的情况下仍完整展示报告与日志闭环。
+              <div class="preview-stack">
+                <div id="preview-wrap" class="placeholder">
+                  选择样例、上传视频或接入 RTSP 后开始分析。<br />
+                  缓存样例可在没有原始视频的情况下仍完整展示报告与日志闭环。
+                </div>
+                <div id="monitor-sample-strip" class="monitor-sample-strip hidden"></div>
               </div>
             </article>
 
@@ -500,6 +503,7 @@ const reportLink = document.getElementById("report-link");
 const quickReport = document.getElementById("quick-report");
 const quickOutput = document.getElementById("quick-output");
 const previewWrap = document.getElementById("preview-wrap");
+const monitorSampleStrip = document.getElementById("monitor-sample-strip");
 const latestAlerts = document.getElementById("latest-alerts");
 const eventsBody = document.getElementById("events-body");
 const cancelJobBtn = document.getElementById("cancel-job-btn");
@@ -510,6 +514,24 @@ const currentJobLabel = document.getElementById("current-job-label");
 const logoutBtn = document.getElementById("logout-btn");
 const eventDrawer = document.getElementById("event-drawer");
 const eventDrawerClose = document.getElementById("event-drawer-close");
+
+const SAMPLE_STILL_SEQUENCE = [
+  "/campus_demo/image/1.jpg",
+  "/campus_demo/image/2.jpg",
+  "/campus_demo/image/3.jpg",
+  "/campus_demo/image/4.jpg",
+  "/campus_demo/image/5.jpg",
+];
+
+const DEFAULT_MONITOR_STILL = SAMPLE_STILL_SEQUENCE[0];
+const SAMPLE_STILL_BY_CLASS = {
+  Normal: SAMPLE_STILL_SEQUENCE[0],
+  Fighting: SAMPLE_STILL_SEQUENCE[1],
+  Assault: SAMPLE_STILL_SEQUENCE[2],
+  Robbery: SAMPLE_STILL_SEQUENCE[3],
+  Burglary: SAMPLE_STILL_SEQUENCE[4],
+  Arson: SAMPLE_STILL_SEQUENCE[4],
+};
 
 function requestedView() {
   const params = new URLSearchParams(window.location.search);
@@ -665,6 +687,50 @@ function renderBadge(status) {
   badge.textContent = statusText(status);
 }
 
+function findVideoMetaByName(videoName) {
+  return state.videos.find((item) => item.name === videoName) || null;
+}
+
+function sampleCoverHref(videoMeta, index = null) {
+  if (Number.isInteger(index) && index >= 0) {
+    return SAMPLE_STILL_SEQUENCE[index % SAMPLE_STILL_SEQUENCE.length];
+  }
+  return SAMPLE_STILL_BY_CLASS[videoMeta?.source_class] || DEFAULT_MONITOR_STILL;
+}
+
+function renderSplashPreview(videoMeta = null) {
+  const coverHref = sampleCoverHref(videoMeta);
+  const title = videoMeta?.name || "校园入口样例演示";
+  const meta = videoMeta?.preview_href
+    ? "已接入本地样例视频，可直接播放并用于完整分析演示。"
+    : "当前样例没有本地原视频，将复用缓存结果完成预警、复核与报告闭环。";
+  previewWrap.innerHTML = `
+    <div class="preview-splash">
+      <img src="${escapeHtml(coverHref)}" alt="校园入口样例画面" />
+      <div class="preview-splash-copy">
+        <span>校园入口</span>
+        <strong>${escapeHtml(title)}</strong>
+        <em>${escapeHtml(meta)}</em>
+      </div>
+    </div>
+  `;
+}
+
+function renderIdlePreview() {
+  if (state.mode === "sample" && videoSelect.value) {
+    const selectedVideo = findVideoMetaByName(videoSelect.value);
+    if (selectedVideo?.preview_href) {
+      previewWrap.innerHTML = `
+        <video id="job-video" controls preload="metadata" src="${escapeHtml(selectedVideo.preview_href)}"></video>
+      `;
+      return;
+    }
+    renderSplashPreview(selectedVideo);
+    return;
+  }
+  renderSplashPreview();
+}
+
 function renderPreview(job) {
   const previewHref = job.preview_href;
   if (previewHref) {
@@ -673,12 +739,7 @@ function renderPreview(job) {
     `;
     return;
   }
-  previewWrap.innerHTML = `
-    <div class="placeholder">
-      当前输入源没有可直接回放的本地视频。<br />
-      这不会影响分析、日志编辑、导出和历史回看演示。
-    </div>
-  `;
+  renderIdlePreview();
 }
 
 function renderArtifacts(artifacts) {
@@ -743,7 +804,7 @@ function renderJob(job) {
     quickReport.textContent = "尚未生成报告。";
     quickOutput.textContent = "尚未生成输出目录。";
     reportLink.classList.add("hidden");
-    renderPreview({ preview_href: null });
+    renderIdlePreview();
     renderLatestAlerts([]);
     renderArtifacts([]);
     updateOverviewStats(0);
@@ -846,9 +907,48 @@ async function loadDatasets() {
 }
 
 function updateSampleCardSelection() {
-  document.querySelectorAll(".sample-card").forEach((button) => {
+  document.querySelectorAll(".sample-card").forEach((card) => {
+    card.classList.toggle("active", card.dataset.video === videoSelect.value);
+  });
+  document.querySelectorAll(".sample-card-select").forEach((button) => {
     button.classList.toggle("active", button.dataset.video === videoSelect.value);
   });
+  document.querySelectorAll(".monitor-sample-card").forEach((card) => {
+    card.classList.toggle("active", card.dataset.video === videoSelect.value);
+  });
+}
+
+function renderMonitorSampleStrip(videos) {
+  if (!monitorSampleStrip) {
+    return;
+  }
+  const playableVideos = videos.filter((item) => item.preview_href).slice(0, 4);
+  if (!playableVideos.length) {
+    monitorSampleStrip.innerHTML = "";
+    monitorSampleStrip.classList.add("hidden");
+    return;
+  }
+  monitorSampleStrip.classList.remove("hidden");
+  monitorSampleStrip.innerHTML = playableVideos.map((item) => `
+    <button type="button" class="monitor-sample-card" data-video="${escapeHtml(item.name)}">
+      <video class="monitor-sample-video" muted playsinline preload="metadata" src="${escapeHtml(item.preview_href)}"></video>
+      <div class="monitor-sample-copy">
+        <strong>${escapeHtml(item.source_class || "Sample")}</strong>
+        <span>${escapeHtml(item.name)}</span>
+      </div>
+    </button>
+  `).join("");
+
+  document.querySelectorAll(".monitor-sample-card").forEach((button) => {
+    button.addEventListener("click", () => {
+      videoSelect.value = button.dataset.video;
+      updateSampleCardSelection();
+      if (!state.job) {
+        renderIdlePreview();
+      }
+    });
+  });
+  updateSampleCardSelection();
 }
 
 function renderSampleGallery(videos) {
@@ -859,25 +959,31 @@ function renderSampleGallery(videos) {
   }
 
   sampleGallery.classList.remove("hidden");
-  sampleGallery.innerHTML = videos.map((item) => `
-    <button
-      type="button"
+  sampleGallery.innerHTML = videos.map((item, index) => `
+    <article
       class="sample-card${item.is_default_sample ? " is-default" : ""}"
       data-video="${escapeHtml(item.name)}"
     >
+      <div class="sample-card-media">
+        <img class="sample-card-cover" src="${escapeHtml(sampleCoverHref(item, index))}" alt="样例封面" />
+      </div>
       <span class="sample-card-class">${escapeHtml(item.source_class || "Sample")}</span>
       <strong>${escapeHtml(item.name)}</strong>
       <div class="sample-card-meta">
         ${item.has_local_video ? "本地视频可回放" : "仅缓存结果"}
         · ${item.is_default_sample ? "精选样例" : "缓存样例"}
       </div>
-    </button>
+      <button type="button" class="sample-card-select" data-video="${escapeHtml(item.name)}">选择样例</button>
+    </article>
   `).join("");
 
-  document.querySelectorAll(".sample-card").forEach((button) => {
+  document.querySelectorAll(".sample-card-select").forEach((button) => {
     button.addEventListener("click", () => {
       videoSelect.value = button.dataset.video;
       updateSampleCardSelection();
+      if (!state.job) {
+        renderIdlePreview();
+      }
     });
   });
   updateSampleCardSelection();
@@ -897,10 +1003,14 @@ async function loadVideos() {
   videoSelect.innerHTML = state.videos.map((item) => `
     <option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}${item.is_default_sample ? " · 默认样例" : ""}${item.has_local_video ? "" : " · 无本地视频"}</option>
   `).join("");
+  renderMonitorSampleStrip(state.videos);
   renderSampleGallery(state.videos);
   sampleHint.textContent = data.sample_scope === "website_curated"
     ? `当前数据集 ${data.dataset_display_name} 已接入 ${data.displayed_video_count} 条本地精选样例，来源于本地处理缓存；全量缓存共 ${data.total_video_count} 条。`
     : `当前数据集 ${data.dataset_display_name} 共 ${state.videos.length} 条可用缓存视频，默认样例 ${data.default_samples.length} 条。`;
+  if (!state.job) {
+    renderIdlePreview();
+  }
 }
 
 function setMode(mode) {
@@ -914,6 +1024,9 @@ function setMode(mode) {
   createJobBtn.textContent = modeMeta[mode].action;
   cancelJobBtn.textContent = modeMeta[mode].cancel;
   document.getElementById("mode-summary").textContent = modeMeta[mode].summary;
+  if (!state.job) {
+    renderIdlePreview();
+  }
   updateOverviewStats();
 }
 
@@ -1267,6 +1380,9 @@ datasetSelect.addEventListener("change", async () => {
 
 videoSelect.addEventListener("change", () => {
   updateSampleCardSelection();
+  if (!state.job) {
+    renderIdlePreview();
+  }
 });
 
 uploadInput.addEventListener("change", async (event) => {
