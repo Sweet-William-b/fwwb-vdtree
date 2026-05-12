@@ -1,4 +1,4 @@
-<div align="center">
+<div align="left">
 
 
 ## 图文总览
@@ -7,36 +7,36 @@
 
 <table>
   <tr>
-    <td align="center" width="50%">
+    <td align="left" width="50%">
       <img src="image/prompt-aligned-open-vocabulary-vad-framework.png" alt="Prompt-aligned open-vocabulary VAD framework" width="100%">
       <br>
       <sub>开放词表 VAD 框架示意</sub>
     </td>
-    <td align="center" width="50%">
+    <td align="left" width="50%">
       <img src="image/vad-paradigm-comparison.png" alt="VAD paradigm comparison" width="100%">
       <br>
       <sub>不同 VAD 范式对比</sub>
     </td>
   </tr>
   <tr>
-    <td align="center" width="50%">
+    <td align="left" width="50%">
       <img src="image/granularity-aware-tree-and-multigranularity-vad-pipeline.png" alt="Granularity-aware tree and multi-granularity VAD pipeline" width="100%">
       <br>
       <sub>粒度感知树与多粒度 VAD 流程</sub>
     </td>
-    <td align="center" width="50%">
+    <td align="left" width="50%">
       <img src="image/anomaly-attribute-prompt-template.png" alt="Anomaly attribute prompt template" width="100%">
       <br>
       <sub>异常属性提示模板</sub>
     </td>
   </tr>
   <tr>
-    <td align="center" width="50%">
+    <td align="left" width="50%">
       <img src="image/llm-rationales-and-anomaly-score-examples.png" alt="LLM rationales and anomaly score examples" width="100%">
       <br>
       <sub>LLM 推理解释与异常分数示例</sub>
     </td>
-    <td align="center" width="50%">
+    <td align="left" width="50%">
       <img src="image/road-accident-and-explosion-score-comparison.png" alt="Road accident and explosion score comparison" width="100%">
       <br>
       <sub>交通事故与爆炸场景分数对比</sub>
@@ -51,51 +51,51 @@
   <br>
   <table>
     <tr>
-      <td align="center" width="33%">
+      <td align="left" width="33%">
         <img src="image/dingxin-render-images-1920/app_leaf/02_login_full.png" alt="Login page" width="100%">
         <br>
         <sub>登录页</sub>
       </td>
-      <td align="center" width="33%">
+      <td align="left" width="33%">
         <img src="image/dingxin-render-images-1920/app_leaf/03_console_monitor_full.png" alt="Monitor page" width="100%">
         <br>
         <sub>监控总览页</sub>
       </td>
-      <td align="center" width="33%">
+      <td align="left" width="33%">
         <img src="image/dingxin-render-images-1920/app_leaf/04_console_source_full.png" alt="Source page" width="100%">
         <br>
         <sub>视频源管理页</sub>
       </td>
     </tr>
     <tr>
-      <td align="center" width="33%">
+      <td align="left" width="33%">
         <img src="image/dingxin-render-images-1920/app_leaf/05_console_events_full.png" alt="Events page" width="100%">
         <br>
         <sub>事件管理页</sub>
       </td>
-      <td align="center" width="33%">
+      <td align="left" width="33%">
         <img src="image/dingxin-render-images-1920/app_leaf/06_console_reports_full.png" alt="Reports page" width="100%">
         <br>
         <sub>报告列表页</sub>
       </td>
-      <td align="center" width="33%">
+      <td align="left" width="33%">
         <img src="image/dingxin-render-images-1920/app_leaf/07_console_history_full.png" alt="History page" width="100%">
         <br>
         <sub>任务历史页</sub>
       </td>
     </tr>
     <tr>
-      <td align="center" width="33%">
+      <td align="left" width="33%">
         <img src="image/dingxin-render-images-1920/app_leaf/08_console_ops_full.png" alt="Ops page" width="100%">
         <br>
         <sub>运维操作页</sub>
       </td>
-      <td align="center" width="33%">
+      <td align="left" width="33%">
         <img src="image/dingxin-render-images-1920/app_leaf/09_report_index_full.png" alt="Report index page" width="100%">
         <br>
         <sub>报告首页</sub>
       </td>
-      <td align="center" width="33%">
+      <td align="left" width="33%">
         <img src="image/dingxin-render-images-1920/app_leaf/10_report_detail_full.png" alt="Report detail page" width="100%">
         <br>
         <sub>报告详情页</sub>
