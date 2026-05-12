@@ -1,61 +1,130 @@
 <div align="center">
 
-# VADTree: Explainable Training-Free Video Anomaly Detection via Hierarchical Granularity-Aware Tree
 
-[Wenlong Li](), [Yifei Xu](), [Yuan Rao](), [Zhenhua Wang](), [Shuiguang Deng]() <br>
+## 图文总览
 
+### 论文方法与结果图
 
-[![Paper](https://img.shields.io/badge/paper-arxiv.2510.22693-B31B1B.svg)](https://arxiv.org/abs/2510.22693)
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="image/prompt-aligned-open-vocabulary-vad-framework.png" alt="Prompt-aligned open-vocabulary VAD framework" width="100%">
+      <br>
+      <sub>开放词表 VAD 框架示意</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="image/vad-paradigm-comparison.png" alt="VAD paradigm comparison" width="100%">
+      <br>
+      <sub>不同 VAD 范式对比</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="image/granularity-aware-tree-and-multigranularity-vad-pipeline.png" alt="Granularity-aware tree and multi-granularity VAD pipeline" width="100%">
+      <br>
+      <sub>粒度感知树与多粒度 VAD 流程</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="image/anomaly-attribute-prompt-template.png" alt="Anomaly attribute prompt template" width="100%">
+      <br>
+      <sub>异常属性提示模板</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="image/llm-rationales-and-anomaly-score-examples.png" alt="LLM rationales and anomaly score examples" width="100%">
+      <br>
+      <sub>LLM 推理解释与异常分数示例</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="image/road-accident-and-explosion-score-comparison.png" alt="Road accident and explosion score comparison" width="100%">
+      <br>
+      <sub>交通事故与爆炸场景分数对比</sub>
+    </td>
+  </tr>
+</table>
 
-</div>
+### Demo 界面预览
 
-<p align="center">
-  <img style="width: 100%" src="assets/framework.png">
-</p>
-<br>
+<details>
+  <summary>展开查看 Demo 页面截图</summary>
+  <br>
+  <table>
+    <tr>
+      <td align="center" width="33%">
+        <img src="image/dingxin-render-images-1920/app_leaf/02_login_full.png" alt="Login page" width="100%">
+        <br>
+        <sub>登录页</sub>
+      </td>
+      <td align="center" width="33%">
+        <img src="image/dingxin-render-images-1920/app_leaf/03_console_monitor_full.png" alt="Monitor page" width="100%">
+        <br>
+        <sub>监控总览页</sub>
+      </td>
+      <td align="center" width="33%">
+        <img src="image/dingxin-render-images-1920/app_leaf/04_console_source_full.png" alt="Source page" width="100%">
+        <br>
+        <sub>视频源管理页</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="33%">
+        <img src="image/dingxin-render-images-1920/app_leaf/05_console_events_full.png" alt="Events page" width="100%">
+        <br>
+        <sub>事件管理页</sub>
+      </td>
+      <td align="center" width="33%">
+        <img src="image/dingxin-render-images-1920/app_leaf/06_console_reports_full.png" alt="Reports page" width="100%">
+        <br>
+        <sub>报告列表页</sub>
+      </td>
+      <td align="center" width="33%">
+        <img src="image/dingxin-render-images-1920/app_leaf/07_console_history_full.png" alt="History page" width="100%">
+        <br>
+        <sub>任务历史页</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="33%">
+        <img src="image/dingxin-render-images-1920/app_leaf/08_console_ops_full.png" alt="Ops page" width="100%">
+        <br>
+        <sub>运维操作页</sub>
+      </td>
+      <td align="center" width="33%">
+        <img src="image/dingxin-render-images-1920/app_leaf/09_report_index_full.png" alt="Report index page" width="100%">
+        <br>
+        <sub>报告首页</sub>
+      </td>
+      <td align="center" width="33%">
+        <img src="image/dingxin-render-images-1920/app_leaf/10_report_detail_full.png" alt="Report detail page" width="100%">
+        <br>
+        <sub>报告详情页</sub>
+      </td>
+    </tr>
+  </table>
+</details>
 
-> **Abstract:** Video anomaly detection (VAD) focuses on identifying anomalies in videos. Supervised methods demand substantial in-domain training data and fail to deliver
-clear explanations for anomalies. In contrast, training-free methods leverage
-the knowledge reserves and language interactivity of large pre-trained models
-to detect anomalies. However, the current fixed-length temporal window sampling approaches struggle to accurately capture anomalies with varying temporal
-spans. Therefore, we propose VADTree that utilizes a Hierarchical Granularityaware Tree (HGTree) structure for flexible sampling in VAD. VADTree leverages
-the knowledge embedded in a pre-trained Generic Event Boundary Detection
-(GEBD) model to characterize potential anomaly event boundaries. Specifically,
-VADTree decomposes the video into generic event nodes based on boundary
-confidence, and performs adaptive coarse-fine hierarchical structuring and redundancy removal to construct the HGTree. Then, the multi-dimensional priors
-are injected into the visual language models (VLMs) to enhance the node-wise
-anomaly perception, and anomaly reasoning for generic event nodes is achieved
-via large language models (LLMs). Finally, an inter-cluster node correlation
-method is used to integrate the multi-granularity anomaly scores. Extensive
-experiments on three challenging datasets demonstrate that VADTree achieves
-state-of-the-art performance in training-free settings while drastically reducing
-the number of sampled video segments. 
+## 仓库说明
 
-# Progress
-- Future Plan: Clearer code structure and comments.
-- [x] `2025-11-30` Experimental results released. 
-- [x] `2025-11-27` Code released. 
-- [x] `2025-09-19` Paper accepted at NeurIPS 2025. 
+本仓库既包含论文复现主流程，也包含一个基于缓存结果的轻量 Demo 系统。
 
-# Repository Layout
+- `README.md`：当前中文总览文档，包含安装、数据准备、运行流程与图片展示。
+- `readme/README.md`：更详细的中文目录结构与模块职责说明。
+- `result/`：已发布的中间结果，可用于跳过部分重计算阶段。
+- `campus_demo/`：离线报告生成与网页端演示系统。
+- `campus_demo_outputs/`：Demo 运行输出，包括报告、历史记录、上传文件与导出结果。
 
-- `README.md`: project overview, setup notes, and the end-to-end pipeline.
-- `readme/README.md`: a Chinese walkthrough of the current repository structure and module responsibilities.
-- `result/`: released intermediate outputs so you can skip some heavy stages.
-- `campus_demo/`: a lightweight campus-security demo built on top of cached VADTree outputs and runtime adapters.
-- `campus_demo_outputs/`: generated reports, clips, uploads, job history, and exported artifacts for the demo.
+## 数据集准备
 
-# Datasets Preparation
+`dataset_info/` 已内置 UCF-Crime、XD-Violence（来自 [LAVAD](https://github.com/lucazanella/lavad)）和 MSAD 的标注信息，通常无需额外下载标注文件。
 
-Ground-truth annotations for UCF-Crime, XD-Violence (from [LAVAD](https://github.com/lucazanella/lavad)), and MSAD are already included in `dataset_info/`, so no extra annotation download is required.
-
-Only the stages that read raw videos require you to prepare the video files locally. Official download pages:
+只有读取原始视频的阶段需要你自行准备视频数据。官方数据下载入口如下：
 
 - UCF-Crime: [link](https://www.crcv.ucf.edu/projects/real-world/)
 - XD-Violence: [link](https://roc-ng.github.io/XD-Violence/)
 - MSAD: [link](https://msad-dataset.github.io/)
 
-For example, the UCF-Crime test video directory should look like:
+以 UCF-Crime 测试集为例，本地目录可组织为：
 
 ```text
 UCF_CRIME_TEST_VIDEO_DIR (290 videos)
@@ -64,21 +133,21 @@ UCF_CRIME_TEST_VIDEO_DIR (290 videos)
 └── ...
 ```
 
-# Large Local Assets
+## 本地大文件准备
 
-To keep this repository lightweight, the following local directories are intentionally excluded from version control and should be prepared after cloning:
+为保持仓库轻量，以下目录默认不纳入 Git，需要在本地额外准备：
 
 - `DeepSeek-R1/DeepSeek-R1-Distill-Qwen-7B/`
 - `LLaVA-NeXT/LLaVA-Video-7B-Qwen2/`
 - `EfficientGEBD/output/`
 
-If `huggingface_hub` is not installed yet:
+如果尚未安装 `huggingface_hub`：
 
 ```bash
 python -m pip install -U huggingface_hub
 ```
 
-Download the two model directories into the exact local paths expected by the current repo layout:
+将两个模型目录下载到仓库当前默认使用的位置：
 
 ```bash
 huggingface-cli download deepseek-ai/DeepSeek-R1-Distill-Qwen-7B \
@@ -88,11 +157,11 @@ huggingface-cli download lmms-lab/LLaVA-Video-7B-Qwen2 \
   --local-dir LLaVA-NeXT/LLaVA-Video-7B-Qwen2
 ```
 
-`EfficientGEBD/output/` is also prepared outside Git. In this repo it is treated as a large local asset directory for EfficientGEBD checkpoints / exported results. The upstream EfficientGEBD release provides a checkpoint bundle here:
+`EfficientGEBD/output/` 也作为本地缓存目录准备。上游 EfficientGEBD 提供的 checkpoint bundle 下载地址如下：
 
 - Google Drive: https://drive.google.com/file/d/1S4M-xnKpjWFGBimcRYzlEDFhDsWQWF_-/view?usp=drive_link
 
-Example download flow with `gdown`:
+一个可直接参考的下载流程：
 
 ```bash
 python -m pip install -U gdown
@@ -101,11 +170,11 @@ mkdir -p EfficientGEBD/output
 unzip /path/to/downloaded_checkpoint_bundle.zip -d EfficientGEBD/output
 ```
 
-If the archive already contains an `output/...` or `Kinetics-GEBD/...` top-level directory, keep that internal structure when extracting.
+如果压缩包内部已包含 `output/...` 或 `Kinetics-GEBD/...` 顶层目录，请保持原有结构解压，不要手动改平目录层级。
 
-# Install
+## 安装
 
-### 1. Clone the repository and install the root environment
+### 1. 克隆仓库并安装根环境
 
 ```bash
 git clone https://github.com/wenlongli10/VADTree.git
@@ -115,19 +184,17 @@ conda activate VADTree
 pip install -r requirements.txt
 ```
 
-The root environment mainly covers `HGTree_generation.py`, `ImageBind/imagebind_sim.py`, `refinement_eval.py`, `correlation_eval.py`, and the local demo utilities. It does not replace the full environments required by the upstream subprojects.
+根环境主要覆盖 `HGTree_generation.py`、`ImageBind/imagebind_sim.py`、`refinement_eval.py`、`correlation_eval.py` 以及本地 Demo 工具，不替代各上游子项目所需的完整环境。
 
-### 2. Install EfficientGEBD and prepare GEBD weights
+### 2. 安装 EfficientGEBD 并准备 GEBD 权重
 
-Follow the instructions in [EfficientGEBD](https://github.com/Ziwei-Zheng/EfficientGEBD).
+请参考 [EfficientGEBD](https://github.com/Ziwei-Zheng/EfficientGEBD) 的官方说明完成环境安装。
 
-`EfficientGEBD/output/` is intentionally not tracked in this repository. For this project, treat it as a large local download/cache directory for EfficientGEBD checkpoints or exported results.
-
-Upstream download reference from `EfficientGEBD/README.md`:
+`EfficientGEBD/output/` 在本仓库中被视为本地下载/缓存目录，不随 Git 管理。可参考上游 `EfficientGEBD/README.md` 给出的 checkpoint 下载地址：
 
 - checkpoint bundle: https://drive.google.com/file/d/1S4M-xnKpjWFGBimcRYzlEDFhDsWQWF_-/view?usp=drive_link
 
-Example:
+示例：
 
 ```bash
 python -m pip install -U gdown
@@ -136,46 +203,46 @@ mkdir -p EfficientGEBD/output
 unzip /path/to/downloaded_checkpoint_bundle.zip -d EfficientGEBD/output
 ```
 
-### 3. Install LLaVA-Video-7B-Qwen2 and prepare VLM weights
+### 3. 安装 LLaVA-Video-7B-Qwen2 并准备 VLM 权重
 
-Follow the instructions in [LLaVA-NeXT](https://github.com/LLaVA-VL/LLaVA-NeXT) to install the environment.
+请参考 [LLaVA-NeXT](https://github.com/LLaVA-VL/LLaVA-NeXT) 完成环境配置。
 
 - LLaVA-Video-7B-Qwen2 checkpoint: [huggingface](https://huggingface.co/lmms-lab/LLaVA-Video-7B-Qwen2)
 
-Recommended local download command:
+推荐下载命令：
 
 ```bash
 huggingface-cli download lmms-lab/LLaVA-Video-7B-Qwen2 \
   --local-dir LLaVA-NeXT/LLaVA-Video-7B-Qwen2
 ```
 
-### 4. Prepare DeepSeek-R1-Distill-Qwen checkpoints
+### 4. 准备 DeepSeek-R1-Distill-Qwen 权重
 
-You can reuse the LLaVA environment for `DeepSeek-R1/deepseek_batch_infer.py`.
+`DeepSeek-R1/deepseek_batch_infer.py` 可以复用 LLaVA 的推理环境。
 
 - DeepSeek-R1-Distill-Qwen-14B checkpoint: [huggingface](https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B)
 - DeepSeek-R1-Distill-Qwen-7B checkpoint: [huggingface](https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B)
 
-Recommended local download command for the current default path:
+若按当前默认路径准备 7B 权重，可使用：
 
 ```bash
 huggingface-cli download deepseek-ai/DeepSeek-R1-Distill-Qwen-7B \
   --local-dir DeepSeek-R1/DeepSeek-R1-Distill-Qwen-7B
 ```
 
-Notes:
+说明：
 
-- The released cached results in `result/` and the current `campus_demo` config use `DeepSeek-R1-Distill-Qwen-14B` naming.
-- `DeepSeek-R1/deepseek_batch_infer.py` currently uses a `DeepSeek-R1-Distill-Qwen-7B` example path as its default `--ckpt_dir`.
-- Keep your `--ckpt_dir` and all downstream folder references consistent with the checkpoint you actually run.
+- `result/` 中已发布的缓存结果和当前 `campus_demo` 配置沿用了 `DeepSeek-R1-Distill-Qwen-14B` 命名。
+- `DeepSeek-R1/deepseek_batch_infer.py` 当前示例默认路径使用的是 `DeepSeek-R1-Distill-Qwen-7B`。
+- 请确保你实际使用的 `--ckpt_dir` 与后续输出目录命名保持一致。
 
-# Pipeline Quick Start (UCF-Crime)
+## 流程快速开始（以 UCF-Crime 为例）
 
-The examples below use UCF-Crime. Paths for XD-Violence and MSAD follow the same pattern.
+以下示例以 UCF-Crime 为例，XD-Violence 和 MSAD 仅在路径与数据集配置上有所不同。
 
-### 1. GEBD boundary extraction
+### 1. GEBD 边界提取
 
-Configure the EfficientGEBD environment, GEBD checkpoint, and config file first.
+先完成 EfficientGEBD 环境、GEBD 权重与配置文件准备。
 
 ```bash
 conda activate EfficientGEBD
@@ -186,7 +253,7 @@ python GEBD_split100.py \
   --config-file /path/to/MODEL_CONFIG
 ```
 
-Typical output:
+典型输出：
 
 ```text
 VADTree/result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5
@@ -194,7 +261,7 @@ VADTree/result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5
 └── scenes_th0.5.json
 ```
 
-### 2. Build HGTree
+### 2. 构建 HGTree
 
 ```bash
 cd ..
@@ -205,7 +272,7 @@ python HGTree_generation.py \
   --gamma 0.4
 ```
 
-Typical output:
+典型输出：
 
 ```text
 VADTree/result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.4
@@ -215,9 +282,9 @@ VADTree/result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmea
 └── dfs_redundant_scenes.json
 ```
 
-### 3. Node-wise VLM captioning (coarse and fine)
+### 3. 节点级 VLM 描述生成（coarse / fine）
 
-Configure the LLaVA environment and checkpoint first.
+先准备好 LLaVA 环境与 checkpoint。
 
 ```bash
 conda activate llava
@@ -233,7 +300,7 @@ python infer_VAD.py \
   --json_path ../result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.4/dfs_fine_scenes.json
 ```
 
-Typical output:
+典型输出：
 
 ```text
 VADTree/result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.4/
@@ -241,9 +308,9 @@ VADTree/result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmea
     └── maxf64_ucf_prior_q_*.json
 ```
 
-### 4. Node-wise LLM reasoning (coarse and fine)
+### 4. 节点级 LLM 推理（coarse / fine）
 
-`deepseek_batch_infer.py` takes the VLM caption JSON via `--video_clip_summary_json`.
+`deepseek_batch_infer.py` 通过 `--video_clip_summary_json` 接收 VLM 生成的描述结果。
 
 ```bash
 cd ../DeepSeek-R1
@@ -258,9 +325,9 @@ python deepseek_batch_infer.py \
   --video_clip_summary_json "../result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_fine/maxf64_ucf_prior_q_Here is a .json"
 ```
 
-Reasoning outputs are written back under each caption directory in an auto-generated subdirectory derived from the checkpoint name and prompt settings.
+推理输出会写回到对应 caption 目录下，并根据 checkpoint 名称与 prompt 设置自动创建子目录。
 
-### 5. Feature similarity (coarse and fine)
+### 5. 特征相似度计算（coarse / fine）
 
 ```bash
 conda activate VADTree
@@ -274,7 +341,7 @@ python imagebind_sim.py \
   --video_root /path/to/UCF_CRIME_TEST_VIDEO_DIR
 ```
 
-Typical output:
+典型输出：
 
 ```text
 VADTree/result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.4/
@@ -282,9 +349,9 @@ VADTree/result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmea
     └── sim_maxf64_ucf_prior_q_*.pkl
 ```
 
-### 6. Intra-cluster refinement and evaluation
+### 6. 簇内 refinement 与评估
 
-`refinement_eval.py` expects `--scores_json` rather than `--score_json`.
+`refinement_eval.py` 使用的参数名是 `--scores_json`，不是 `--score_json`。
 
 ```bash
 cd ..
@@ -295,9 +362,9 @@ python refinement_eval.py \
   --scores_json "result/UCF_Crime_test/EGEBD_x2x3x4_r50_eff_split_out_th0.5_peak_dfs_kmeans_1_0.4/LLaVA-Video-7B-Qwen2_ucf_prior_q_fine/<REASONING_DIR>/maxf64_ucf_prior_q_Here is a .json"
 ```
 
-The script auto-loads the matching `sim_*.pkl` file and writes `refine_*.json` into a new output directory named by the similarity settings.
+脚本会自动加载匹配的 `sim_*.pkl`，并在按相似度配置命名的新目录中写出 `refine_*.json`。
 
-### 7. Inter-cluster correlation and final evaluation
+### 7. 跨簇相关性融合与最终评估
 
 ```bash
 python correlation_eval.py \
@@ -306,18 +373,18 @@ python correlation_eval.py \
   --beta 0.2
 ```
 
-`correlation_eval.py` produces the final ensemble scores and evaluation metrics in a new output directory under the coarse branch.
+`correlation_eval.py` 会在 coarse 分支下生成新的输出目录，保存最终融合分数与评估结果。
 
-# Campus Demo
+## Campus Demo
 
-This repository now also includes a lightweight demo system in `campus_demo/` for offline report generation and browser-based inspection on top of cached VADTree outputs.
+仓库内还包含一个轻量演示系统 `campus_demo/`，它基于已有的 VADTree 缓存结果提供离线报告生成与浏览器端查看能力。
 
-Supported built-in datasets in the current demo config:
+当前内置支持的数据集：
 
 - `ucf`
 - `msad`
 
-Useful commands:
+常用命令：
 
 ```bash
 python campus_demo/app.py list --dataset ucf
@@ -326,21 +393,20 @@ python campus_demo/app.py build-samples --dataset ucf
 python campus_demo/app.py serve --host 127.0.0.1 --port 8000
 ```
 
-After `serve`, open:
+启动 `serve` 后可访问：
 
 ```text
 http://127.0.0.1:8000/campus_demo/console
 ```
 
-Notes:
+补充说明：
 
-- Generated reports, clips, uploads, bundles, and history are stored in `campus_demo_outputs/`.
-- Upload analysis goes through the runtime adapter in `campus_demo/runtime_pipeline.py`.
-- The RTSP API surface is present in the demo code, but the current demo environment does not connect it to live-stream inference yet.
+- 生成的报告、剪辑片段、上传文件、导出包和历史记录默认保存在 `campus_demo_outputs/`。
+- 上传分析入口通过 `campus_demo/runtime_pipeline.py` 接入当前运行时流程。
+- Demo 中保留了 RTSP 接口层，但当前环境尚未连通实时流推理。
 
-# Citation
+## 参考引用
 
-Please consider citing our paper in your publications if the project helps your research.
 ```bibtex
 @inproceedings{li2025vadtree,
   title={VADTree: Explainable Training-Free Video Anomaly Detection via Hierarchical Granularity-Aware Tree},
@@ -350,6 +416,6 @@ Please consider citing our paper in your publications if the project helps your 
 }
 ```
 
-# Acknowledgements
+## 致谢
 
-This repository builds upon the [LAVAD](https://github.com/lucazanella/lavad). Thanks to the authors!
+本仓库基于 [LAVAD](https://github.com/lucazanella/lavad) 进行了扩展与实现，感谢原作者的公开工作。
